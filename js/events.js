@@ -25,7 +25,7 @@ const FALLBACK_EVENTS = [
     start: '2026-04-01', end: '2026-04-11',
     title: 'WSL Rip Curl Pro Bells Beach',
     location: 'Melbourne, VIC',
-    photo: 'images/events-calendar/wsl-rip-curl-bells-beach/IMG_4359.JPG',
+    photo: 'images/events-calendar/wsl-rip-curl-bells-beach/wsl-bells-beach.jpg',
   },
   {
     start: '2026-10-24', end: '2026-10-26',
