@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cielo House — Email Signatures · 1980 × 480</title>
+<template id="__bundler_thumbnail">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect width="100" height="100" fill="#2B317B"/>
+  <rect x="14" y="42" width="72" height="2" fill="#668DC6"/>
+  <text x="50" y="38" text-anchor="middle" fill="#FFFFFF" font-family="Arial,sans-serif" font-weight="900" font-size="14" letter-spacing="2">CIELO</text>
+  <text x="50" y="60" text-anchor="middle" fill="#FFFFFF" font-family="Arial,sans-serif" font-weight="900" font-size="14" letter-spacing="2">HOUSE</text>
+  <text x="50" y="78" text-anchor="middle" fill="#668DC6" font-family="Arial,sans-serif" font-weight="600" font-size="5" letter-spacing="1">EMAIL SIGNATURE</text>
+</svg>
+</template>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  @font-face { font-family:'Poppins'; src:url('../fonts/Poppins-Light.ttf') format('truetype'); font-weight:300; }
+  @font-face { font-family:'Poppins'; src:url('../fonts/Poppins-Medium.ttf') format('truetype'); font-weight:500; }
+  @font-face { font-family:'Poppins'; src:url('../fonts/Poppins-Bold.ttf') format('truetype'); font-weight:700; }
+  @font-face { font-family:'Poppins'; src:url('../fonts/Poppins-Italic.ttf') format('truetype'); font-weight:400; font-style:italic; }
+
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    background:#FFFFFF;
+    font-family:'Poppins',Arial,sans-serif;
+    padding:60px 40px;
+  }
+  .page {
+    max-width:1280px;
+    margin:0 auto;
+    display:flex; flex-direction:column; gap:48px;
+  }
+  .label-row {
+    display:flex; justify-content:space-between; align-items:baseline;
+    color:#2B317B;
+  }
+  .label-row .title {
+    font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:0.05em;
+  }
+  .label-row .meta {
+    font-size:10px; font-weight:500; letter-spacing:0.28em; text-transform:uppercase;
+    color:#888;
+  }
+
+  /* ════════════════════════════════════════════════
+     SIGNATURE — 1980 × 480 (4.125 : 1)
+     Pure brand colors: #2B317B + #668DC6 + white.
+     Scaled to display width via JS.
+     ════════════════════════════════════════════════ */
+  .sig-wrap {
+    width:100%; max-width:1280px;
+    aspect-ratio: 1980 / 480;
+    overflow:hidden;
+    border-radius:14px;
+    box-shadow:
+      0 30px 60px rgba(43,49,123,0.20),
+      0 6px 16px rgba(43,49,123,0.10);
+    position:relative;
+    background:#2B317B;
+  }
+  .sig {
+    width:1980px; height:480px;
+    transform-origin: top left;
+    display:flex;
+    position:relative;
+    color:#FFFFFF;
+    font-family:'Poppins',Arial,sans-serif;
+    /* Subtle on-brand gradient — primary navy with a sky-blue radial corner */
+    background:
+      radial-gradient(ellipse 1200px 700px at 100% 100%, rgba(102,141,198,0.22) 0%, transparent 60%),
+      radial-gradient(ellipse 900px 600px at 0% 0%, rgba(102,141,198,0.10) 0%, transparent 55%),
+      linear-gradient(135deg, #2B317B 0%, #20265E 100%);
+  }
+
+  /* ─── LEFT PANEL (identity) ─── */
+  .sig .left {
+    flex:0 0 880px;
+    height:100%;
+    position:relative;
+    padding:70px 70px 64px;
+    display:flex; flex-direction:column; justify-content:space-between;
+  }
+
+  .sig .left .name-block { position:relative; z-index:2; }
+  .sig .left .name {
+    font-family:'Bebas Neue','Arial Narrow',Arial,sans-serif;
+    font-size:104px;
+    letter-spacing:0.02em;
+    line-height:0.95;
+    color:#FFFFFF;
+    text-transform:uppercase;
+    margin-bottom:20px;
+    white-space:nowrap;
+  }
+  .sig .left .role {
+    font-family:'Poppins',sans-serif;
+    font-size:20px; font-weight:500;
+    letter-spacing:0.18em; text-transform:uppercase;
+    color:#668DC6;
+  }
+
+  .sig .left .slogan {
+    position:relative; z-index:2;
+    font-family:'Poppins',sans-serif;
+    font-size:22px; font-weight:300; font-style:italic;
+    color:#FFFFFF;
+    line-height:1.3;
+    max-width:560px;
+  }
+  .sig .left .slogan::before {
+    content:''; display:block;
+    width:60px; height:2px;
+    background:#668DC6;
+    margin-bottom:18px;
+  }
+
+  /* ─── DIVIDER ─── */
+  .sig .divider {
+    width:1px;
+    align-self:stretch;
+    background:linear-gradient(to bottom, transparent 0%, rgba(102,141,198,0.6) 20%, rgba(102,141,198,0.6) 80%, transparent 100%);
+    flex-shrink:0;
+  }
+
+  /* ─── RIGHT PANEL ─── */
+  .sig .right {
+    flex:1; height:100%;
+    display:flex;
+    position:relative;
+  }
+
+  /* Contact list */
+  .sig .right .contacts {
+    flex:1;
+    padding:70px 50px 70px 70px;
+    display:flex; flex-direction:column; justify-content:center; gap:22px;
+  }
+  .sig .right .contact {
+    display:flex; align-items:center; gap:24px;
+    font-family:'Poppins',sans-serif;
+    color:#FFFFFF;
+    line-height:1.2;
+  }
+  .sig .right .contact .label {
+    font-family:'Poppins',sans-serif;
+    font-size:13px; font-weight:600;
+    letter-spacing:0.3em; text-transform:uppercase;
+    color:#668DC6;
+    width:96px; flex-shrink:0;
+  }
+  .sig .right .contact .value,
+  .sig .right .contact .value a {
+    font-family:'Poppins',sans-serif;
+    font-size:26px; font-weight:300;
+    color:#FFFFFF;
+    text-decoration:none;
+    letter-spacing:0.01em;
+  }
+  .sig .right .contact .value a:hover {
+    color:#668DC6;
+    text-decoration:underline;
+  }
+
+  /* Logo + Socials column */
+  .sig .right .logo-col {
+    flex:0 0 380px;
+    padding:60px 50px 60px 36px;
+    display:flex; flex-direction:column; align-items:center; justify-content:space-between;
+    gap:20px;
+    position:relative;
+  }
+  .sig .right .logo-col::before {
+    content:''; position:absolute;
+    width:380px; height:380px;
+    left:50%; top:50%; transform:translate(-50%, -50%);
+    border-radius:50%;
+    background: radial-gradient(circle, rgba(102,141,198,0.18) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  .sig .right .logo-col img.logo {
+    width:230px; height:auto;
+    position:relative; z-index:2;
+    display:block;
+  }
+
+  .sig .right .logo-col .visit-btn {
+    position:relative; z-index:2;
+    display:inline-flex; align-items:center; gap:14px;
+    background:#668DC6;
+    color:#FFFFFF;
+    padding:16px 28px;
+    border-radius:32px;
+    text-decoration:none;
+    font-family:'Poppins',sans-serif;
+    font-size:14px; font-weight:600;
+    letter-spacing:0.22em; text-transform:uppercase;
+    transition: background 200ms;
+    white-space:nowrap;
+  }
+  .sig .right .logo-col .visit-btn .arrow {
+    width:28px; height:28px; border-radius:50%;
+    background:#FFFFFF; color:#2B317B;
+    display:inline-flex; align-items:center; justify-content:center;
+    font-size:15px; font-weight:700;
+  }
+
+  .sig .right .logo-col .socials {
+    position:relative; z-index:2;
+    display:flex; gap:14px;
+  }
+  .sig .right .logo-col .socials a {
+    width:56px; height:56px; border-radius:50%;
+    background:#FFFFFF;
+    color:#2B317B;
+    display:inline-flex; align-items:center; justify-content:center;
+    text-decoration:none;
+    transition: all 200ms;
+  }
+  .sig .right .logo-col .socials a:hover {
+    background:#668DC6;
+    color:#FFFFFF;
+  }
+
+  /* ── Designer Notes ── */
+  .notes {
+    background:#FFFFFF; border-radius:12px; border:1px solid #E4E6EE;
+    padding:32px 38px;
+    box-shadow:0 4px 12px rgba(43,49,123,0.04);
+  }
+  .notes h3 {
+    font-family:'Bebas Neue',sans-serif;
+    font-size:22px; letter-spacing:0.04em; color:#2B317B; margin:0 0 14px 0;
+  }
+  .notes p {
+    font-family:'Poppins',sans-serif;
+    font-size:13px; font-weight:300; color:#555; line-height:1.75; margin:0 0 10px 0;
+  }
+  .notes strong { font-weight:600; color:#2B317B; }
+
+  /* ── Edit affordances ── */
+  [contenteditable="true"] {
+    outline: none;
+    border-radius: 4px;
+    transition: background 150ms, box-shadow 150ms;
+    cursor: text;
+  }
+  [contenteditable="true"]:hover {
+    background: rgba(102,141,198,0.18);
+    box-shadow: 0 0 0 4px rgba(102,141,198,0.18);
+  }
+  [contenteditable="true"]:focus {
+    background: rgba(102,141,198,0.28);
+    box-shadow: 0 0 0 4px rgba(102,141,198,0.45);
+  }
+
+  /* Edit banner */
+  .edit-banner {
+    background: #2B317B;
+    color: #FFFFFF;
+    border-radius: 10px;
+    padding: 16px 22px;
+    display: flex; align-items: center; gap: 14px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px; font-weight: 400;
+    line-height: 1.5;
+  }
+  .edit-banner .icon {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #668DC6;
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 16px;
+  }
+  .edit-banner strong { font-weight: 600; color: #FFFFFF; }
+  .edit-banner .hint { color: rgba(255,255,255,0.7); font-size: 12px; }
+
+  /* Print button per signature */
+  .print-btn {
+    position: absolute; top: 14px; right: 14px;
+    background: rgba(255,255,255,0.92);
+    color: #2B317B;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 200ms;
+  }
+  .sig-wrap:hover .print-btn { opacity: 1; }
+  .print-btn:hover { background: #FFFFFF; color: #2B317B; }
+
+  @media print {
+    body { background: #FFFFFF !important; padding: 0 !important; }
+    .page > *:not(.print-target) { display: none !important; }
+    .print-target { display: block !important; max-width: 100% !important; }
+    .label-row, .notes, .edit-banner, .print-btn { display: none !important; }
+    .sig-wrap { box-shadow: none !important; border-radius: 0 !important; max-width: 100% !important; }
+  }
+  .print-target { /* used by print logic */ }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ════ Edit Banner ════ -->
+  <div class="edit-banner">
+    <div class="icon">✏</div>
+    <div>
+      <strong>Click any text to edit it.</strong><br>
+      <span class="hint">Name, role, slogan, phone, email and office address are all editable. Hover a signature to reveal the print button — use it to export as PDF or PNG.</span>
+    </div>
+  </div>
+
+  <!-- ════ BRITT NIVEN ════ -->
+  <div>
+    <div class="label-row">
+      <div class="title">Britt Niven · Managing Director</div>
+      <div class="meta">1980 × 480 px · Brand Navy #2B317B</div>
+    </div>
+    <div style="height:18px;"></div>
+
+    <div class="sig-wrap" data-name="britt">
+      <button class="print-btn" data-print-target="britt">↓ Save as PDF</button>
+      <div class="sig">
+
+        <!-- LEFT — Identity -->
+        <div class="left">
+          <div class="name-block">
+            <div class="name" contenteditable="true" spellcheck="false">Britt Niven</div>
+            <div class="role" contenteditable="true" spellcheck="false">Managing Director &nbsp;·&nbsp; Founder</div>
+          </div>
+
+          <div class="slogan" contenteditable="true" spellcheck="false">Let's take your brand to new heights.</div>
+        </div>
+
+        <!-- Divider -->
+        <div class="divider"></div>
+
+        <!-- RIGHT — Contact + Logo -->
+        <div class="right">
+          <div class="contacts">
+            <div class="contact">
+              <span class="label">Mobile</span>
+              <span class="value" contenteditable="true" spellcheck="false">+61 433 977 582</span>
+            </div>
+            <div class="contact">
+              <span class="label">Email</span>
+              <span class="value" contenteditable="true" spellcheck="false">britt@cielohouse.com.au</span>
+            </div>
+            <div class="contact">
+              <span class="label">Office</span>
+              <span class="value" contenteditable="true" spellcheck="false">8/25 Alex Fisher Drive, Burleigh Heads QLD 4220</span>
+            </div>
+          </div>
+
+          <div class="logo-col">
+            <img src="../assets/CH_Logo_Stacked_White.png" alt="Cielo House" class="logo">
+
+            <a href="https://www.cielohouse.com.au" class="visit-btn" target="_blank" rel="noopener">
+              Visit Website
+              <span class="arrow">→</span>
+            </a>
+
+            <div class="socials">
+              <a href="https://www.instagram.com/cielohouse_/" aria-label="Instagram" target="_blank" rel="noopener">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c2.717 0 3.056.01 4.122.06 1.065.05 1.79.217 2.428.465.66.254 1.216.598 1.772 1.153.509.5.902 1.105 1.153 1.772.247.637.415 1.363.465 2.428.047 1.066.06 1.405.06 4.122 0 2.717-.01 3.056-.06 4.122-.05 1.065-.218 1.79-.465 2.428a4.883 4.883 0 0 1-1.153 1.772c-.5.508-1.105.902-1.772 1.153-.637.247-1.363.415-2.428.465-1.066.047-1.405.06-4.122.06-2.717 0-3.056-.01-4.122-.06-1.065-.05-1.79-.218-2.428-.465a4.89 4.89 0 0 1-1.772-1.153 4.904 4.904 0 0 1-1.153-1.772c-.248-.637-.415-1.363-.465-2.428C2.013 15.056 2 14.717 2 12c0-2.717.01-3.056.06-4.122.05-1.066.217-1.79.465-2.428a4.88 4.88 0 0 1 1.153-1.772A4.897 4.897 0 0 1 5.45 2.525c.638-.248 1.362-.415 2.428-.465C8.944 2.013 9.283 2 12 2zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm6.5-.25a1.25 1.25 0 0 0-2.5 0 1.25 1.25 0 0 0 2.5 0zM12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/></svg>
+              </a>
+              <a href="https://au.linkedin.com/company/cielohouse" aria-label="LinkedIn" target="_blank" rel="noopener">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.26 2.37 4.26 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.55v11.45zM22.22 0H1.77C.79 0 0 .78 0 1.73v20.54C0 23.22.79 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.73V1.73C24 .78 23.2 0 22.22 0z"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ GIOVANA COLACIQUE ════ -->
+  <div>
+    <div class="label-row">
+      <div class="title">Giovana Colacique · Social &amp; Digital Manager</div>
+      <div class="meta">1980 × 480 px · Brand Navy #2B317B</div>
+    </div>
+    <div style="height:18px;"></div>
+
+    <div class="sig-wrap" data-name="giovana">
+      <button class="print-btn" data-print-target="giovana">↓ Save as PDF</button>
+      <div class="sig">
+
+        <!-- LEFT — Identity -->
+        <div class="left">
+          <div class="name-block">
+            <div class="name" contenteditable="true" spellcheck="false">Giovana Colacique</div>
+            <div class="role" contenteditable="true" spellcheck="false">Social &amp; Digital Manager</div>
+          </div>
+
+          <div class="slogan" contenteditable="true" spellcheck="false">Let's take your brand to new heights.</div>
+        </div>
+
+        <!-- Divider -->
+        <div class="divider"></div>
+
+        <!-- RIGHT — Contact + Logo -->
+        <div class="right">
+          <div class="contacts">
+            <div class="contact">
+              <span class="label" style="font-size: 20px">Mobile</span>
+              <span class="value" contenteditable="true" spellcheck="false">+61 410 200 146</span>
+            </div>
+            <div class="contact">
+              <span class="label" style="font-size: 20px">Email</span>
+              <span class="value" contenteditable="true" spellcheck="false">giovana@cielohouse.com.au</span>
+            </div>
+            <div class="contact">
+              <span class="label" style="font-size: 20px">Office</span>
+              <span class="value" contenteditable="true" spellcheck="false">8/25 Alex Fisher Drive, Burleigh Heads QLD 4220</span>
+            </div>
+          </div>
+
+          <div class="logo-col">
+            <img src="../assets/CH_Logo_Stacked_White.png" alt="Cielo House" class="logo">
+
+            <a href="https://www.cielohouse.com.au" class="visit-btn" target="_blank" rel="noopener">
+              Visit Website
+              <span class="arrow">→</span>
+            </a>
+
+            <div class="socials">
+              <a href="https://www.instagram.com/cielohouse_/" aria-label="Instagram" target="_blank" rel="noopener">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c2.717 0 3.056.01 4.122.06 1.065.05 1.79.217 2.428.465.66.254 1.216.598 1.772 1.153.509.5.902 1.105 1.153 1.772.247.637.415 1.363.465 2.428.047 1.066.06 1.405.06 4.122 0 2.717-.01 3.056-.06 4.122-.05 1.065-.218 1.79-.465 2.428a4.883 4.883 0 0 1-1.153 1.772c-.5.508-1.105.902-1.772 1.153-.637.247-1.363.415-2.428.465-1.066.047-1.405.06-4.122.06-2.717 0-3.056-.01-4.122-.06-1.065-.05-1.79-.218-2.428-.465a4.89 4.89 0 0 1-1.772-1.153 4.904 4.904 0 0 1-1.153-1.772c-.248-.637-.415-1.363-.465-2.428C2.013 15.056 2 14.717 2 12c0-2.717.01-3.056.06-4.122.05-1.066.217-1.79.465-2.428a4.88 4.88 0 0 1 1.153-1.772A4.897 4.897 0 0 1 5.45 2.525c.638-.248 1.362-.415 2.428-.465C8.944 2.013 9.283 2 12 2zm0 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm6.5-.25a1.25 1.25 0 0 0-2.5 0 1.25 1.25 0 0 0 2.5 0zM12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/></svg>
+              </a>
+              <a href="https://au.linkedin.com/company/cielohouse" aria-label="LinkedIn" target="_blank" rel="noopener">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.26 2.37 4.26 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.55v11.45zM22.22 0H1.77C.79 0 0 .78 0 1.73v20.54C0 23.22.79 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.73V1.73C24 .78 23.2 0 22.22 0z"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ Designer Notes ════ -->
+  <div class="notes">
+    <h3>Brand-True Signature · Designer Notes</h3>
+    <p><strong>Palette:</strong> Single navy field at <strong>#2B317B</strong> with a tonal gradient toward <strong>#20265E</strong> (deeper shade of primary, still on-brand) plus a soft <strong>#668DC6</strong> radial wash in the corners — gives depth without introducing any off-brand tones. White for type. No muddy mid-blues.</p>
+    <p><strong>Composition:</strong> Identity panel tightened (less wasted negative space). Logo column widened (380px) and now contains three stacked pieces: the stacked white wordmark, a sky-blue <em>Visit Website</em> CTA pill, and large white social pills (Instagram + LinkedIn).</p>
+    <p><strong>Type:</strong> Bebas Neue for the name. Poppins for everything else — role in sky blue uppercase tracked, contact values at <strong>26 px</strong> (big and legible), labels at 13 px in sky blue, slogan in italic Poppins Light.</p>
+    <p><strong>Three clickable destinations:</strong> the <em>Visit Website</em> pill + the two social pills + the email and phone links all carry proper <code>href</code>s. All three social links open in new tabs.</p>
+    <p><strong>Production export:</strong> capture as PNG at full 1980 × 480 for image-based signatures, or convert to nested-table HTML for clickable in-mail use.</p>
+  </div>
+
+</div>
+
+</body>
+<script>
+  function updateScales() {
+    document.querySelectorAll('.sig-wrap').forEach(wrap => {
+      const sig = wrap.querySelector('.sig');
+      if (!sig) return;
+      sig.style.transform = `scale(${wrap.clientWidth / 1980})`;
+    });
+  }
+  updateScales();
+  window.addEventListener('resize', updateScales);
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(updateScales);
+    document.querySelectorAll('.sig-wrap').forEach(w => ro.observe(w));
+  }
+
+  // ── Print/save individual signature ──
+  document.querySelectorAll('.print-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const target = btn.getAttribute('data-print-target');
+      const all = document.querySelectorAll('.sig-wrap');
+      all.forEach(w => {
+        if (w.getAttribute('data-name') === target) {
+          w.classList.add('print-target');
+          w.parentElement.classList.add('print-target');
+        }
+      });
+      // Trigger print after a tick so classes apply
+      setTimeout(() => {
+        window.print();
+        // Clean up
+        setTimeout(() => {
+          document.querySelectorAll('.print-target').forEach(el => el.classList.remove('print-target'));
+        }, 200);
+      }, 50);
+    });
+  });
+
+  // Prevent newlines on Enter in single-line fields
+  document.querySelectorAll('[contenteditable="true"]').forEach(el => {
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !el.classList.contains('slogan')) {
+        e.preventDefault();
+        el.blur();
+      }
+    });
+  });
+</script>
+</html>

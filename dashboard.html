@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+ <script>
+ if (sessionStorage.getItem('ch_auth') !== 'true') {
+ window.location.replace('login.html');
+ }
+ </script>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <title>Admin Dashboard Cielo House</title>
+ <link rel="preconnect" href="https://fonts.googleapis.com" />
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+ <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+ <style>
+ *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ body { font-family: 'Poppins', sans-serif; background: #f4f6fa; }
+ .banner { background: #2B317B; color: #fff; font-size: 0.8rem; font-weight: 500; letter-spacing: 0.06em; padding: 0.55rem 1.5rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 300; }
+ .banner__logout { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; font-family: 'Poppins', sans-serif; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.3rem 0.9rem; border-radius: 4px; cursor: pointer; }
+ .shell { display: flex; min-height: calc(100vh - 36px); }
+ .sidebar { width: 220px; flex-shrink: 0; background: #1a1f52; padding: 2rem 0; position: sticky; top: 36px; height: calc(100vh - 36px); overflow-y: auto; }
+ .sidebar__logo { display: block; padding: 0 1.5rem 2rem; }
+ .sidebar__logo img { max-width: 130px; height: auto; }
+ .sidebar__label { padding: 1.5rem 1.5rem 0.4rem; font-size: 0.7rem; letter-spacing: 0.12em; color: rgba(255,255,255,0.3); text-transform: uppercase; }
+ .nav-btn { display: block; width: 100%; padding: 0.75rem 1.5rem; background: none; border: none; border-left: 3px solid transparent; color: rgba(255,255,255,0.65); font-family: 'Poppins', sans-serif; font-size: 0.875rem; font-weight: 500; text-align: left; cursor: pointer; transition: background 0.2s, color 0.2s; }
+ .nav-btn:hover { background: rgba(255,255,255,0.06); color: #fff; }
+ .nav-btn.active { background: rgba(102,141,198,0.15); color: #fff; border-left-color: #668DC6; }
+ .main { flex: 1; padding: 2.5rem 2rem; overflow-y: auto; }
+ .panel { display: none; }
+ .panel.active { display: block; }
+ .page-title { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: #2B317B; font-weight: 400; margin-bottom: 0.25rem; }
+ .page-sub { font-size: 0.85rem; color: #888; margin-bottom: 2rem; }
+ .card { background: #fff; border-radius: 10px; padding: 1.75rem 1.5rem; box-shadow: 0 1px 8px rgba(0,0,0,0.07); margin-bottom: 1.5rem; }
+ .card-title { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #999; margin-bottom: 1.25rem; }
+ .metrics { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.1rem; margin-bottom: 1.75rem; }
+ .metric { background: #fff; border-radius: 10px; padding: 1.4rem 1.25rem; box-shadow: 0 1px 8px rgba(0,0,0,0.07); }
+ .metric__label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; color: #999; text-transform: uppercase; margin-bottom: 0.5rem; }
+ .metric__row { display: flex; align-items: baseline; gap: 0.5rem; }
+ .metric__value { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; color: #2B317B; line-height: 1; }
+ .metric__sub { font-size: 0.72rem; color: #aaa; margin-top: 0.35rem; }
+ .trend-up { font-size: 0.78rem; font-weight: 600; color: #27ae60; }
+ .trend-down { font-size: 0.78rem; font-weight: 600; color: #e74c3c; }
+ .search-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; }
+ .search-card { background: #f8f9ff; border: 1px solid #eef0f8; border-radius: 8px; padding: 1rem; }
+ .search-keyword { font-weight: 600; font-size: 0.9rem; color: #2B317B; margin-bottom: 0.6rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+ .search-stats { display: flex; gap: 1.25rem; font-size: 0.78rem; color: #444; flex-wrap: wrap; }
+ .search-stats div span { display: block; font-size: 0.68rem; color: #aaa; margin-bottom: 0.15rem; }
+ .ai-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; }
+ .ai-card { background: #f8f9ff; border: 1px solid #eef0f8; border-radius: 8px; padding: 1.25rem; text-align: center; }
+ .ai-platform { font-size: 0.75rem; font-weight: 600; color: #555; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; }
+ .ai-score { font-family: 'Bebas Neue', sans-serif; font-size: 3rem; color: #2B317B; line-height: 1; }
+ .ai-score-label { font-size: 0.72rem; color: #999; margin: 0.2rem 0 0.75rem; }
+ .ai-queries { font-size: 0.8rem; color: #555; }
+ .insight { padding: 0.85rem 1rem; border-radius: 8px; font-size: 0.85rem; line-height: 1.6; margin-bottom: 0.6rem; }
+ .insight-good { background: #f0fff4; color: #1a5c35; border-left: 3px solid #27ae60; }
+ .insight-warn { background: #fffbf0; color: #7a5100; border-left: 3px solid #f39c12; }
+ .insight-info { background: #f0f4ff; color: #1a2060; border-left: 3px solid #2B317B; }
+ .activity-list { list-style: none; }
+ .activity-item { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.65rem 0; border-bottom: 1px solid #f0f2f8; font-size: 0.85rem; color: #444; }
+ .activity-item:last-child { border-bottom: none; }
+ .activity-dot { width: 8px; height: 8px; border-radius: 50%; background: #668DC6; margin-top: 5px; flex-shrink: 0; }
+ .activity-time { font-size: 0.72rem; color: #aaa; margin-left: auto; flex-shrink: 0; }
+ .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+ .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; overflow-y: auto; padding: 2rem; }
+ .modal-box { background: #fff; border-radius: 12px; max-width: 700px; margin: 0 auto; padding: 2.5rem; position: relative; }
+ .modal-close { position: absolute; top: 1rem; right: 1.25rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #aaa; line-height: 1; }
+ .modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: #2B317B; margin-bottom: 0.25rem; }
+ .modal-sub { font-size: 0.82rem; color: #999; margin-bottom: 2rem; }
+ .modal-section { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #2B317B; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #eee; margin-top: 1.5rem; }
+ .form { display: flex; flex-direction: column; gap: 1rem; }
+ .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+ .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; }
+ .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+ .form-label { font-size: 0.78rem; font-weight: 600; color: #555; }
+ .form-input, .form-select, .form-textarea { padding: 0.7rem 0.9rem; border: 1.5px solid #dde2f0; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.875rem; color: #333; background: #fafbff; outline: none; transition: border-color 0.2s; width: 100%; }
+ .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: #668DC6; }
+ .form-textarea { resize: vertical; min-height: 90px; }
+ .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.7rem 1.5rem; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.875rem; font-weight: 600; cursor: pointer; border: none; transition: background 0.2s; }
+ .btn-primary { background: #2B317B; color: #fff; }
+ .btn-primary:hover { background: #1e2360; }
+ .btn-sm { font-size: 0.78rem; padding: 0.4rem 0.9rem; }
+ .btn-secondary { background: #f0f2f8; color: #2B317B; }
+ .btn-secondary:hover { background: #e0e6f8; }
+ .btn-danger { background: #f0f2f8; color: #c0392b; }
+ .btn-danger:hover { background: #fde8e8; }
+ .btn-full { width: 100%; justify-content: center; padding: 0.9rem; }
+ .success-msg { font-size: 0.82rem; color: #2B317B; background: #eef3ff; padding: 0.5rem 1rem; border-radius: 6px; display: none; }
+ .item-list { display: flex; flex-direction: column; gap: 0.75rem; }
+ .item-row { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1rem; background: #fafbff; border: 1px solid #eef0f8; border-radius: 8px; gap: 1rem; }
+ .item-info { flex: 1; min-width: 0; }
+ .item-title { font-weight: 600; font-size: 0.9rem; color: #2B317B; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+ .item-meta { font-size: 0.78rem; color: #999; margin-top: 0.15rem; }
+ .item-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
+ /* Monthly Calendar */
+ .cal-wrap { background: #fff; border-radius: 10px; box-shadow: 0 1px 8px rgba(0,0,0,0.07); padding: 1.5rem; margin-bottom: 1.75rem; }
+ .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+ .cal-month-label { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; color: #2B317B; letter-spacing: 0.05em; }
+ .cal-nav { background: none; border: 1.5px solid #dde2f0; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; font-size: 1rem; color: #2B317B; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+ .cal-nav:hover { background: #f0f4ff; }
+ .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+ .cal-day-name { text-align: center; font-size: 0.68rem; font-weight: 600; color: #aaa; letter-spacing: 0.08em; text-transform: uppercase; padding: 0 0 0.5rem; }
+ .cal-cell { min-height: 64px; border-radius: 6px; padding: 0.35rem 0.4rem; background: #fafbff; border: 1px solid transparent; position: relative; }
+ .cal-cell.other-month { background: transparent; }
+ .cal-cell.today { border-color: #668DC6; background: #eef3ff; }
+ .cal-cell.has-events { border-color: #c8d4f0; }
+ .cal-date { font-size: 0.78rem; font-weight: 600; color: #444; margin-bottom: 0.3rem; }
+ .cal-cell.other-month .cal-date { color: #ccc; }
+ .cal-cell.today .cal-date { color: #2B317B; }
+ .cal-evt-chip { font-size: 0.62rem; font-weight: 500; color: #fff; background: #2B317B; border-radius: 3px; padding: 1px 4px; margin-bottom: 2px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; line-height: 1.5; cursor: default; }
+ .cal-evt-chip.multi { background: #668DC6; }
+ /* Upload */
+ .upload-area { border: 2px dashed #c8d4f0; border-radius: 8px; padding: 1.5rem 1rem; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; background: #fafbff; }
+ .upload-area:hover, .upload-area.drag-over { border-color: #2B317B; background: #f0f4ff; }
+ .upload-area input[type=file] { display: none; }
+ .upload-label { font-size: 0.82rem; color: #888; }
+ .upload-label strong { color: #2B317B; }
+ .upload-preview { width: 100%; max-height: 160px; object-fit: cover; border-radius: 6px; margin-top: 0.75rem; display: none; }
+ .upload-remove { font-size: 0.72rem; color: #c0392b; cursor: pointer; margin-top: 0.4rem; display: none; }
+ /* Event cards */
+ .evt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; }
+ .evt-card { background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 8px rgba(0,0,0,0.08); }
+ .evt-img { width: 100%; height: 160px; object-fit: cover; display: block; }
+ .evt-placeholder { width: 100%; height: 160px; background: linear-gradient(135deg, #2B317B 0%, #668DC6 100%); display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 1rem; color: rgba(255,255,255,0.5); letter-spacing: 0.1em; }
+ .evt-body { padding: 1rem 1.1rem 1.25rem; }
+ .evt-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; color: #2B317B; letter-spacing: 0.03em; margin-bottom: 0.3rem; }
+ .evt-detail { font-size: 0.78rem; color: #888; margin-bottom: 0.2rem; }
+ .evt-notes { font-size: 0.76rem; color: #aaa; margin-top: 0.35rem; }
+ .evt-actions { display: flex; gap: 0.4rem; margin-top: 0.75rem; }
+ .sub-list { display: flex; flex-direction: column; gap: 0.5rem; }
+ .sub-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 1rem; background: #fafbff; border: 1px solid #eef0f8; border-radius: 6px; font-size: 0.875rem; color: #333; }
+ .sub-num { font-size: 0.72rem; color: #ccc; width: 22px; }
+ .empty { text-align: center; padding: 2.5rem; color: #bbb; font-size: 0.875rem; }
+ /* Rich Text Editor */
+ .rte-toolbar { display:flex;flex-wrap:wrap;gap:0.3rem;padding:0.6rem 0.75rem;background:#f5f7fb;border:1.5px solid #dde2f0;border-bottom:none;border-radius:6px 6px 0 0; }
+ .rte-btn { background:#fff;border:1px solid #dde2f0;border-radius:4px;padding:0.28rem 0.6rem;font-size:0.78rem;cursor:pointer;color:#2B317B;font-family:'Poppins',sans-serif;font-weight:500;transition:background 0.15s; }
+ .rte-btn:hover { background:#eef1fb; }
+ .rte-btn--action { background:#2B317B;color:#fff;border-color:#2B317B; }
+ .rte-btn--action:hover { background:#1e2460; }
+ .rte-sep { width:1px;background:#dde2f0;margin:0 0.2rem;align-self:stretch; }
+ .rte-body { min-height:280px;border:1.5px solid #dde2f0;border-radius:0 0 6px 6px;padding:1rem 1.1rem;font-size:0.9rem;line-height:1.75;color:#222;background:#fff;outline:none;overflow-y:auto; }
+ .rte-body:focus { border-color:#668DC6; }
+ .rte-body h2 { font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:#2B317B;margin:1rem 0 0.5rem;letter-spacing:0.04em; }
+ .rte-body h3 { font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:#2B317B;margin:0.75rem 0 0.4rem; }
+ .rte-body p { margin-bottom:0.75rem; }
+ .rte-body ul,.rte-body ol { padding-left:1.5rem;margin-bottom:0.75rem; }
+ .rte-body a { color:#2B317B;text-decoration:underline; }
+ .rte-body img { max-width:100%;border-radius:6px;margin:0.75rem 0;display:block; }
+ .rte-body figure { margin:1rem 0; }
+ .rte-body figcaption { font-size:0.78rem;color:#999;text-align:center;margin-top:0.3rem;font-style:italic; }
+ /* Blog tabs */
+ .blog-tabs { display:flex;gap:0.25rem;background:#f5f7fb;border:1.5px solid #dde2f0;border-radius:8px;padding:0.25rem; }
+ .blog-tab { background:none;border:none;border-radius:6px;padding:0.4rem 0.9rem;font-size:0.8rem;font-weight:600;color:#888;cursor:pointer;font-family:'Poppins',sans-serif;transition:background 0.15s,color 0.15s;display:flex;align-items:center;gap:0.35rem; }
+ .blog-tab.active { background:#fff;color:#2B317B;box-shadow:0 1px 4px rgba(0,0,0,0.08); }
+ .blog-tab-count { background:#eef1fb;color:#2B317B;border-radius:20px;padding:0.05rem 0.45rem;font-size:0.7rem; }
+ /* Blog post rows */
+ .blog-row { display:flex;align-items:center;gap:1rem;padding:0.9rem 1rem;background:#fafbff;border:1px solid #eef0f8;border-radius:8px;margin-bottom:0.6rem; }
+ .blog-thumb { width:64px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0; }
+ .blog-thumb-ph { width:64px;height:48px;border-radius:6px;flex-shrink:0;background:linear-gradient(135deg,#2B317B,#668DC6);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.4);font-size:0.65rem;text-align:center; }
+ .blog-info { flex:1;min-width:0; }
+ .blog-title-row { font-weight:600;font-size:0.88rem;color:#2B317B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+ .blog-meta { font-size:0.74rem;color:#aaa;margin-top:0.2rem;display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap; }
+ .status-badge { display:inline-block;padding:0.12rem 0.55rem;border-radius:20px;font-size:0.68rem;font-weight:600; }
+ .status-published { background:#e8faf0;color:#1a7a40; }
+ .status-draft { background:#fff7e6;color:#a05a00; }
+ /* Insert modals */
+ .rte-modal { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:600;align-items:center;justify-content:center; }
+ .rte-modal.open { display:flex; }
+ .rte-modal-box { background:#fff;border-radius:12px;padding:2rem;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,0.2); }
+ @media (max-width: 900px) { .metrics { grid-template-columns: 1fr 1fr; } .two-col, .search-grid, .ai-grid, .form-row-3 { grid-template-columns: 1fr; } }
+ @media (max-width: 680px) { .sidebar { width: 52px; } .sidebar__logo, .sidebar__label { display: none; } .nav-btn { padding: 0.75rem; font-size: 0; } .main { padding: 1.5rem 1rem; } .form-row { grid-template-columns: 1fr; } }
+ </style>
+</head>
+<body>
+
+ <div class="banner">
+ <span>Admin Dashboard Internal Use Only</span>
+ <button class="banner__logout" onclick="sessionStorage.removeItem('ch_auth'); window.location.href='login.html';">Log Out</button>
+ </div>
+
+ <div class="shell">
+ <aside class="sidebar">
+ <a href="index.html" class="sidebar__logo">
+ <img src="images/new-logo/CH_Logo_Stacked_White.png" alt="Cielo House" />
+ </a>
+ <div class="sidebar__label">Dashboard</div>
+ <button class="nav-btn active" data-panel="analytics">Analytics</button>
+ <button class="nav-btn" data-panel="events">Events Calendar</button>
+ <button class="nav-btn" data-panel="blog">Blog Posts</button>
+ <button class="nav-btn" data-panel="subscribers">Subscribers</button>
+ <div class="sidebar__label">Content</div>
+ <button class="nav-btn" data-panel="testimonials">Testimonials</button>
+ <button class="nav-btn" data-panel="faq">FAQ</button>
+ <div class="sidebar__label">AI</div>
+ <button class="nav-btn" data-panel="aiknowledge">AI Knowledge</button>
+ </aside>
+
+ <main class="main">
+
+ <!-- ANALYTICS -->
+ <div class="panel active" id="panel-analytics">
+ <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem;">
+ <h1 class="page-title" style="margin-bottom:0;">Analytics</h1>
+ <button class="btn btn-primary" onclick="openModal()" style="font-size:0.78rem;padding:0.5rem 1.1rem;">+ Update Stats</button>
+ </div>
+ <p class="page-sub" id="analytics-sub">Enter your latest stats from Wix, Google Search Console and AI platforms.</p>
+ <div class="metrics">
+ <div class="metric"><div class="metric__label">Site Sessions</div><div class="metric__row"><div class="metric__value" id="m-sessions">--</div><span id="m-sessions-trend"></span></div><div class="metric__sub">Last 30 days</div></div>
+ <div class="metric"><div class="metric__label">Unique Visitors</div><div class="metric__row"><div class="metric__value" id="m-visitors">--</div><span id="m-visitors-trend"></span></div><div class="metric__sub">Last 30 days</div></div>
+ <div class="metric"><div class="metric__label">Clicks to Contact</div><div class="metric__row"><div class="metric__value" id="m-clicks">--</div></div><div class="metric__sub">Last 30 days</div></div>
+ <div class="metric"><div class="metric__label">Form Submissions</div><div class="metric__row"><div class="metric__value" id="m-forms">--</div></div><div class="metric__sub">Last 30 days</div></div>
+ </div>
+ <div class="card">
+ <div style="font-weight:600;font-size:0.95rem;color:#222;margin-bottom:0.3rem;">Search Performance on Google</div>
+ <div style="font-size:0.75rem;color:#999;margin-bottom:1.25rem;" id="google-period">Enter data from Google Search Console</div>
+ <div class="search-grid">
+ <div class="search-card"><div class="search-keyword" id="gq1-kw">--</div><div class="search-stats"><div><span>Impressions</span><strong id="gq1-imp">--</strong></div><div><span>Clicks</span><strong id="gq1-clk">--</strong></div><div><span>Position</span><strong id="gq1-pos">--</strong></div></div></div>
+ <div class="search-card"><div class="search-keyword" id="gq2-kw">--</div><div class="search-stats"><div><span>Impressions</span><strong id="gq2-imp">--</strong></div><div><span>Clicks</span><strong id="gq2-clk">--</strong></div><div><span>Position</span><strong id="gq2-pos">--</strong></div></div></div>
+ <div class="search-card"><div class="search-keyword" id="gq3-kw">--</div><div class="search-stats"><div><span>Impressions</span><strong id="gq3-imp">--</strong></div><div><span>Clicks</span><strong id="gq3-clk">--</strong></div><div><span>Position</span><strong id="gq3-pos">--</strong></div></div></div>
+ </div>
+ </div>
+ <div class="card">
+ <div style="font-weight:600;font-size:0.95rem;color:#222;margin-bottom:0.3rem;">Performance on AI Platforms</div>
+ <div style="font-size:0.75rem;color:#999;margin-bottom:1.25rem;" id="ai-updated">Enter visibility data from your AI analytics</div>
+ <div class="ai-grid">
+ <div class="ai-card"><div class="ai-platform">ChatGPT</div><div class="ai-score" id="ai-cgpt-score">--</div><div class="ai-score-label">Visibility score</div><div class="ai-queries">User queries: <strong id="ai-cgpt-q">--</strong> <span id="ai-cgpt-trend"></span></div></div>
+ <div class="ai-card"><div class="ai-platform">Perplexity</div><div class="ai-score" id="ai-plex-score">--</div><div class="ai-score-label">Visibility score</div><div class="ai-queries">User queries: <strong id="ai-plex-q">--</strong> <span id="ai-plex-trend"></span></div></div>
+ <div class="ai-card"><div class="ai-platform">Gemini</div><div class="ai-score" id="ai-gem-score">--</div><div class="ai-score-label">Visibility score</div><div class="ai-queries">User queries: <strong id="ai-gem-q">--</strong> <span id="ai-gem-trend"></span></div></div>
+ </div>
+ </div>
+ <div class="card">
+ <div class="card-title">Daily Insights</div>
+ <div id="insights-container"><div class="empty">Update your stats above to generate insights.</div></div>
+ </div>
+ <div class="two-col">
+ <div class="card" style="margin-bottom:0;"><div class="card-title">Recent Activity</div><ul class="activity-list" id="activity-log"><li class="empty">No activity recorded yet.</li></ul></div>
+ <div class="card" style="margin-bottom:0;"><div class="card-title">Subscribers and Forms</div><div style="margin-bottom:1.25rem;"><div class="metric__label">Email Subscribers</div><div class="metric__value" id="m-subscribers">0</div></div><div><div class="metric__label">Contact Form Submissions</div><div class="metric__value" id="m-submissions">0</div></div></div>
+ </div>
+ </div>
+
+ <!-- EVENTS -->
+ <div class="panel" id="panel-events">
+ <h1 class="page-title">Events Calendar</h1>
+ <p class="page-sub">Manage upcoming sporting events. Add a photo, title, dates and location.</p>
+
+ <!-- Monthly Calendar -->
+ <div class="cal-wrap">
+ <div class="cal-header">
+ <button class="cal-nav" id="cal-prev">&#8249;</button>
+ <div class="cal-month-label" id="cal-label"></div>
+ <button class="cal-nav" id="cal-next">&#8250;</button>
+ </div>
+ <div class="cal-grid" id="cal-grid"></div>
+ </div>
+
+ <!-- Add / Edit Form -->
+ <div class="card">
+ <div class="card-title" id="evt-form-label">Add New Event</div>
+ <form class="form" id="evt-form">
+ <input type="hidden" id="evt-edit-id" value="" />
+ <input type="hidden" id="evt-photo-data" value="" />
+ <div class="form-row">
+ <div class="form-group"><label class="form-label">Event Name</label><input class="form-input" type="text" id="evt-title" placeholder="e.g. Gold Coast 500" required /></div>
+ <div class="form-group"><label class="form-label">Location</label><input class="form-input" type="text" id="evt-location" placeholder="e.g. Surfers Paradise, QLD" /></div>
+ </div>
+ <div class="form-row">
+ <div class="form-group"><label class="form-label">Start Date</label><input class="form-input" type="date" id="evt-start" /></div>
+ <div class="form-group"><label class="form-label">End Date</label><input class="form-input" type="date" id="evt-end" /></div>
+ </div>
+ <div class="form-group">
+ <label class="form-label">Event Photo</label>
+ <div class="upload-area" id="evt-upload-area" onclick="document.getElementById('evt-photo-file').click()">
+ <input type="file" id="evt-photo-file" accept="image/*" />
+ <div class="upload-label"><strong>Click to upload</strong> or drag and drop<br><span style="font-size:0.72rem;color:#bbb;">JPG, PNG, WEBP max 5 MB</span></div>
+ <img class="upload-preview" id="evt-photo-preview" src="" alt="Preview" />
+ <div class="upload-remove" id="evt-photo-remove">Remove photo</div>
+ </div>
+ </div>
+ <div class="form-group"><label class="form-label">Notes (optional)</label><textarea class="form-textarea" id="evt-notes" rows="2" placeholder="Brief notes..."></textarea></div>
+ <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+ <button type="submit" class="btn btn-primary" id="evt-submit-btn">Add Event</button>
+ <button type="button" class="btn btn-secondary btn-sm" id="evt-cancel-btn" style="display:none;">Cancel</button>
+ <span class="success-msg" id="evt-success">Event saved.</span>
+ </div>
+ </form>
+ </div>
+ <div style="font-weight:600;font-size:0.85rem;color:#2B317B;margin-bottom:1rem;">Events (<span id="evt-count">0</span>)</div>
+ <div class="evt-grid" id="evt-grid"><div class="empty">No events yet.</div></div>
+ </div>
+
+ <!-- BLOG -->
+ <div class="panel" id="panel-blog">
+  <h1 class="page-title">Blog Posts</h1>
+  <p class="page-sub">Create and manage posts. Saved locally in your browser.</p>
+
+  <!-- Performance Overview -->
+  <div class="card" style="margin-bottom:1.75rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:0.75rem;">
+      <div class="card-title" style="margin-bottom:0;">Track Your Blog Growth</div>
+      <button class="btn btn-secondary btn-sm" onclick="document.getElementById('blog-perf-modal').style.display='flex'">+ Update Stats</button>
+    </div>
+
+    <!-- Key metrics -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;">
+      <div class="metric"><div class="metric__label">Total Posts</div><div class="metric__row"><div class="metric__value" id="blog-stat-total">0</div></div><div class="metric__sub">all statuses</div></div>
+      <div class="metric"><div class="metric__label">Published</div><div class="metric__row"><div class="metric__value" id="blog-stat-published">0</div></div><div class="metric__sub">live on site</div></div>
+      <div class="metric"><div class="metric__label">Total Views</div><div class="metric__row"><div class="metric__value" id="blog-perf-views">0</div></div><div class="metric__sub" id="blog-perf-views-change"></div></div>
+      <div class="metric"><div class="metric__label">Subscribers</div><div class="metric__row"><div class="metric__value" id="blog-perf-subs">0</div></div><div class="metric__sub" id="blog-perf-subs-total"></div></div>
+    </div>
+
+    <!-- Insight + Top posts -->
+    <div class="two-col">
+      <div>
+        <div style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#999;margin-bottom:0.75rem;">Insight</div>
+        <div id="blog-insight" style="font-size:0.85rem;color:#444;line-height:1.65;background:#f8f9ff;border-radius:8px;padding:1rem 1.1rem;border-left:3px solid #2B317B;min-height:60px;">Add post view data to see insights.</div>
+      </div>
+      <div>
+        <div style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#999;margin-bottom:0.75rem;">Latest Posts — Views</div>
+        <div id="blog-top-posts" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drafts count (hidden metric for tabs) -->
+  <input type="hidden" id="blog-stat-drafts" value="0" />
+
+  <!-- Editor card -->
+  <div class="card">
+    <div class="card-title" id="blog-form-label">New Post</div>
+    <form class="form" id="blog-form" onsubmit="return false;">
+      <input type="hidden" id="blog-edit-id" value="" />
+
+      <div class="form-group">
+        <label class="form-label">Title</label>
+        <input class="form-input" type="text" id="blog-title" placeholder="Post title" required />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Views <span style="font-weight:400;color:#aaa;">(optional)</span></label>
+          <input class="form-input" type="number" id="blog-views" placeholder="e.g. 9" min="0" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="form-select" id="blog-category">
+            <option value="Events">Events</option>
+            <option value="Sponsorship">Sponsorship</option>
+            <option value="Hospitality">Hospitality</option>
+            <option value="Insights">Insights</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="blog-status">
+            <option value="Published">Published</option>
+            <option value="Draft">Draft</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input class="form-input" type="date" id="blog-date" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Excerpt</label>
+        <textarea class="form-textarea" id="blog-excerpt" rows="2" placeholder="Short description shown in listings..."></textarea>
+      </div>
+
+      <!-- Cover image upload -->
+      <div class="form-group">
+        <label class="form-label">Cover Image</label>
+        <div class="upload-area" id="blog-img-area" onclick="document.getElementById('blog-img-file').click()">
+          <input type="file" id="blog-img-file" accept="image/*" />
+          <div class="upload-label"><strong>Click to upload</strong> or drag an image here</div>
+          <img class="upload-preview" id="blog-img-preview" />
+          <div class="upload-remove" id="blog-img-remove">Remove image</div>
+        </div>
+        <input type="hidden" id="blog-image" />
+      </div>
+
+      <!-- Rich text editor -->
+      <div class="form-group">
+        <label class="form-label">Content</label>
+
+        <!-- Toolbar -->
+        <div class="rte-toolbar" id="rte-toolbar">
+          <button type="button" class="rte-btn" title="Bold" onclick="rteCmd('bold')"><b>B</b></button>
+          <button type="button" class="rte-btn" title="Italic" onclick="rteCmd('italic')"><i>I</i></button>
+          <button type="button" class="rte-btn" title="Underline" onclick="rteCmd('underline')"><u>U</u></button>
+          <span class="rte-sep"></span>
+          <button type="button" class="rte-btn" title="Heading 2" onclick="rteCmd('formatBlock','h2')">H2</button>
+          <button type="button" class="rte-btn" title="Heading 3" onclick="rteCmd('formatBlock','h3')">H3</button>
+          <button type="button" class="rte-btn" title="Paragraph" onclick="rteCmd('formatBlock','p')">P</button>
+          <span class="rte-sep"></span>
+          <button type="button" class="rte-btn" title="Bullet list" onclick="rteCmd('insertUnorderedList')">&#8226; List</button>
+          <button type="button" class="rte-btn" title="Numbered list" onclick="rteCmd('insertOrderedList')">1. List</button>
+          <span class="rte-sep"></span>
+          <button type="button" class="rte-btn rte-btn--action" title="Insert link" onclick="rteInsertLink()">&#128279; Link</button>
+          <button type="button" class="rte-btn rte-btn--action" title="Insert image" onclick="rteInsertImage()">&#128247; Image</button>
+          <span class="rte-sep"></span>
+          <button type="button" class="rte-btn" title="Align left" onclick="rteCmd('justifyLeft')">&#8676;</button>
+          <button type="button" class="rte-btn" title="Align center" onclick="rteCmd('justifyCenter')">&#8677;</button>
+          <button type="button" class="rte-btn" title="Remove formatting" onclick="rteCmd('removeFormat')">&#10005; Clear</button>
+        </div>
+
+        <!-- Editable area -->
+        <div class="rte-body" id="blog-content" contenteditable="true" spellcheck="true">
+          <p>Start writing your post here...</p>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;margin-top:0.5rem;">
+        <button type="button" class="btn btn-primary" id="blog-submit-btn" onclick="blogSave()">Save Post</button>
+        <button type="button" class="btn btn-secondary btn-sm" id="blog-cancel-btn" style="display:none;" onclick="blogCancel()">Cancel</button>
+        <span class="success-msg" id="blog-success">Post saved.</span>
+      </div>
+    </form>
+  </div>
+
+  <!-- Post list with tabs -->
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:0.75rem;">
+      <div class="blog-tabs" id="blog-tabs">
+        <button class="blog-tab active" data-status="All">All <span class="blog-tab-count" id="btc-all"></span></button>
+        <button class="blog-tab" data-status="Published">Published <span class="blog-tab-count" id="btc-published"></span></button>
+        <button class="blog-tab" data-status="Draft">Drafts <span class="blog-tab-count" id="btc-draft"></span></button>
+      </div>
+      <input class="form-input" id="blog-search" placeholder="Search posts..." style="max-width:220px;padding:0.5rem 0.85rem;font-size:0.82rem;" oninput="renderPosts()" />
+    </div>
+    <div id="post-list"><div class="empty">No posts yet.</div></div>
+  </div>
+ </div>
+
+ <!-- SUBSCRIBERS -->
+ <div class="panel" id="panel-subscribers">
+ <h1 class="page-title">Subscribers</h1>
+ <p class="page-sub">Email addresses collected via the homepage mailing list form.</p>
+ <div class="card">
+ <div class="card-title">Subscriber List (<span id="sub-count">0</span>)</div>
+ <div class="sub-list" id="sub-list"><div class="empty">No subscribers yet.</div></div>
+ </div>
+ </div>
+
+ <!-- ===== TESTIMONIALS ===== -->
+ <div class="panel" id="panel-testimonials">
+   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem;flex-wrap:wrap;gap:1rem;">
+     <h1 class="page-title" style="margin-bottom:0;">Testimonials</h1>
+     <button class="btn btn-primary" onclick="tOpenAdd()" style="font-size:0.78rem;padding:0.5rem 1.1rem;">+ Add Testimonial</button>
+   </div>
+   <p class="page-sub">Manage client testimonials shown in the homepage carousel. Changes save instantly and update the live website.</p>
+
+   <!-- Stats bar -->
+   <div class="metrics" style="grid-template-columns:repeat(3,1fr);margin-bottom:1.5rem;">
+     <div class="metric"><div class="metric__label">Total</div><div class="metric__value" id="t-stat-total">0</div><div class="metric__sub">testimonials</div></div>
+     <div class="metric"><div class="metric__label">Visible</div><div class="metric__value" id="t-stat-visible">0</div><div class="metric__sub">shown on site</div></div>
+     <div class="metric"><div class="metric__label">Hidden</div><div class="metric__value" id="t-stat-hidden">0</div><div class="metric__sub">not displayed</div></div>
+   </div>
+
+   <!-- Testimonial list -->
+   <div class="card">
+     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:0.75rem;">
+       <div class="card-title" style="margin-bottom:0;">All Testimonials</div>
+       <input class="form-input" id="t-search" placeholder="Search by name or company…" style="max-width:220px;padding:0.5rem 0.85rem;font-size:0.82rem;" oninput="tRender()" />
+     </div>
+     <div id="t-list"><div class="empty">Loading…</div></div>
+   </div>
+ </div>
+
+ <!-- ===== TESTIMONIAL MODAL ===== -->
+ <div class="modal-overlay" id="t-modal" onclick="if(event.target===this)tCloseModal()" style="display:none;">
+   <div class="modal-box" style="max-width:620px;">
+     <button class="modal-close" onclick="tCloseModal()">&#215;</button>
+     <div class="modal-title" id="t-modal-title">Add Testimonial</div>
+     <p class="modal-sub">Changes are saved to the website carousel immediately.</p>
+
+     <form class="form" id="t-form" onsubmit="return false;">
+       <input type="hidden" id="t-edit-id" value="" />
+
+       <div class="form-row">
+         <div class="form-group">
+           <label class="form-label">First Name <span style="color:#e74c3c;">*</span></label>
+           <input class="form-input" type="text" id="t-name" placeholder="e.g. Britt" required />
+         </div>
+         <div class="form-group">
+           <label class="form-label">Company <span style="color:#e74c3c;">*</span></label>
+           <input class="form-input" type="text" id="t-company" placeholder="e.g. Boost Mobile" required />
+         </div>
+       </div>
+
+       <div class="form-group">
+         <label class="form-label">Highlight <span style="color:#aaa;font-weight:400;">(bold pull-quote shown above the full review)</span></label>
+         <input class="form-input" type="text" id="t-highlight" placeholder="e.g. Cielo House is the real deal" />
+         <div style="font-size:0.72rem;color:#aaa;margin-top:0.3rem;">Keep it under 80 characters for best display.</div>
+       </div>
+
+       <div class="form-group">
+         <label class="form-label">Full Testimonial <span style="color:#e74c3c;">*</span></label>
+         <textarea class="form-textarea" id="t-body" rows="5" placeholder="The full review text…" required style="min-height:120px;"></textarea>
+       </div>
+
+       <div class="form-row">
+         <div class="form-group">
+           <label class="form-label">Role / Title <span style="color:#aaa;font-weight:400;">(optional)</span></label>
+           <input class="form-input" type="text" id="t-role" placeholder="e.g. Marketing Manager" />
+         </div>
+         <div class="form-group">
+           <label class="form-label">Visibility</label>
+           <select class="form-select" id="t-visible">
+             <option value="visible">Visible — shown in carousel</option>
+             <option value="hidden">Hidden — not shown on site</option>
+           </select>
+         </div>
+       </div>
+
+       <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;margin-top:0.5rem;">
+         <button type="button" class="btn btn-primary" onclick="tSave()">Save Testimonial</button>
+         <button type="button" class="btn btn-secondary btn-sm" onclick="tCloseModal()">Cancel</button>
+         <span class="success-msg" id="t-success" style="display:none;">Saved and live on the website.</span>
+       </div>
+     </form>
+   </div>
+ </div>
+
+ <!-- ===== FAQ ===== -->
+ <div class="panel" id="panel-faq">
+ <h1 class="page-title">FAQ Manager</h1>
+ <p class="page-sub">Edit the questions and answers shown in the FAQ section on the homepage. Changes save instantly and appear live on the website. Maximum 5 questions. Answers should be 280 480 characters for best Google search performance.</p>
+
+ <div class="card" id="faq-editor-list"></div>
+
+ <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-bottom:2rem;">
+ <button class="btn btn-secondary" id="faq-add-btn" style="display:none;">+ Add Question</button>
+ <button class="btn btn-primary" id="faq-save-btn">Save FAQs</button>
+ <button class="btn btn-secondary" id="faq-reset-btn">Reset to Defaults</button>
+ <span id="faq-saved-msg" style="font-size:0.78rem;color:#27ae60;display:none;">✓ Saved live on the website now.</span>
+ </div>
+ </div>
+
+ <!-- ===== AI KNOWLEDGE ===== -->
+ <div class="panel" id="panel-aiknowledge">
+ <h1 class="page-title">AI Knowledge Base</h1>
+ <p class="page-sub">Everything in this section is fed directly to the Cielo AI chat on the website. Keep it updated to ensure accurate, on-brand answers.</p>
+
+ <div class="card">
+ <div class="card-title">Company Profile</div>
+ <p style="font-size:0.78rem;color:#888;margin-bottom:1rem;">Describe Cielo House in detail services, values, team, target clients, unique strengths. The AI uses this to answer general enquiries.</p>
+ <textarea id="aik-profile" class="form-input" rows="8" placeholder="e.g. Cielo House is a Gold Coast-based sports event activation and premium hospitality agency founded by Britt Niven with 36+ years of experience. We specialise in experiential activations at major Australian sporting events (F1, Supercars, WSL surfing) and premium branded hospitality programmes. Our clients include Boost Mobile, Coates, and Mophie..." style="width:100%;resize:vertical;font-size:0.82rem;line-height:1.6;"></textarea>
+ </div>
+
+ <div class="card">
+ <div class="card-title">Q &amp; A Pairs <span style="font-weight:400;color:#aaa;font-size:0.75rem;margin-left:0.5rem;"> Frequently asked questions the AI should know how to answer</span></div>
+ <p style="font-size:0.78rem;color:#888;margin-bottom:1rem;">Add specific questions and ideal answers. The AI will use these as a reference when clients ask similar questions.</p>
+ <div id="aik-qa-list"></div>
+ <button class="btn btn-secondary" id="aik-add-qa" style="margin-top:0.75rem;">+ Add Q&amp;A Pair</button>
+ </div>
+
+ <div class="card">
+ <div class="card-title">Additional Context</div>
+ <p style="font-size:0.78rem;color:#888;margin-bottom:1rem;">Anything else the AI should know upcoming events, special offers, current pricing guidance, what NOT to say, tone instructions, etc.</p>
+ <textarea id="aik-extra" class="form-input" rows="5" placeholder="e.g. Do not discuss specific pricing. Always direct pricing questions to book a discovery call. We are currently booking for the 2026 event season. Our next major event is the F1 Australian Grand Prix in March 2026..." style="width:100%;resize:vertical;font-size:0.82rem;line-height:1.6;"></textarea>
+ </div>
+
+ <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;">
+ <button class="btn btn-primary" id="aik-save">Save Knowledge Base</button>
+ <span id="aik-saved-msg" style="font-size:0.78rem;color:#27ae60;display:none;">✓ Saved the AI chat will use this immediately.</span>
+ </div>
+ </div>
+
+ </main>
+ </div>
+
+ <!-- RTE: Insert Link Modal -->
+  <div class="rte-modal" id="rte-link-modal">
+    <div class="rte-modal-box">
+      <div class="modal-title" style="font-size:1.3rem;margin-bottom:1.25rem;">Insert Link</div>
+      <div class="form-group" style="margin-bottom:0.85rem;">
+        <label class="form-label">Link Text</label>
+        <input class="form-input" id="rte-link-text" placeholder="e.g. Read more about our services" />
+      </div>
+      <div class="form-group" style="margin-bottom:1.25rem;">
+        <label class="form-label">URL</label>
+        <input class="form-input" id="rte-link-url" placeholder="https://" />
+      </div>
+      <div style="display:flex;gap:0.75rem;">
+        <button class="btn btn-primary btn-sm" onclick="rteConfirmLink()">Insert Link</button>
+        <button class="btn btn-secondary btn-sm" onclick="rteCloseModal('rte-link-modal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RTE: Insert Image Modal -->
+  <div class="rte-modal" id="rte-img-modal">
+    <div class="rte-modal-box">
+      <div class="modal-title" style="font-size:1.3rem;margin-bottom:1.25rem;">Insert Image</div>
+      <div class="form-group" style="margin-bottom:0.85rem;">
+        <label class="form-label">Upload Image</label>
+        <div class="upload-area" onclick="document.getElementById('rte-img-file').click()" style="margin-bottom:0.5rem;">
+          <input type="file" id="rte-img-file" accept="image/*" />
+          <div class="upload-label"><strong>Click to upload</strong> an image</div>
+          <img class="upload-preview" id="rte-img-preview" style="max-height:120px;" />
+        </div>
+        <label class="form-label" style="margin-top:0.5rem;">Or paste an image URL</label>
+        <input class="form-input" id="rte-img-url" placeholder="https://..." />
+      </div>
+      <div class="form-group" style="margin-bottom:0.85rem;">
+        <label class="form-label">Alt Text <span style="color:#aaa;font-weight:400;">(required for SEO)</span></label>
+        <input class="form-input" id="rte-img-alt" placeholder="e.g. Cielo House activation at Gold Coast 500" />
+      </div>
+      <div class="form-group" style="margin-bottom:1.25rem;">
+        <label class="form-label">Caption <span style="color:#aaa;font-weight:400;">(optional)</span></label>
+        <input class="form-input" id="rte-img-caption" placeholder="e.g. Boost Mobile, Gold Coast 2026" />
+      </div>
+      <div style="display:flex;gap:0.75rem;">
+        <button class="btn btn-primary btn-sm" onclick="rteConfirmImage()">Insert Image</button>
+        <button class="btn btn-secondary btn-sm" onclick="rteCloseModal('rte-img-modal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Blog Performance Modal -->
+  <div id="blog-perf-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;overflow-y:auto;padding:2rem;align-items:flex-start;justify-content:center;">
+    <div style="background:#fff;border-radius:12px;max-width:480px;width:100%;margin:2rem auto;padding:2rem;position:relative;">
+      <button style="position:absolute;top:1rem;right:1.25rem;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#aaa;" onclick="document.getElementById('blog-perf-modal').style.display='none'">&#215;</button>
+      <div class="modal-title">Update Blog Stats</div>
+      <p class="modal-sub">Enter your blog performance data from your analytics platform (e.g. Wix, Google Analytics).</p>
+      <div class="form">
+        <div class="modal-section">Last 30 Days</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Total Post Views</label><input class="form-input" id="bp-views" type="number" placeholder="e.g. 69" /></div>
+          <div class="form-group"><label class="form-label">Views % Change</label><input class="form-input" id="bp-views-pct" type="number" placeholder="e.g. 44" /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">New Subscribers</label><input class="form-input" id="bp-new-subs" type="number" placeholder="e.g. 0" /></div>
+          <div class="form-group"><label class="form-label">Total Subscribers</label><input class="form-input" id="bp-total-subs" type="number" placeholder="e.g. 28" /></div>
+        </div>
+        <div class="modal-section">Top Performing Post</div>
+        <div class="form-group"><label class="form-label">Post Title</label><input class="form-input" id="bp-top-title" placeholder="e.g. AI and Experiential Marketing Trends..." /></div>
+        <div class="form-group"><label class="form-label">Views</label><input class="form-input" id="bp-top-views" type="number" placeholder="e.g. 9" /></div>
+        <button type="button" class="btn btn-primary btn-full" style="margin-top:1rem;" onclick="blogSavePerf()">Save Stats</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Modal -->
+ <div class="modal-overlay" id="stats-modal" onclick="if(event.target===this)closeModal()">
+ <div class="modal-box">
+ <button class="modal-close" onclick="closeModal()">&#215;</button>
+ <div class="modal-title">Update Analytics Stats</div>
+ <p class="modal-sub">Enter data from Wix, Google Search Console and AI platforms. Saved locally in your browser.</p>
+ <form class="form" id="stats-form">
+ <div class="modal-section">Site Metrics Last 30 Days</div>
+ <div class="form-row">
+ <div class="form-group"><label class="form-label">Site Sessions</label><input class="form-input" id="st-sessions" type="number" placeholder="e.g. 174" /></div>
+ <div class="form-group"><label class="form-label">Sessions % Change</label><input class="form-input" id="st-sessions-pct" type="number" placeholder="e.g. -9 or 12" /></div>
+ </div>
+ <div class="form-row">
+ <div class="form-group"><label class="form-label">Unique Visitors</label><input class="form-input" id="st-visitors" type="number" placeholder="e.g. 119" /></div>
+ <div class="form-group"><label class="form-label">Visitors % Change</label><input class="form-input" id="st-visitors-pct" type="number" placeholder="e.g. 1" /></div>
+ </div>
+ <div class="form-row">
+ <div class="form-group"><label class="form-label">Clicks to Contact</label><input class="form-input" id="st-clicks" type="number" placeholder="e.g. 5" /></div>
+ <div class="form-group"><label class="form-label">Form Submissions</label><input class="form-input" id="st-forms" type="number" placeholder="e.g. 1" /></div>
+ </div>
+ <div class="modal-section">Google Search Console</div>
+ <div class="form-group"><label class="form-label">Period</label><input class="form-input" id="st-google-period" placeholder="e.g. May 1 May 29 (29 days)" /></div>
+ <div class="form-row-3">
+ <div><div class="form-label" style="margin-bottom:0.4rem;">Query 1</div><input class="form-input" id="gq1-q" placeholder="Keyword" style="margin-bottom:0.35rem;" /><div style="display:flex;gap:0.3rem;"><input class="form-input" id="gq1-i" type="number" placeholder="Imp." /><input class="form-input" id="gq1-c" type="number" placeholder="Clicks" /><input class="form-input" id="gq1-p" type="number" step="0.1" placeholder="Pos." /></div></div>
+ <div><div class="form-label" style="margin-bottom:0.4rem;">Query 2</div><input class="form-input" id="gq2-q" placeholder="Keyword" style="margin-bottom:0.35rem;" /><div style="display:flex;gap:0.3rem;"><input class="form-input" id="gq2-i" type="number" placeholder="Imp." /><input class="form-input" id="gq2-c" type="number" placeholder="Clicks" /><input class="form-input" id="gq2-p" type="number" step="0.1" placeholder="Pos." /></div></div>
+ <div><div class="form-label" style="margin-bottom:0.4rem;">Query 3</div><input class="form-input" id="gq3-q" placeholder="Keyword" style="margin-bottom:0.35rem;" /><div style="display:flex;gap:0.3rem;"><input class="form-input" id="gq3-i" type="number" placeholder="Imp." /><input class="form-input" id="gq3-c" type="number" placeholder="Clicks" /><input class="form-input" id="gq3-p" type="number" step="0.1" placeholder="Pos." /></div></div>
+ </div>
+ <div class="modal-section">AI Platform Visibility</div>
+ <div class="form-row-3">
+ <div><div class="form-label" style="margin-bottom:0.4rem;">ChatGPT</div><input class="form-input" id="ai-cgpt-score" type="number" placeholder="Visibility %" style="margin-bottom:0.35rem;" /><input class="form-input" id="ai-cgpt-queries" type="number" placeholder="User queries" style="margin-bottom:0.35rem;" /><input class="form-input" id="ai-cgpt-pct" type="number" placeholder="% Change" /></div>
+ <div><div class="form-label" style="margin-bottom:0.4rem;">Perplexity</div><input class="form-input" id="ai-plex-score" type="number" placeholder="Visibility %" style="margin-bottom:0.35rem;" /><input class="form-input" id="ai-plex-queries" type="number" placeholder="User queries" style="margin-bottom:0.35rem;" /><input class="form-input" id="ai-plex-pct" type="number" placeholder="% Change" /></div>
+ <div><div class="form-label" style="margin-bottom:0.4rem;">Gemini</div><input class="form-input" id="ai-gem-score" type="number" placeholder="Visibility %" style="margin-bottom:0.35rem;" /><input class="form-input" id="ai-gem-queries" type="number" placeholder="User queries" style="margin-bottom:0.35rem;" /><input class="form-input" id="ai-gem-pct" type="number" placeholder="% Change" /></div>
+ </div>
+ <button type="submit" class="btn btn-primary btn-full" style="margin-top:1.5rem;">Save Stats</button>
+ </form>
+ </div>
+ </div>
+
+ <script>
+ // Tab switching
+ document.querySelectorAll('.nav-btn[data-panel]').forEach(function(btn) {
+ btn.addEventListener('click', function() {
+ document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+ document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+ btn.classList.add('active');
+ var panel = document.getElementById('panel-' + btn.getAttribute('data-panel'));
+ if (panel) panel.classList.add('active');
+ });
+ });
+
+ // Track page view
+ (function() {
+ var v = parseInt(localStorage.getItem('ch_pageviews') || '0') + 1;
+ localStorage.setItem('ch_pageviews', v);
+ var log = JSON.parse(localStorage.getItem('ch_activity_log') || '[]');
+ log.unshift({ type: 'page_view', page: 'dashboard.html', time: new Date().toISOString() });
+ if (log.length > 50) log = log.slice(0, 50);
+ localStorage.setItem('ch_activity_log', JSON.stringify(log));
+ })();
+
+ // Helpers
+ function esc(s) { return s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : ''; }
+ function trend(pct) {
+ var n = parseFloat(pct);
+ if (isNaN(n) || pct === '' || pct == null) return '';
+ if (n > 0) return '<span class="trend-up">+' + n + '%</span>';
+ if (n < 0) return '<span class="trend-down">' + n + '%</span>';
+ return '<span style="color:#aaa;">0%</span>';
+ }
+ function fmtDate(s) {
+ if (!s) return '';
+ var d = new Date(s + 'T00:00:00');
+ return d.toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
+ }
+
+ // Modal
+ function openModal() {
+ var s = JSON.parse(localStorage.getItem('ch_stats') || '{}');
+ var map = { 'st-sessions': s.sessions, 'st-sessions-pct': s.sessionsPct, 'st-visitors': s.visitors, 'st-visitors-pct': s.visitorsPct, 'st-clicks': s.clicks, 'st-forms': s.forms, 'st-google-period': s.googlePeriod };
+ Object.keys(map).forEach(function(id) { var el = document.getElementById(id); if (el && map[id] != null) el.value = map[id]; });
+ for (var i = 1; i <= 3; i++) {
+ var q = (s['gq' + i] || {});
+ var keys = { q: 'query', i: 'imp', c: 'clicks', p: 'pos' };
+ Object.keys(keys).forEach(function(f) { var el = document.getElementById('gq' + i + '-' + f); if (el && q[keys[f]] != null) el.value = q[keys[f]]; });
+ }
+ var ai = s.ai || {};
+ ['cgpt','plex','gem'].forEach(function(k) {
+ var d = ai[k] || {};
+ ['score','queries','pct'].forEach(function(f) { var el = document.getElementById('ai-' + k + '-' + f); if (el && d[f] != null) el.value = d[f]; });
+ });
+ document.getElementById('stats-modal').style.display = 'block';
+ }
+ function closeModal() { document.getElementById('stats-modal').style.display = 'none'; }
+
+ document.getElementById('stats-form').addEventListener('submit', function(e) {
+ e.preventDefault();
+ var s = {
+ sessions: document.getElementById('st-sessions').value,
+ sessionsPct: document.getElementById('st-sessions-pct').value,
+ visitors: document.getElementById('st-visitors').value,
+ visitorsPct: document.getElementById('st-visitors-pct').value,
+ clicks: document.getElementById('st-clicks').value,
+ forms: document.getElementById('st-forms').value,
+ googlePeriod: document.getElementById('st-google-period').value,
+ updatedAt: new Date().toISOString(),
+ ai: {}
+ };
+ for (var i = 1; i <= 3; i++) {
+ s['gq' + i] = { query: document.getElementById('gq' + i + '-q').value, imp: document.getElementById('gq' + i + '-i').value, clicks: document.getElementById('gq' + i + '-c').value, pos: document.getElementById('gq' + i + '-p').value };
+ }
+ ['cgpt','plex','gem'].forEach(function(k) {
+ s.ai[k] = { score: document.getElementById('ai-' + k + '-score').value, queries: document.getElementById('ai-' + k + '-queries').value, pct: document.getElementById('ai-' + k + '-pct').value };
+ });
+ localStorage.setItem('ch_stats', JSON.stringify(s));
+ closeModal();
+ loadAnalytics();
+ });
+
+ // Analytics
+ function loadAnalytics() {
+ var subs = JSON.parse(localStorage.getItem('ch_subscribers') || '[]');
+ document.getElementById('m-subscribers').textContent = subs.length;
+ document.getElementById('m-submissions').textContent = localStorage.getItem('ch_form_submissions') || '0';
+ var s = JSON.parse(localStorage.getItem('ch_stats') || '{}');
+ document.getElementById('m-sessions').textContent = s.sessions || '--';
+ document.getElementById('m-sessions-trend').innerHTML = trend(s.sessionsPct);
+ document.getElementById('m-visitors').textContent = s.visitors || '--';
+ document.getElementById('m-visitors-trend').innerHTML = trend(s.visitorsPct);
+ document.getElementById('m-clicks').textContent = (s.clicks !== undefined && s.clicks !== '') ? s.clicks : '--';
+ document.getElementById('m-forms').textContent = (s.forms !== undefined && s.forms !== '') ? s.forms : '--';
+ if (s.updatedAt) { var d = new Date(s.updatedAt); document.getElementById('analytics-sub').textContent = 'Last updated: ' + d.toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' }); }
+ if (s.googlePeriod) document.getElementById('google-period').textContent = 'Stats for ' + s.googlePeriod;
+ for (var i = 1; i <= 3; i++) {
+ var q = s['gq' + i] || {};
+ document.getElementById('gq' + i + '-kw').textContent = q.query || '--';
+ document.getElementById('gq' + i + '-imp').textContent = q.imp || '--';
+ document.getElementById('gq' + i + '-clk').textContent = q.clicks || '--';
+ document.getElementById('gq' + i + '-pos').textContent = q.pos || '--';
+ }
+ var ai = s.ai || {};
+ ['cgpt','plex','gem'].forEach(function(k) {
+ var d = ai[k] || {};
+ document.getElementById('ai-' + k + '-score').textContent = d.score ? d.score + '%' : '--';
+ document.getElementById('ai-' + k + '-q').textContent = d.queries || '--';
+ document.getElementById('ai-' + k + '-trend').innerHTML = trend(d.pct);
+ });
+ // Insights
+ var ins = buildInsights(s);
+ var cont = document.getElementById('insights-container');
+ cont.innerHTML = ins.length === 0 ? '<div class="empty">Update your stats above to generate insights.</div>' : '';
+ ins.forEach(function(x) { var div = document.createElement('div'); div.className = 'insight insight-' + x.type; div.textContent = x.text; cont.appendChild(div); });
+ // Activity
+ var log = JSON.parse(localStorage.getItem('ch_activity_log') || '[]');
+ var logEl = document.getElementById('activity-log');
+ if (!log.length) { logEl.innerHTML = '<li class="empty">No activity yet.</li>'; return; }
+ logEl.innerHTML = '';
+ log.slice(0,10).forEach(function(entry) {
+ var li = document.createElement('li'); li.className = 'activity-item';
+ var d = new Date(entry.time);
+ var ts = d.toLocaleDateString('en-AU') + ' ' + d.toLocaleTimeString('en-AU', { hour:'2-digit', minute:'2-digit' });
+ var label = entry.type === 'page_view' ? 'Page view: ' + (entry.page || '') : entry.type === 'form_submission' ? 'Form submission' : entry.type === 'subscriber' ? 'New subscriber: ' + (entry.email || '') : entry.type;
+ li.innerHTML = '<span class="activity-dot"></span><span>' + label + '</span><span class="activity-time">' + ts + '</span>';
+ logEl.appendChild(li);
+ });
+ }
+
+ function buildInsights(s) {
+ var ins = [], sessions = parseInt(s.sessions) || 0, sPct = parseFloat(s.sessionsPct), clicks = parseInt(s.clicks) || 0, forms = parseInt(s.forms) || 0, ai = s.ai || {};
+ if (!isNaN(sPct) && sPct > 0) ins.push({ type:'good', text: 'Site sessions grew by +' + sPct + '% this period. Keep publishing content and running campaigns to sustain momentum.' });
+ if (!isNaN(sPct) && sPct < -5) ins.push({ type:'warn', text: 'Site sessions dropped ' + sPct + '%. Share recent work on LinkedIn and Instagram to drive traffic back.' });
+ if (clicks === 0 && sessions > 50) ins.push({ type:'warn', text: 'Zero clicks to contact despite ' + sessions + ' sessions. Review your CTAs the contact button may need to be more prominent.' });
+ if (clicks > 0 && forms === 0) ins.push({ type:'warn', text: clicks + ' people clicked to contact but no form was submitted. Check the contact form is working correctly.' });
+ if (forms > 0) ins.push({ type:'good', text: forms + ' contact form submission' + (forms > 1 ? 's' : '') + ' this period. Follow up promptly to convert enquiries.' });
+ var cgpt = parseInt((ai.cgpt || {}).score) || 0, plex = parseInt((ai.plex || {}).score) || 0, gem = parseInt((ai.gem || {}).score) || 0;
+ if (cgpt > 0 || plex > 0 || gem > 0) { var best = Math.max(cgpt, plex, gem), bestName = cgpt === best ? 'ChatGPT' : plex === best ? 'Perplexity' : 'Gemini'; ins.push({ type:'info', text: 'Best AI visibility on ' + bestName + ' (' + best + '%). Publish more expert content to improve scores across all platforms.' }); }
+ if (s.gq1 && s.gq1.query) { var pos = parseFloat(s.gq1.pos); if (!isNaN(pos) && pos > 10) ins.push({ type:'warn', text: '"' + s.gq1.query + '" ranks at position ' + pos + ' on Google. Focus on on-page SEO to push into the top 10.' }); else if (!isNaN(pos) && pos <= 5) ins.push({ type:'good', text: '"' + s.gq1.query + '" ranks at position ' + pos + ' excellent. Protect this ranking with regular content updates.' }); }
+ return ins;
+ }
+
+ loadAnalytics();
+
+ // Blog posts seed from live website data if never set
+ (function seedBlogPosts() {
+ var existing = JSON.parse(localStorage.getItem('ch_blog_posts') || 'null');
+ if (existing !== null && existing.length > 0) return;
+ var seed = [
+   { title: 'AI and Experiential Marketing Trends Defining 2026', category: 'Business Tips', status: 'Published', date: '2026-05-30', excerpt: 'There is something happening in America right now that you genuinely have to experience in person to understand, and you can feel it the moment you step outside the airport.', image: '/public/images/blog/ai-and-experiential-marketing-trends-defining-2026/featured.jpg', slug: 'ai-and-experiential-marketing-trends-defining-2026', views: 0 },
+   { title: 'Experiential Marketing: How to Create and Measure Real Brand Impact', category: 'Events', status: 'Published', date: '2026-05-22', excerpt: 'Experiential marketing transforms how brands connect with their audiences by creating memorable, hands-on interactions that go far beyond traditional advertising.', image: '/public/images/blog/experiential-marketing-how-to-create-and-measure-real-brand-impact/featured.jpg', slug: 'experiential-marketing-how-to-create-and-measure-real-brand-impact', views: 0 },
+   { title: 'Surf Event Sponsorship: Why the Brands That Belong Always Win', category: 'Events', status: 'Published', date: '2026-05-15', excerpt: 'There aren\'t many professional sporting events where the start time is decided at sunrise on the morning of competition. Welcome to the world of professional surfing.', image: '/public/images/blog/surf-event-sponsorship-why-the-brands-that-belong-always-win/featured.jpg', slug: 'surf-event-sponsorship-why-the-brands-that-belong-always-win', views: 0 },
+   { title: 'Small Agency vs Large Agency for Experiential Marketing Campaigns', category: 'Events', status: 'Published', date: '2026-05-08', excerpt: 'When procurement teams and brand managers evaluate agency partners for experiential marketing campaigns, they face a choice between small boutique agencies and large network agencies.', image: '/public/images/blog/small-agency-vs-large-agency-for-experiential-marketing-campaigns/featured.jpg', slug: 'small-agency-vs-large-agency-for-experiential-marketing-campaigns', views: 0 },
+   { title: 'Corporate Hospitality Suite Setup Guide for Sporting Events and Premium Venues', category: 'Events', status: 'Published', date: '2026-05-04', excerpt: 'Corporate hospitality suites represent the pinnacle of event experiences, where business relationships strengthen over premium food, strategic networking, and exclusive venue access.', image: '/public/images/blog/corporate-hospitality-suite-setup-guide-for-sporting-events-and-premium-venues/featured.jpg', slug: 'corporate-hospitality-suite-setup-guide-for-sporting-events-and-premium-venues', views: 0 },
+   { title: 'Five Event Marketing Trends Shaping 2026 and How Australian Brands Can Get Ahead', category: 'Events', status: 'Published', date: '2026-04-24', excerpt: 'The events and experiential marketing industry has always been one that evolves quickly, but the pace of change over the past two years has been extraordinary.', image: '/public/images/blog/five-event-marketing-trends-shaping-2026-and-how-australian-brands-can-get-ahead/featured.jpg', slug: 'five-event-marketing-trends-shaping-2026-and-how-australian-brands-can-get-ahead', views: 0 },
+   { title: 'The Complete Guide to Planning a Brand Activation at a Major Sporting Event in Australia', category: 'Events', status: 'Published', date: '2026-04-17', excerpt: 'Brand activations at major sporting events represent one of the most powerful opportunities in experiential marketing. The combination of passionate audiences, high-energy environments.', image: '/public/images/blog/the-complete-guide-to-planning-a-brand-activation-at-a-major-sporting-event-in-australia/featured.jpg', slug: 'the-complete-guide-to-planning-a-brand-activation-at-a-major-sporting-event-in-australia', views: 0 },
+   { title: 'How to Build Client Relationships That Last Beyond One Event', category: 'Events', status: 'Published', date: '2026-04-10', excerpt: 'In the events industry, there is a version of success that looks like a packed calendar, a constant stream of new clients, and a never ending cycle of briefs, pitches, and activations.', image: '/public/images/blog/how-to-build-client-relationships-that-last-beyond-one-event/featured.jpg', slug: 'how-to-build-client-relationships-that-last-beyond-one-event', views: 0 },
+   { title: 'Brand Activation Mistakes That Are Costing You ROI', category: 'Brand Activation', status: 'Published', date: '2026-04-04', excerpt: 'Brand activation can be one of the most powerful drivers of engagement and revenue in modern marketing, but even experienced brands overlook the details that ultimately determine performance.', image: '/public/images/blog/brand-activation-mistakes-that-are-costing-you-roi/featured.jpg', slug: 'brand-activation-mistakes-that-are-costing-you-roi', views: 0 },
+   { title: 'Brand Activation Ideas for Sporting Events', category: 'Brand Activation', status: 'Published', date: '2026-03-27', excerpt: 'Sporting events remain one of the most powerful environments for brand activation. They combine high energy audiences, emotional investment, and concentrated foot traffic.', image: '/public/images/blog/brand-activation-ideas-for-sporting-events/featured.jpg', slug: 'brand-activation-ideas-for-sporting-events', views: 0 },
+   { title: 'Corporate Hospitality at Sporting Events: The Australian Guide', category: 'Events', status: 'Published', date: '2026-03-20', excerpt: 'Corporate hospitality at sporting events remains one of the most effective relationship-building tools in Australia, yet the standards and expectations surrounding it have evolved.', image: '/public/images/blog/corporate-hospitality-at-sporting-events-the-australian-guide/featured.jpg', slug: 'corporate-hospitality-at-sporting-events-the-australian-guide', views: 0 },
+   { title: 'Brand Experiences at the Formula 1 Qatar Airways Australian Grand Prix', category: 'Brand Activation', status: 'Published', date: '2026-03-13', excerpt: 'I went into the Formula 1 Qatar Airways Australian Grand Prix with high expectations for brand activations and experiential moments across the precinct.', image: '/public/images/blog/brand-experiences-at-the-formula-1-qatar-airways-australian-grand-prix/featured.jpg', slug: 'brand-experiences-at-the-formula-1-qatar-airways-australian-grand-prix', views: 0 },
+   { title: 'What SailGP\'s Growth Teaches Brands About Activation & Hospitality', category: 'Events', status: 'Published', date: '2026-03-06', excerpt: 'In just a few short years, SailGP has gone from an ambitious concept to one of the most commercially compelling properties in global sport.', image: '/public/images/blog/what-sailgp-s-high-speed-growth-teaches-brands-about-activation-and-hospitality/featured.jpg', slug: 'what-sailgp-s-high-speed-growth-teaches-brands-about-activation-and-hospitality', views: 0 },
+   { title: 'Bathurst 12 Hour: A Global Motorsport Stage for Brands', category: 'Events', status: 'Published', date: '2026-02-27', excerpt: 'Over the past five years, the Bathurst 12 Hour has quietly, and then not so quietly, cemented itself as one of the most important endurance races in the world.', image: '/public/images/blog/bathurst-12-hour-a-global-motorsport-stage-for-brands/featured.jpg', slug: 'bathurst-12-hour-a-global-motorsport-stage-for-brands', views: 0 },
+   { title: 'From Sundance to Super Bowl: The Activations Setting the Tone for 2026', category: 'Events', status: 'Published', date: '2026-02-20', excerpt: 'From the final edition of the Sundance Film Festival in Park City to the cultural force that is Super Bowl, the beginning of 2026 delivered two of the most important stages in experiential marketing.', image: '/public/images/blog/from-sundance-to-super-bowl-the-activations-setting-the-tone-for-2026/featured.jpg', slug: 'from-sundance-to-super-bowl-the-activations-setting-the-tone-for-2026', views: 0 },
+   { title: 'Event Sponsorship & Naming Rights: How Brands Can Build an Authentic Impact', category: 'Events', status: 'Published', date: '2026-02-13', excerpt: 'Naming rights partnerships used to be the ultimate sponsorship flex. If your brand name sat in front of an event title, you\'d already won.', image: '/public/images/blog/event-sponsorship-naming-rights-how-brands-can-build-authentic-impact/featured.jpg', slug: 'event-sponsorship-naming-rights-how-brands-can-build-authentic-impact', views: 0 },
+   { title: 'Lessons From Running an Events & Brand Activation Agency for Almost Three Years', category: 'Events', status: 'Published', date: '2026-02-06', excerpt: 'When I started my events agency here in Australia, I thought the hardest part would be getting clients. I remember sitting at my laptop in the early days, refreshing my inbox far too often.', image: '/public/images/blog/lessons-from-running-an-events-brand-activation-agency-for-almost-three-years/featured.jpg', slug: 'lessons-from-running-an-events-brand-activation-agency-for-almost-three-years', views: 0 },
+   { title: 'Brand Activation Insights: What we can learn from the Australian Open', category: 'Brand Activation', status: 'Published', date: '2026-01-30', excerpt: 'Every January, Melbourne transforms. The city shifts pace, the energy lifts, and the Australian Open becomes far more than a tennis tournament.', image: '/public/images/blog/brand-activation-insights-what-we-can-learn-from-the-australian-open/featured.jpg', slug: 'brand-activation-insights-what-we-can-learn-from-the-australian-open', views: 0 },
+   { title: 'Elevating Corporate Hospitality Suites in 2026', category: 'Corporate Hospitality', status: 'Published', date: '2026-01-23', excerpt: 'At their best, hospitality suites are not just places to watch an event. They are environments designed to build relationships, reinforce brand values, and create moments that feel considered.', image: '/public/images/blog/elevating-corporate-hospitality-suites-in-2026/featured.jpg', slug: 'elevating-corporate-hospitality-suites-in-2026', views: 0 },
+ ];
+ localStorage.setItem('ch_blog_posts', JSON.stringify(seed));
+ })();
+
+ // Events seed from live website data if never set
+ (function seedEvents() {
+ if (localStorage.getItem('ch_events') !== null) return; // already seeded or user has data
+ var seed = [
+ { title: 'Formula 1 Qatar Airways Australian Grand Prix 2026', location: 'Melbourne, VIC', start: '2026-03-06', end: '2026-03-08', photo: 'images/events-calendar/formula-1-australian-grand-prix/GP26-79.jpg', notes: '' },
+ { title: 'Australian Boardriders Battle', location: 'Gold Coast, QLD', start: '2026-03-07', end: '2026-03-08', photo: 'images/events-calendar/australian-boardriders-battle/BoardRiders26-97.jpg', notes: '' },
+ { title: 'WSL Rip Curl Pro Bells Beach', location: 'Melbourne, VIC', start: '2026-04-01', end: '2026-04-11', photo: 'images/events-calendar/wsl-rip-curl-bells-beach/IMG_4359.JPG', notes: '' },
+ { title: 'Boost Mobile Gold Coast 500', location: 'Gold Coast, QLD', start: '2026-10-24', end: '2026-10-26', photo: 'images/events-calendar/boost-mobile-gold-coast-500/BoostGC500-21.jpg', notes: '' },
+ ];
+ localStorage.setItem('ch_events', JSON.stringify(seed));
+ })();
+
+ function getEvts() { return JSON.parse(localStorage.getItem('ch_events') || '[]'); }
+ function saveEvts(e) { localStorage.setItem('ch_events', JSON.stringify(e)); }
+
+ // --- Monthly Calendar ---
+ var calDate = new Date();
+ calDate.setDate(1);
+ var DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+ var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+ function renderCal() {
+ var year = calDate.getFullYear(), month = calDate.getMonth();
+ document.getElementById('cal-label').textContent = MONTHS[month] + ' ' + year;
+ var evts = getEvts();
+ // Build a map: "YYYY-MM-DD" -> [event titles]
+ var evtMap = {};
+ evts.forEach(function(e) {
+ if (!e.start) return;
+ var cur = new Date(e.start + 'T00:00:00');
+ var end = e.end ? new Date(e.end + 'T00:00:00') : cur;
+ while (cur <= end) {
+ var key = cur.toISOString().slice(0,10);
+ if (!evtMap[key]) evtMap[key] = [];
+ evtMap[key].push(e.title);
+ cur.setDate(cur.getDate() + 1);
+ }
+ });
+ var grid = document.getElementById('cal-grid');
+ grid.innerHTML = '';
+ DAYS.forEach(function(d) { var el = document.createElement('div'); el.className = 'cal-day-name'; el.textContent = d; grid.appendChild(el); });
+ var firstDay = new Date(year, month, 1).getDay();
+ var daysInMonth = new Date(year, month + 1, 0).getDate();
+ var prevDays = new Date(year, month, 0).getDate();
+ var today = new Date(); today.setHours(0,0,0,0);
+ // Leading cells
+ for (var i = firstDay - 1; i >= 0; i--) {
+ var cell = document.createElement('div'); cell.className = 'cal-cell other-month';
+ cell.innerHTML = '<div class="cal-date">' + (prevDays - i) + '</div>';
+ grid.appendChild(cell);
+ }
+ // Current month cells
+ for (var d = 1; d <= daysInMonth; d++) {
+ var cell = document.createElement('div'); cell.className = 'cal-cell';
+ var cellDate = new Date(year, month, d); cellDate.setHours(0,0,0,0);
+ if (cellDate.getTime() === today.getTime()) cell.classList.add('today');
+ var key = year + '-' + String(month+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+ var titles = evtMap[key];
+ if (titles && titles.length) cell.classList.add('has-events');
+ var inner = '<div class="cal-date">' + d + '</div>';
+ if (titles) {
+ var show = titles.slice(0, 2);
+ show.forEach(function(t, ti) { inner += '<div class="cal-evt-chip' + (ti > 0 ? ' multi' : '') + '" title="' + esc(t) + '">' + esc(t) + '</div>'; });
+ if (titles.length > 2) inner += '<div style="font-size:0.6rem;color:#668DC6;margin-top:1px;">+' + (titles.length - 2) + ' more</div>';
+ }
+ cell.innerHTML = inner;
+ grid.appendChild(cell);
+ }
+ // Trailing cells to fill 6 rows
+ var total = firstDay + daysInMonth;
+ var trailing = total % 7 === 0 ? 0 : 7 - (total % 7);
+ for (var t = 1; t <= trailing; t++) {
+ var cell = document.createElement('div'); cell.className = 'cal-cell other-month';
+ cell.innerHTML = '<div class="cal-date">' + t + '</div>';
+ grid.appendChild(cell);
+ }
+ }
+ document.getElementById('cal-prev').addEventListener('click', function() { calDate.setMonth(calDate.getMonth() - 1); renderCal(); });
+ document.getElementById('cal-next').addEventListener('click', function() { calDate.setMonth(calDate.getMonth() + 1); renderCal(); });
+ renderCal();
+
+ // --- Photo Upload ---
+ var photoData = '';
+ function setPhotoPreview(src) {
+ photoData = src;
+ document.getElementById('evt-photo-data').value = src;
+ var prev = document.getElementById('evt-photo-preview');
+ var rem = document.getElementById('evt-photo-remove');
+ var lbl = document.querySelector('#evt-upload-area .upload-label');
+ if (src) { prev.src = src; prev.style.display = 'block'; rem.style.display = 'block'; lbl.style.display = 'none'; }
+ else { prev.src = ''; prev.style.display = 'none'; rem.style.display = 'none'; lbl.style.display = ''; photoData = ''; document.getElementById('evt-photo-data').value = ''; }
+ }
+ document.getElementById('evt-photo-file').addEventListener('change', function() {
+ var file = this.files[0]; if (!file) return;
+ if (file.size > 5 * 1024 * 1024) { alert('Image must be under 5 MB.'); return; }
+ var reader = new FileReader();
+ reader.onload = function(ev) { setPhotoPreview(ev.target.result); };
+ reader.readAsDataURL(file);
+ });
+ document.getElementById('evt-photo-remove').addEventListener('click', function(e) {
+ e.stopPropagation(); setPhotoPreview('');
+ document.getElementById('evt-photo-file').value = '';
+ });
+ var uploadArea = document.getElementById('evt-upload-area');
+ uploadArea.addEventListener('dragover', function(e) { e.preventDefault(); this.classList.add('drag-over'); });
+ uploadArea.addEventListener('dragleave', function() { this.classList.remove('drag-over'); });
+ uploadArea.addEventListener('drop', function(e) {
+ e.preventDefault(); this.classList.remove('drag-over');
+ var file = e.dataTransfer.files[0]; if (!file || !file.type.startsWith('image/')) return;
+ if (file.size > 5 * 1024 * 1024) { alert('Image must be under 5 MB.'); return; }
+ var reader = new FileReader();
+ reader.onload = function(ev) { setPhotoPreview(ev.target.result); };
+ reader.readAsDataURL(file);
+ });
+
+ function resetEvtForm() {
+ document.getElementById('evt-form').reset();
+ document.getElementById('evt-edit-id').value = '';
+ setPhotoPreview('');
+ document.getElementById('evt-photo-file').value = '';
+ document.getElementById('evt-form-label').textContent = 'Add New Event';
+ document.getElementById('evt-submit-btn').textContent = 'Add Event';
+ document.getElementById('evt-cancel-btn').style.display = 'none';
+ }
+
+ function renderEvts() {
+ var evts = getEvts();
+ document.getElementById('evt-count').textContent = evts.length;
+ var grid = document.getElementById('evt-grid');
+ if (!evts.length) { grid.innerHTML = '<div class="empty">No events yet.</div>'; return; }
+ grid.innerHTML = '';
+ evts.forEach(function(evt, idx) {
+ var card = document.createElement('div'); card.className = 'evt-card';
+ var imgHtml = evt.photo ? '<img class="evt-img" src="' + evt.photo + '" alt="' + esc(evt.title) + '" />' : '<div class="evt-placeholder">NO PHOTO</div>';
+ var dateStr = evt.start ? fmtDate(evt.start) + (evt.end && evt.end !== evt.start ? ' ' + fmtDate(evt.end) : '') : '';
+ card.innerHTML = imgHtml + '<div class="evt-body"><div class="evt-name">' + esc(evt.title) + '</div>' + (dateStr ? '<div class="evt-detail">' + dateStr + '</div>' : '') + (evt.location ? '<div class="evt-detail">' + esc(evt.location) + '</div>' : '') + (evt.notes ? '<div class="evt-notes">' + esc(evt.notes) + '</div>' : '') + '<div class="evt-actions"><button class="btn btn-secondary btn-sm" data-edit="' + idx + '">Edit</button><button class="btn btn-danger btn-sm" data-del="' + idx + '">Delete</button></div></div>';
+ grid.appendChild(card);
+ });
+ grid.querySelectorAll('[data-del]').forEach(function(btn) { btn.addEventListener('click', function() { var i = parseInt(this.getAttribute('data-del')); var e = getEvts(); if (confirm('Delete "' + e[i].title + '"?')) { e.splice(i,1); saveEvts(e); renderEvts(); renderCal(); } }); });
+ grid.querySelectorAll('[data-edit]').forEach(function(btn) { btn.addEventListener('click', function() { var i = parseInt(this.getAttribute('data-edit')); var e = getEvts()[i]; document.getElementById('evt-edit-id').value = i; document.getElementById('evt-title').value = e.title || ''; document.getElementById('evt-location').value = e.location || ''; document.getElementById('evt-start').value = e.start || ''; document.getElementById('evt-end').value = e.end || ''; document.getElementById('evt-notes').value = e.notes || ''; setPhotoPreview(e.photo || ''); document.getElementById('evt-form-label').textContent = 'Edit Event'; document.getElementById('evt-submit-btn').textContent = 'Update Event'; document.getElementById('evt-cancel-btn').style.display = ''; document.getElementById('evt-form').scrollIntoView({ behavior:'smooth' }); }); });
+ }
+ document.getElementById('evt-cancel-btn').addEventListener('click', resetEvtForm);
+ document.getElementById('evt-form').addEventListener('submit', function(e) {
+ e.preventDefault();
+ var evts = getEvts(), editId = document.getElementById('evt-edit-id').value;
+ var photo = document.getElementById('evt-photo-data').value || photoData;
+ var evt = { title: document.getElementById('evt-title').value.trim(), location: document.getElementById('evt-location').value.trim(), start: document.getElementById('evt-start').value, end: document.getElementById('evt-end').value, photo: photo, notes: document.getElementById('evt-notes').value.trim() };
+ if (!evt.title) { alert('Please enter an event name.'); return; }
+ if (editId !== '') { evts[parseInt(editId)] = evt; } else { evts.push(evt); }
+ saveEvts(evts); renderEvts(); renderCal(); resetEvtForm();
+ var msg = document.getElementById('evt-success'); msg.style.display = 'inline-block'; setTimeout(function() { msg.style.display = 'none'; }, 2500);
+ });
+ renderEvts();
+
+ /* ── Blog ── */
+ var _blogTab = 'All';
+ var _rteSelection = null;
+
+ function getPosts() { return JSON.parse(localStorage.getItem('ch_blog_posts') || '[]'); }
+ function savePosts(p) { localStorage.setItem('ch_blog_posts', JSON.stringify(p)); }
+
+ function blogUpdateStats() {
+   var posts = getPosts();
+   var pub = posts.filter(function(p){ return p.status === 'Published'; }).length;
+   var dft = posts.filter(function(p){ return p.status !== 'Published'; }).length;
+   document.getElementById('blog-stat-total').textContent = posts.length;
+   document.getElementById('blog-stat-published').textContent = pub;
+   document.getElementById('blog-stat-drafts').value = dft;
+   document.getElementById('btc-all').textContent = posts.length;
+   document.getElementById('btc-published').textContent = pub;
+   document.getElementById('btc-draft').textContent = dft;
+   // Performance
+   var perf = JSON.parse(localStorage.getItem('ch_blog_perf') || '{}');
+   document.getElementById('blog-perf-views').textContent = perf.views || 0;
+   var pct = perf.viewsPct;
+   document.getElementById('blog-perf-views-change').innerHTML = pct ? '<span class="' + (pct >= 0 ? 'trend-up' : 'trend-down') + '">' + (pct >= 0 ? '&#9650;' : '&#9660;') + ' ' + Math.abs(pct) + '%</span> vs last month' : 'last 30 days';
+   document.getElementById('blog-perf-subs').textContent = perf.newSubs || 0;
+   document.getElementById('blog-perf-subs-total').textContent = perf.totalSubs ? perf.totalSubs + ' total' : 'new this month';
+   // Insight
+   var insightEl = document.getElementById('blog-insight');
+   if (perf.topTitle && perf.topViews) {
+     insightEl.textContent = '"' + perf.topTitle + '" has received ' + perf.topViews + ' views so far' + (perf.topViews > 5 ? ', which is above average for your recent posts.' : '.');
+   } else if (posts.length > 0) {
+     insightEl.textContent = 'Add view data to individual posts or use Update Stats to see performance insights.';
+   }
+   // Top posts list (from post views field)
+   var topEl = document.getElementById('blog-top-posts');
+   var withViews = posts.filter(function(p){ return p.views > 0; }).sort(function(a,b){ return (b.views||0)-(a.views||0); }).slice(0,5);
+   if (withViews.length) {
+     topEl.innerHTML = withViews.map(function(p) {
+       return '<div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #f0f2f8;font-size:0.82rem;">'
+         + '<span style="color:#333;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;">' + esc(p.title) + '</span>'
+         + '<span style="color:#2B317B;font-weight:600;flex-shrink:0;margin-left:0.5rem;">&#128065; ' + p.views + '</span>'
+         + '</div>';
+     }).join('');
+   } else {
+     topEl.innerHTML = '<div style="font-size:0.82rem;color:#bbb;">Add view counts to posts to see rankings.</div>';
+   }
+ }
+
+ function blogSavePerf() {
+   var perf = {
+     views:     parseInt(document.getElementById('bp-views').value) || 0,
+     viewsPct:  parseInt(document.getElementById('bp-views-pct').value) || 0,
+     newSubs:   parseInt(document.getElementById('bp-new-subs').value) || 0,
+     totalSubs: parseInt(document.getElementById('bp-total-subs').value) || 0,
+     topTitle:  document.getElementById('bp-top-title').value.trim(),
+     topViews:  parseInt(document.getElementById('bp-top-views').value) || 0,
+   };
+   localStorage.setItem('ch_blog_perf', JSON.stringify(perf));
+   document.getElementById('blog-perf-modal').style.display = 'none';
+   blogUpdateStats();
+ }
+
+ // Load perf modal inputs from saved data
+ document.getElementById('blog-perf-modal').addEventListener('click', function(e) {
+   if (e.target === this) this.style.display = 'none';
+ });
+ (function loadPerfInputs() {
+   var perf = JSON.parse(localStorage.getItem('ch_blog_perf') || '{}');
+   if (perf.views) document.getElementById('bp-views').value = perf.views;
+   if (perf.viewsPct) document.getElementById('bp-views-pct').value = perf.viewsPct;
+   if (perf.newSubs !== undefined) document.getElementById('bp-new-subs').value = perf.newSubs;
+   if (perf.totalSubs) document.getElementById('bp-total-subs').value = perf.totalSubs;
+   if (perf.topTitle) document.getElementById('bp-top-title').value = perf.topTitle;
+   if (perf.topViews) document.getElementById('bp-top-views').value = perf.topViews;
+ })();
+
+ function renderPosts() {
+   var posts = getPosts();
+   blogUpdateStats();
+   var search = (document.getElementById('blog-search') ? document.getElementById('blog-search').value : '').toLowerCase();
+   var list = document.getElementById('post-list');
+   var filtered = posts.filter(function(p, idx) {
+     p._idx = idx;
+     var statusMatch = _blogTab === 'All' || p.status === _blogTab;
+     var searchMatch = !search || (p.title||'').toLowerCase().includes(search) || (p.category||'').toLowerCase().includes(search);
+     return statusMatch && searchMatch;
+   });
+   if (!filtered.length) { list.innerHTML = '<div class="empty">No posts found.</div>'; return; }
+   list.innerHTML = '';
+   filtered.forEach(function(post) {
+     var idx = post._idx;
+     var row = document.createElement('div');
+     row.className = 'blog-row';
+     var thumb = post.image
+       ? '<img class="blog-thumb" src="' + esc(post.image) + '" alt="' + esc(post.title) + '" />'
+       : '<div class="blog-thumb-ph">No Image</div>';
+     var badge = post.status === 'Published'
+       ? '<span class="status-badge status-published">Published</span>'
+       : '<span class="status-badge status-draft">Draft</span>';
+     row.innerHTML = thumb
+       + '<div class="blog-info">'
+       +   '<div class="blog-title-row">' + esc(post.title) + '</div>'
+       +   '<div class="blog-meta">' + badge + '<span>' + esc(post.category||'') + '</span><span>' + esc(post.date||'') + '</span></div>'
+       + '</div>'
+       + '<div class="item-actions">'
+       +   '<button class="btn btn-secondary btn-sm" data-edit="' + idx + '">Edit</button>'
+       +   '<button class="btn btn-danger btn-sm" data-del="' + idx + '">Delete</button>'
+       + '</div>';
+     list.appendChild(row);
+   });
+   list.querySelectorAll('[data-del]').forEach(function(btn) {
+     btn.addEventListener('click', function() {
+       var i = parseInt(this.getAttribute('data-del'));
+       var p = getPosts();
+       if (confirm('Delete "' + p[i].title + '"?')) { p.splice(i,1); savePosts(p); renderPosts(); }
+     });
+   });
+   list.querySelectorAll('[data-edit]').forEach(function(btn) {
+     btn.addEventListener('click', function() {
+       var i = parseInt(this.getAttribute('data-edit'));
+       var p = getPosts()[i];
+       document.getElementById('blog-edit-id').value = i;
+       document.getElementById('blog-title').value = p.title || '';
+       document.getElementById('blog-category').value = p.category || 'Events';
+       document.getElementById('blog-status').value = p.status || 'Published';
+       document.getElementById('blog-date').value = p.date || '';
+       document.getElementById('blog-excerpt').value = p.excerpt || '';
+       document.getElementById('blog-content').innerHTML = p.content || '';
+       document.getElementById('blog-image').value = p.image || '';
+       document.getElementById('blog-views').value = p.views || '';
+       if (p.image) {
+         document.getElementById('blog-img-preview').src = p.image;
+         document.getElementById('blog-img-preview').style.display = 'block';
+         document.getElementById('blog-img-remove').style.display = 'block';
+       }
+       document.getElementById('blog-form-label').textContent = 'Edit Post';
+       document.getElementById('blog-submit-btn').textContent = 'Update Post';
+       document.getElementById('blog-cancel-btn').style.display = '';
+       document.getElementById('blog-form').scrollIntoView({ behavior:'smooth' });
+     });
+   });
+ }
+
+ function blogSave() {
+   var title = document.getElementById('blog-title').value.trim();
+   if (!title) { alert('Please enter a title.'); return; }
+   var posts = getPosts();
+   var editId = document.getElementById('blog-edit-id').value;
+   var post = {
+     title:    title,
+     category: document.getElementById('blog-category').value,
+     status:   document.getElementById('blog-status').value,
+     date:     document.getElementById('blog-date').value,
+     excerpt:  document.getElementById('blog-excerpt').value.trim(),
+     content:  document.getElementById('blog-content').innerHTML,
+     image:    document.getElementById('blog-image').value,
+     views:    parseInt(document.getElementById('blog-views').value) || 0
+   };
+   if (editId !== '') { posts[parseInt(editId)] = post; } else { posts.unshift(post); }
+   savePosts(posts); renderPosts();
+   blogCancel();
+   var msg = document.getElementById('blog-success'); msg.style.display = 'inline-block';
+   setTimeout(function() { msg.style.display = 'none'; }, 2500);
+ }
+
+ function blogCancel() {
+   document.getElementById('blog-edit-id').value = '';
+   document.getElementById('blog-title').value = '';
+   document.getElementById('blog-excerpt').value = '';
+   document.getElementById('blog-content').innerHTML = '<p>Start writing your post here...</p>';
+   document.getElementById('blog-image').value = '';
+   document.getElementById('blog-views').value = '';
+   document.getElementById('blog-img-preview').style.display = 'none';
+   document.getElementById('blog-img-remove').style.display = 'none';
+   document.getElementById('blog-form-label').textContent = 'New Post';
+   document.getElementById('blog-submit-btn').textContent = 'Save Post';
+   document.getElementById('blog-cancel-btn').style.display = 'none';
+ }
+
+ // Tab switching
+ document.getElementById('blog-tabs').addEventListener('click', function(e) {
+   var btn = e.target.closest('.blog-tab');
+   if (!btn) return;
+   document.querySelectorAll('.blog-tab').forEach(function(b){ b.classList.remove('active'); });
+   btn.classList.add('active');
+   _blogTab = btn.getAttribute('data-status');
+   renderPosts();
+ });
+
+ // Cover image upload
+ document.getElementById('blog-img-file').addEventListener('change', function(e) {
+   var file = e.target.files[0]; if (!file) return;
+   var reader = new FileReader();
+   reader.onload = function(ev) {
+     document.getElementById('blog-image').value = ev.target.result;
+     document.getElementById('blog-img-preview').src = ev.target.result;
+     document.getElementById('blog-img-preview').style.display = 'block';
+     document.getElementById('blog-img-remove').style.display = 'block';
+   };
+   reader.readAsDataURL(file);
+ });
+ document.getElementById('blog-img-remove').addEventListener('click', function(e) {
+   e.stopPropagation();
+   document.getElementById('blog-image').value = '';
+   document.getElementById('blog-img-preview').style.display = 'none';
+   this.style.display = 'none';
+ });
+
+ /* ── Rich Text Editor ── */
+ function rteCmd(cmd, val) {
+   document.getElementById('blog-content').focus();
+   document.execCommand(cmd, false, val || null);
+ }
+
+ function rteInsertLink() {
+   _rteSelection = window.getSelection ? window.getSelection().getRangeAt(0) : null;
+   var sel = window.getSelection();
+   document.getElementById('rte-link-text').value = sel && sel.toString() ? sel.toString() : '';
+   document.getElementById('rte-link-url').value = '';
+   document.getElementById('rte-link-modal').classList.add('open');
+   document.getElementById('rte-link-url').focus();
+ }
+
+ function rteConfirmLink() {
+   var text = document.getElementById('rte-link-text').value.trim();
+   var url  = document.getElementById('rte-link-url').value.trim();
+   if (!url) { alert('Please enter a URL.'); return; }
+   rteCloseModal('rte-link-modal');
+   document.getElementById('blog-content').focus();
+   if (_rteSelection) {
+     var sel = window.getSelection();
+     sel.removeAllRanges();
+     sel.addRange(_rteSelection);
+   }
+   var link = '<a href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' + esc(text || url) + '</a>';
+   document.execCommand('insertHTML', false, link);
+ }
+
+ function rteInsertImage() {
+   _rteSelection = window.getSelection ? window.getSelection().getRangeAt(0) : null;
+   document.getElementById('rte-img-url').value = '';
+   document.getElementById('rte-img-alt').value = '';
+   document.getElementById('rte-img-caption').value = '';
+   document.getElementById('rte-img-preview').style.display = 'none';
+   document.getElementById('rte-img-modal').classList.add('open');
+ }
+
+ document.getElementById('rte-img-file').addEventListener('change', function(e) {
+   var file = e.target.files[0]; if (!file) return;
+   var reader = new FileReader();
+   reader.onload = function(ev) {
+     document.getElementById('rte-img-url').value = ev.target.result;
+     document.getElementById('rte-img-preview').src = ev.target.result;
+     document.getElementById('rte-img-preview').style.display = 'block';
+   };
+   reader.readAsDataURL(file);
+ });
+
+ function rteConfirmImage() {
+   var src     = document.getElementById('rte-img-url').value.trim();
+   var alt     = document.getElementById('rte-img-alt').value.trim();
+   var caption = document.getElementById('rte-img-caption').value.trim();
+   if (!src) { alert('Please upload or enter an image URL.'); return; }
+   rteCloseModal('rte-img-modal');
+   document.getElementById('blog-content').focus();
+   if (_rteSelection) {
+     var sel = window.getSelection();
+     sel.removeAllRanges();
+     sel.addRange(_rteSelection);
+   }
+   var html = caption
+     ? '<figure><img src="' + esc(src) + '" alt="' + esc(alt) + '" /><figcaption>' + esc(caption) + '</figcaption></figure>'
+     : '<img src="' + esc(src) + '" alt="' + esc(alt) + '" />';
+   document.execCommand('insertHTML', false, html);
+ }
+
+ function rteCloseModal(id) {
+   document.getElementById(id).classList.remove('open');
+ }
+ document.querySelectorAll('.rte-modal').forEach(function(m) {
+   m.addEventListener('click', function(e) { if (e.target === m) m.classList.remove('open'); });
+ });
+ document.addEventListener('keydown', function(e) {
+   if (e.key === 'Escape') document.querySelectorAll('.rte-modal.open').forEach(function(m){ m.classList.remove('open'); });
+ });
+
+ renderPosts();
+
+ // Subscribers
+ function renderSubs() {
+ var subs = JSON.parse(localStorage.getItem('ch_subscribers') || '[]');
+ document.getElementById('sub-count').textContent = subs.length;
+ var list = document.getElementById('sub-list');
+ if (!subs.length) { list.innerHTML = '<div class="empty">No subscribers yet.</div>'; return; }
+ list.innerHTML = '';
+ subs.forEach(function(email, idx) { var item = document.createElement('div'); item.className = 'sub-item'; item.innerHTML = '<span class="sub-num">' + (idx+1) + '</span><span>' + esc(email) + '</span>'; list.appendChild(item); });
+ }
+ renderSubs();
+
+ /* ── AI Knowledge Base ── */
+ var AIK_KEY = 'ch_ai_knowledge';
+
+ function aikLoad() {
+ var data = JSON.parse(localStorage.getItem(AIK_KEY) || '{}');
+ document.getElementById('aik-profile').value = data.profile || '';
+ document.getElementById('aik-extra').value = data.extra || '';
+ var qas = data.qas || [];
+ var list = document.getElementById('aik-qa-list');
+ list.innerHTML = '';
+ if (qas.length === 0) qas = [{ q: '', a: '' }]; // start with one empty row
+ qas.forEach(function (pair, idx) { aikAddRow(pair.q, pair.a, idx); });
+ }
+
+ function aikAddRow(q, a, idx) {
+ var list = document.getElementById('aik-qa-list');
+ var n = typeof idx === 'number' ? idx : list.querySelectorAll('.aik-qa-row').length;
+ var row = document.createElement('div');
+ row.className = 'aik-qa-row';
+ row.style.cssText = 'background:#f8f9ff;border:1px solid #eef0f8;border-radius:8px;padding:1rem;margin-bottom:0.75rem;position:relative;';
+ row.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">'
+ + '<span style="font-size:0.72rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#999;">Q&amp;A Pair #' + (n + 1) + '</span>'
+ + '<button type="button" class="aik-del-qa" style="background:none;border:none;cursor:pointer;color:#c0392b;font-size:0.78rem;font-weight:600;">Remove</button>'
+ + '</div>'
+ + '<label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:0.3rem;">Question</label>'
+ + '<input type="text" class="form-input aik-q" placeholder="e.g. Do you work with brands that are new to sports sponsorship?" value="' + esc(q || '') + '" style="margin-bottom:0.6rem;font-size:0.8rem;" />'
+ + '<label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:0.3rem;">Answer</label>'
+ + '<textarea class="form-input aik-a" rows="3" placeholder="e.g. Absolutely. We work with both experienced sponsors and brands entering the sport environment for the first time. We start with a brief to understand your goals and recommend the best activation approach." style="resize:vertical;font-size:0.8rem;line-height:1.5;">' + esc(a || '') + '</textarea>';
+ row.querySelector('.aik-del-qa').addEventListener('click', function () {
+ row.remove();
+ // Re-number
+ document.querySelectorAll('.aik-qa-row').forEach(function (r, i) {
+ r.querySelector('span').textContent = 'Q&A Pair #' + (i + 1);
+ });
+ });
+ list.appendChild(row);
+ }
+
+ document.getElementById('aik-add-qa').addEventListener('click', function () {
+ aikAddRow('', '');
+ });
+
+ document.getElementById('aik-save').addEventListener('click', function () {
+ var qas = [];
+ document.querySelectorAll('.aik-qa-row').forEach(function (row) {
+ var q = row.querySelector('.aik-q').value.trim();
+ var a = row.querySelector('.aik-a').value.trim();
+ if (q || a) qas.push({ q: q, a: a });
+ });
+ var data = {
+ profile: document.getElementById('aik-profile').value.trim(),
+ extra: document.getElementById('aik-extra').value.trim(),
+ qas: qas,
+ updated: new Date().toISOString()
+ };
+ localStorage.setItem(AIK_KEY, JSON.stringify(data));
+ var msg = document.getElementById('aik-saved-msg');
+ msg.style.display = 'inline';
+ setTimeout(function () { msg.style.display = 'none'; }, 4000);
+ });
+
+ aikLoad();
+
+ /* ── Testimonials ── */
+ var T_KEY = 'ch_testimonials';
+
+ var T_SEED = [
+   { id:1,  name:'Raf',      company:'AutogenAI',          role:'', highlight:"We couldn't recommend Cielo House more highly", body:"Partnering with Britt and the Cielo House team has been transformative for our events function at AutoGenAI PTY LTD. Britt and her team stepped in with an incredibly efficient, diligent, and thoughtful process that helped us rebuild our events capability from the ground up. What truly sets Cielo House apart is their ability to combine strategic thinking with flawless execution. We couldn't recommend Cielo House more highly. They are professional, proactive, and genuinely invested in their clients' success.", visible:true },
+   { id:2,  name:'Bobby',    company:'Boost Mobile',        role:'', highlight:"Tremendous partners for the Boost Mobile business", body:"Britt and the Cielo House team have been tremendous partners for the Boost Mobile business, helping us amplify the presence and impact of our brand across a big calendar of events. The co-ordination, planning and execution of our activations is consistently excellent. Britt and the team genuinely care about our brand and are a trusted advisor when working with important partners, often finding creative and economically viable solutions that help achieve our goals with event audiences.", visible:true },
+   { id:3,  name:'Brad',     company:'Mophie',              role:'', highlight:"Working with Britt and Cielo House is a breath of fresh air!", body:"Working with Britt and Cielo House is a breath of fresh air! Being a small team with big aspirations Cielo House help us bridge the gap between ideas and execution, bringing our event activations to life with professionalism, great attitude, and a healthy dose of fun along the way. It truly feels like Cielo House is an extension of our business, the care they bring is as if it's their own, and we love that approach.", visible:true },
+   { id:4,  name:'Eleanor',  company:'Simplot',              role:'', highlight:"We loved working with the team, and can't wait to do more together in future", body:"Britt and the Cielo house team executed our Chiko activation seamlessly. The activation was rooted in a solid strategy and brought to life beautifully. The team were proactive, accommodating and readily available from concepting all the way through to production. We always felt like we had a safe pair of hands looking after our brand, and we truly valued the thinking and input from Britt and her team to facilitate our decision making. We loved working with the team, and can't wait to do more together in future.", visible:true },
+   { id:5,  name:'Miro',     company:'Simplot Australia',   role:'', highlight:"Cielo House is the real deal", body:"Britt pitched a bullseye to our strategy. The activation addressed the problem to solve. Cielo House delivered superbly. Cielo House is the real deal.", visible:true },
+   { id:6,  name:'Renee',    company:'Coles Liquor',        role:'', highlight:"Our events were a huge success thanks to Cielo House", body:"Britt was fabulous to work with. She did an excellent job of understanding our brief, our brand, and bringing our vision to life. The team was highly organised and efficient throughout the planning process. Overall, our events were a huge success and would not have been possible without Cielo House.", visible:true },
+   { id:7,  name:'Dale',     company:'Coates',              role:'', highlight:"It is such a pleasure to work and collaborate with you on our events", body:"It is such a pleasure to work and collaborate with you on our events, Britt Niven. Your passion and professionalism always shines through. On behalf of Coates, thank you for all your hard work!", visible:true },
+   { id:8,  name:'Jessica',  company:'Gema Group',          role:'', highlight:"Working with Britt is a dream", body:"Working with Britt is a dream. She brings so much energy, passion, and expertise to every project. Her attention to detail and genuine care for her clients sets her apart from anyone I have worked with before.", visible:true },
+   { id:9,  name:'Nick',     company:'Reed Media',          role:'', highlight:"Britt makes my job extremely easy by running events so efficiently", body:"Britt makes my job extremely easy by running events so efficiently and professionally. Her focus is always on the detail, ensuring everything is just right. She is a pleasure to work with and always goes above and beyond!", visible:true },
+   { id:10, name:'Luke',     company:'Coates',              role:'', highlight:"Love your work team", body:"Love your work team. Thank you so much for your help in getting the Coates Hire hospitality to the next level!", visible:true },
+   { id:11, name:'Mascha',   company:'Coates',              role:'', highlight:"Great to work with!", body:"Great to work with! The Cielo House team are always going above and beyond to ensure the best experience for our guests. Thank you!", visible:true },
+   { id:12, name:'Allie',    company:'Supercars',           role:'', highlight:"You led the Thrifty vision and made it happen!", body:"You led the Thrifty vision and made it happen! From concept to delivery you were nothing short of brilliant. Everyone loved it and your attitude and professionalism were second to none.", visible:true },
+   { id:13, name:'Tom',      company:'A-Leagues',           role:'', highlight:"You smashed it!", body:"You smashed it! The activation was incredible and the feedback from fans was phenomenal. Thank you for making our event so memorable.", visible:true },
+   { id:14, name:'Robert',   company:'Coates',              role:'', highlight:"Another fantastic event which our customers thoroughly enjoyed", body:"Another fantastic event which our customers thoroughly enjoyed. The organisation, communication and execution was first class as always. Thank you Britt and the team!", visible:true },
+   { id:15, name:'Ross',     company:'Mophie',              role:'', highlight:"The entire week was seamless", body:"Was an epic event Britt Niven. Can not thank you enough for all your help and support. The entire week was seamless.", visible:true },
+   { id:16, name:'Sheridan', company:'Coates',              role:'', highlight:"We value your amazing contribution to Coates and our customers", body:"We value your amazing contribution to Coates and our customers. The hospitality programmes you design and deliver are consistently outstanding.", visible:true },
+   { id:17, name:'Rebecca',  company:'SA Motorsport Board', role:'', highlight:"Such an incredible addition to the event", body:"Amazing, Britt Niven. This was such an incredible addition to the event, and we appreciate you and your team for putting in so much hard work to bring everything to life. Thank you!", visible:true },
+   { id:18, name:'Mick',     company:'AME Group',           role:'', highlight:"Thank you for your help in making it so epic!", body:"What a day! Thank you for your help in making it so epic!", visible:true },
+ ];
+
+ function tGetAll() {
+   var stored = localStorage.getItem(T_KEY);
+   if (!stored) return null;
+   try { return JSON.parse(stored); } catch(e) { return null; }
+ }
+
+ function tSaveAll(data) {
+   localStorage.setItem(T_KEY, JSON.stringify(data));
+   tSyncToSite(data);
+ }
+
+ /* Write visible testimonials back to localStorage so index.html can read them */
+ function tSyncToSite(data) {
+   var visible = (data || []).filter(function(t){ return t.visible !== false; });
+   localStorage.setItem('ch_testimonials_live', JSON.stringify(visible));
+ }
+
+ function tNextId(data) {
+   return data.length ? Math.max.apply(null, data.map(function(t){ return t.id||0; })) + 1 : 1;
+ }
+
+ function tUpdateStats(data) {
+   var visible = data.filter(function(t){ return t.visible !== false; }).length;
+   document.getElementById('t-stat-total').textContent   = data.length;
+   document.getElementById('t-stat-visible').textContent = visible;
+   document.getElementById('t-stat-hidden').textContent  = data.length - visible;
+ }
+
+ function tRender() {
+   var data = tGetAll() || T_SEED;
+   tUpdateStats(data);
+   var query = (document.getElementById('t-search').value || '').toLowerCase();
+   var filtered = query
+     ? data.filter(function(t){ return (t.name+t.company+t.body).toLowerCase().includes(query); })
+     : data;
+   var list = document.getElementById('t-list');
+   if (!filtered.length) { list.innerHTML = '<div class="empty">No testimonials found.</div>'; return; }
+   list.innerHTML = '';
+   filtered.forEach(function(t) {
+     var row = document.createElement('div');
+     row.className = 'item-row';
+     row.style.flexWrap = 'wrap';
+     var visibleBadge = t.visible !== false
+       ? '<span class="status-badge status-published">Visible</span>'
+       : '<span class="status-badge status-draft">Hidden</span>';
+     var excerpt = t.body.length > 110 ? t.body.slice(0,110) + '…' : t.body;
+     row.innerHTML =
+       '<div class="item-info" style="flex:1;min-width:0;">'
+       + '<div class="item-title" style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">'
+       +   esc(t.name) + ' <span style="font-weight:400;color:#aaa;font-size:0.8rem;">— ' + esc(t.company) + '</span>'
+       +   visibleBadge
+       + '</div>'
+       + (t.highlight ? '<div style="font-size:0.8rem;color:#2B317B;font-style:italic;margin:0.25rem 0 0.15rem;">&ldquo;' + esc(t.highlight) + '&rdquo;</div>' : '')
+       + '<div class="item-meta">' + esc(excerpt) + '</div>'
+       + '</div>'
+       + '<div class="item-actions" style="flex-shrink:0;">'
+       +   '<button class="btn btn-secondary btn-sm" onclick="tOpenEdit(' + t.id + ')">Edit</button>'
+       +   '<button class="btn btn-danger btn-sm" onclick="tDelete(' + t.id + ')">Delete</button>'
+       + '</div>';
+     list.appendChild(row);
+   });
+ }
+
+ function tOpenAdd() {
+   document.getElementById('t-edit-id').value = '';
+   document.getElementById('t-form').reset();
+   document.getElementById('t-visible').value = 'visible';
+   document.getElementById('t-modal-title').textContent = 'Add Testimonial';
+   document.getElementById('t-success').style.display = 'none';
+   document.getElementById('t-modal').style.display = 'block';
+ }
+
+ function tOpenEdit(id) {
+   var data = tGetAll() || T_SEED;
+   var t = data.find(function(x){ return x.id === id; });
+   if (!t) return;
+   document.getElementById('t-edit-id').value = id;
+   document.getElementById('t-name').value      = t.name || '';
+   document.getElementById('t-company').value   = t.company || '';
+   document.getElementById('t-highlight').value = t.highlight || '';
+   document.getElementById('t-body').value      = t.body || '';
+   document.getElementById('t-role').value      = t.role || '';
+   document.getElementById('t-visible').value   = t.visible !== false ? 'visible' : 'hidden';
+   document.getElementById('t-modal-title').textContent = 'Edit Testimonial';
+   document.getElementById('t-success').style.display = 'none';
+   document.getElementById('t-modal').style.display = 'block';
+ }
+
+ function tCloseModal() {
+   document.getElementById('t-modal').style.display = 'none';
+ }
+
+ function tSave() {
+   var name    = document.getElementById('t-name').value.trim();
+   var company = document.getElementById('t-company').value.trim();
+   var body    = document.getElementById('t-body').value.trim();
+   if (!name || !company || !body) { alert('Name, Company and Testimonial text are required.'); return; }
+   var data    = tGetAll() || JSON.parse(JSON.stringify(T_SEED));
+   var editId  = document.getElementById('t-edit-id').value;
+   var record  = {
+     id:        editId ? parseInt(editId) : tNextId(data),
+     name:      name,
+     company:   company,
+     highlight: document.getElementById('t-highlight').value.trim(),
+     body:      body,
+     role:      document.getElementById('t-role').value.trim(),
+     visible:   document.getElementById('t-visible').value === 'visible',
+   };
+   if (editId) {
+     var idx = data.findIndex(function(x){ return x.id === parseInt(editId); });
+     if (idx > -1) data[idx] = record; else data.push(record);
+   } else {
+     data.push(record);
+   }
+   tSaveAll(data);
+   tRender();
+   var msg = document.getElementById('t-success');
+   msg.style.display = 'inline-block';
+   setTimeout(function(){ msg.style.display='none'; tCloseModal(); }, 1800);
+ }
+
+ function tDelete(id) {
+   var data = tGetAll() || JSON.parse(JSON.stringify(T_SEED));
+   var t = data.find(function(x){ return x.id===id; });
+   if (!t) return;
+   if (!confirm('Delete testimonial from ' + t.name + ' (' + t.company + ')?\n\nThis cannot be undone.')) return;
+   data = data.filter(function(x){ return x.id !== id; });
+   tSaveAll(data);
+   tRender();
+ }
+
+ /* Seed on first load */
+ (function tInit() {
+   if (!localStorage.getItem(T_KEY)) {
+     localStorage.setItem(T_KEY, JSON.stringify(T_SEED));
+     tSyncToSite(T_SEED);
+   }
+   tRender();
+ })();
+
+ /* ── FAQ Manager ── */
+ var FAQ_KEY = 'ch_faqs';
+ var FAQ_MAX = 5;
+ var FAQ_CHAR_MIN = 280;
+ var FAQ_CHAR_MAX = 480;
+
+ var FAQ_DEFAULTS = [
+ { q: "What does a sports event activation agency do?", a: "A sports event activation agency designs and delivers brand experiences at major sporting events from fan engagement zones and sponsor inventory build-outs to branded hospitality lounges and on-site content capture. Cielo House manages the full production chain, from concept through to bump-out, at events including the F1 Australian Grand Prix, Supercars Championship, and WSL surfing competitions." },
+ { q: "How can brand activations at sporting events grow my business?", a: "Brand activations at sporting events place your brand directly in front of a highly engaged, passionate audience at peak attention moments. Done well, they generate earned media, social content, and genuine brand recall that outlasts the event itself. Cielo House designs activations specifically around the venue, the crowd, and the commercial outcome your brand needs not generic creative applied to a sporting environment." },
+ { q: "How do I organise corporate hospitality at a major Australian sporting event?", a: "Organising corporate hospitality at a major Australian sporting event starts with understanding your guest list, the event, and the standard you want to hold from arrival to departure. Cielo House plans the full sequence branded lounge concept and fit-out, talent integration, service standards, and crew management so the experience reflects your brand from the moment guests arrive to the final bump-out." },
+ { q: "What sporting events does Cielo House work at?", a: "Cielo House delivers activations and hospitality programmes at major Australian sporting events including the Formula 1 Australian Grand Prix in Melbourne, the Boost Mobile Gold Coast 500 (Supercars Championship), WSL Rip Curl Pro Bells Beach, and Australian Boardriders Battle. The agency is based on the Gold Coast and has strong relationships with Gold Coast and Queensland sporting properties." },
+ { q: "What is the process for briefing Cielo House on an activation or hospitality project?", a: "The process starts with a brief discussion not a sales call. Bring the event you are activating at, the activation type (brand zone, hospitality, or both), a rough budget bracket, and the outcome you need for your brand. From that conversation you will know whether Cielo House is the right fit and what delivery will take. Contact us at connect@cielohouse.com.au to start." }
+ ];
+
+ function faqLoad() {
+ try { return JSON.parse(localStorage.getItem(FAQ_KEY)) || FAQ_DEFAULTS; }
+ catch(e) { return FAQ_DEFAULTS; }
+ }
+
+ function faqRenderEditor() {
+ var faqs = faqLoad();
+ var container = document.getElementById('faq-editor-list');
+ container.innerHTML = '<div class="card-title">Questions &amp; Answers <span style="font-weight:400;color:#aaa;font-size:0.75rem;margin-left:0.5rem;"> ' + FAQ_MAX + ' max · Answers: ' + FAQ_CHAR_MIN + ' ' + FAQ_CHAR_MAX + ' chars recommended for Google</span></div>';
+
+ faqs.forEach(function(faq, idx) {
+ var row = document.createElement('div');
+ row.className = 'faq-edit-row';
+ row.style.cssText = 'background:#f8f9ff;border:1px solid #eef0f8;border-radius:8px;padding:1rem;margin-bottom:0.9rem;';
+ var charCount = (faq.a || '').length;
+ var countColor = charCount < FAQ_CHAR_MIN ? '#e67e22' : charCount > FAQ_CHAR_MAX ? '#e74c3c' : '#27ae60';
+ row.innerHTML =
+ '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">' +
+ '<span style="font-size:0.72rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#999;">Question ' + (idx + 1) + '</span>' +
+ '<button type="button" class="faq-del-row" data-idx="' + idx + '" style="background:none;border:none;cursor:pointer;color:#c0392b;font-size:0.78rem;font-weight:600;">Remove</button>' +
+ '</div>' +
+ '<label style="font-size:0.72rem;font-weight:600;color:#555;display:block;margin-bottom:0.3rem;">Question</label>' +
+ '<input type="text" class="form-input faq-q-input" data-idx="' + idx + '" value="' + esc(faq.q || '') + '" style="margin-bottom:0.65rem;font-size:0.82rem;" />' +
+ '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.3rem;">' +
+ '<label style="font-size:0.72rem;font-weight:600;color:#555;">Answer</label>' +
+ '<span class="faq-char-count" data-idx="' + idx + '" style="font-size:0.7rem;color:' + countColor + ';font-weight:600;">' + charCount + ' / ' + FAQ_CHAR_MAX + ' chars</span>' +
+ '</div>' +
+ '<textarea class="form-input faq-a-input" data-idx="' + idx + '" rows="4" maxlength="600" style="resize:vertical;font-size:0.8rem;line-height:1.55;">' + esc(faq.a || '') + '</textarea>' +
+ '<div style="font-size:0.7rem;color:#aaa;margin-top:0.4rem;">Optimal: ' + FAQ_CHAR_MIN + ' ' + FAQ_CHAR_MAX + ' characters for Google featured snippets</div>';
+
+ container.appendChild(row);
+ });
+
+ // Show add button only if under max
+ document.getElementById('faq-add-btn').style.display = faqs.length < FAQ_MAX ? 'inline-flex' : 'none';
+
+ // Char counters
+ container.querySelectorAll('.faq-a-input').forEach(function(ta) {
+ ta.addEventListener('input', function() {
+ var idx = ta.getAttribute('data-idx');
+ var count = ta.value.length;
+ var color = count < FAQ_CHAR_MIN ? '#e67e22' : count > FAQ_CHAR_MAX ? '#e74c3c' : '#27ae60';
+ var counter = container.querySelector('.faq-char-count[data-idx="' + idx + '"]');
+ if (counter) { counter.textContent = count + ' / ' + FAQ_CHAR_MAX + ' chars'; counter.style.color = color; }
+ });
+ });
+
+ // Remove buttons
+ container.querySelectorAll('.faq-del-row').forEach(function(btn) {
+ btn.addEventListener('click', function() {
+ var idx = parseInt(btn.getAttribute('data-idx'));
+ var faqs = faqLoad();
+ faqs.splice(idx, 1);
+ localStorage.setItem(FAQ_KEY, JSON.stringify(faqs));
+ faqRenderEditor();
+ });
+ });
+ }
+
+ document.getElementById('faq-add-btn').addEventListener('click', function() {
+ var faqs = faqLoad();
+ if (faqs.length >= FAQ_MAX) return;
+ faqs.push({ q: '', a: '' });
+ localStorage.setItem(FAQ_KEY, JSON.stringify(faqs));
+ faqRenderEditor();
+ });
+
+ document.getElementById('faq-save-btn').addEventListener('click', function() {
+ var rows = document.querySelectorAll('.faq-edit-row');
+ var faqs = [];
+ rows.forEach(function(row) {
+ var q = row.querySelector('.faq-q-input').value.trim();
+ var a = row.querySelector('.faq-a-input').value.trim();
+ if (q || a) faqs.push({ q: q, a: a });
+ });
+ localStorage.setItem(FAQ_KEY, JSON.stringify(faqs));
+ var msg = document.getElementById('faq-saved-msg');
+ msg.style.display = 'inline';
+ setTimeout(function(){ msg.style.display = 'none'; }, 4000);
+ faqRenderEditor();
+ });
+
+ document.getElementById('faq-reset-btn').addEventListener('click', function() {
+ if (confirm('Reset all FAQs to defaults? This cannot be undone.')) {
+ localStorage.setItem(FAQ_KEY, JSON.stringify(FAQ_DEFAULTS));
+ faqRenderEditor();
+ }
+ });
+
+ faqRenderEditor();
+ </script>
+</body>
+</html>

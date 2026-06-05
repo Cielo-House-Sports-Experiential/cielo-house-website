@@ -1,0 +1,17 @@
+# Large raw video file (too big for GitHub)
+2026 Website Video.mp4
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Server logs
+/tmp/
+*.log
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Zip backups
+*.zip
