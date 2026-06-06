@@ -182,6 +182,26 @@
  <p class="footer__copy">Copyright &copy; 2025 Cielo House | Sports + Experiential</p>
  </div>
  </footer>
+ <script>
+ (async function () {
+   const U = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
+   const K = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
+   const esc = s => (s || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+   try {
+     const r = await fetch(`${U}/rest/v1/blog_posts?status=eq.Published&select=slug,title,excerpt,category,image,author,date&order=date.desc`, { headers: { apikey: K, Authorization: 'Bearer ' + K } });
+     const posts = await r.json();
+     const grid = document.querySelector('.blog-grid');
+     if (!Array.isArray(posts) || !posts.length || !grid) return;
+     posts.reverse().forEach(p => {
+       const art = document.createElement('article');
+       art.className = 'blog-card';
+       art.setAttribute('data-animate', '');
+       art.innerHTML = `<a href="/blog/${encodeURIComponent(p.slug)}">${p.image ? `<div class="blog-card__img-wrap"><img src="${esc(p.image)}" alt="${esc(p.title)}" class="blog-card__img" loading="lazy"/></div>` : ''}<span class="blog-card__tag">${esc(p.category || 'Insights')}</span><h3 class="blog-card__title">${esc(p.title)}</h3><p class="blog-card__excerpt">${esc(p.excerpt || '')}</p><span class="blog-card__meta">${esc(p.author || 'Britt Niven')}</span></a>`;
+       grid.insertBefore(art, grid.firstChild);
+     });
+   } catch (e) {}
+ })();
+ </script>
  <script src="js/main.js" defer></script>
 </body>
 </html>

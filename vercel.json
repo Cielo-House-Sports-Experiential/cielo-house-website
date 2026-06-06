@@ -1,4 +1,7 @@
 {
   "version": 2,
-  "outputDirectory": "."
+  "outputDirectory": ".",
+  "rewrites": [
+    { "source": "/blog/:slug", "destination": "/blog/post.html?slug=:slug" }
+  ]
 }
