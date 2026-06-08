@@ -184,6 +184,26 @@
  .tag-pill-x { background:none;border:none;cursor:pointer;color:#aaa;font-size:0.85rem;line-height:1;padding:0; }
  .tag-pill-x:hover { color:#e74c3c; }
  .seo-badge { display:inline-flex;align-items:center;gap:0.25rem;font-size:0.66rem;font-weight:600;padding:0.1rem 0.4rem;border-radius:10px;background:#eef1fb;color:#2B317B;margin-left:0.3rem; }
+ /* Inline RTE controls */
+ .rte-wrap { position:relative; }
+ .rte-inline-btn { position:absolute;left:-38px;width:28px;height:28px;border-radius:50%;background:#fff;border:1.5px solid #c8d4f0;color:#2B317B;font-size:1.1rem;line-height:1;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.12);transition:background 0.15s,transform 0.15s;z-index:10;padding:0; }
+ .rte-inline-btn:hover { background:#2B317B;color:#fff;transform:scale(1.1); }
+ .rte-inline-menu { position:absolute;left:-8px;background:#fff;border:1.5px solid #dde2f0;border-radius:10px;padding:0.4rem;box-shadow:0 8px 24px rgba(0,0,0,0.14);z-index:20;display:none;flex-direction:column;gap:0.25rem;min-width:140px; }
+ .rte-inline-menu.open { display:flex; }
+ .rte-inline-opt { display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.65rem;border:none;background:none;width:100%;text-align:left;border-radius:6px;cursor:pointer;font-family:'Poppins',sans-serif;font-size:0.82rem;color:#333;font-weight:500;transition:background 0.12s; }
+ .rte-inline-opt:hover { background:#f0f4ff;color:#2B317B; }
+ /* Image delete overlay */
+ .rte-img-overlay { position:absolute;top:6px;right:6px;display:flex;gap:0.3rem;z-index:15; }
+ .rte-img-del { background:rgba(192,57,43,0.92);color:#fff;border:none;border-radius:5px;padding:0.3rem 0.55rem;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;display:flex;align-items:center;gap:0.3rem;transition:background 0.15s; }
+ .rte-img-del:hover { background:#c0392b; }
+ .rte-body img { cursor:pointer;border-radius:6px;max-width:100%;transition:outline 0.15s; }
+ .rte-body img.rte-img-selected { outline:2.5px solid #2B317B;outline-offset:2px; }
+ .rte-body figure { position:relative;display:inline-block;width:100%;margin:0.75rem 0; }
+ /* AI tag button */
+ .btn-ai { background:linear-gradient(135deg,#2B317B,#668DC6);color:#fff;border:none;padding:0.4rem 0.9rem;border-radius:6px;font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;transition:opacity 0.2s; }
+ .btn-ai:hover { opacity:0.88; }
+ .btn-ai:disabled { opacity:0.55;cursor:not-allowed; }
+ .tag-count { font-size:0.7rem;color:#aaa;margin-left:0.4rem; }
  /* Insert modals */
  .rte-modal { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:600;align-items:center;justify-content:center; }
  .rte-modal.open { display:flex; }
@@ -454,11 +474,17 @@
 
           <!-- Tags -->
           <div class="form-group">
-            <label class="form-label">Tags <span style="color:#aaa;font-weight:400;">(press Enter or comma to add)</span></label>
-            <input class="form-input" type="text" id="blog-tag-input" placeholder="e.g. brand activation, sporting events, sponsorship" onkeydown="blogTagKeydown(event)" onblur="blogTagAdd()" />
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.35rem;">
+              <label class="form-label" style="margin-bottom:0;">Tags <span style="color:#aaa;font-weight:400;">(press Enter or comma to add · max 30)</span></label>
+              <button type="button" class="btn-ai" id="ai-tag-btn" onclick="aiGenerateTags()">&#10024; AI Generate Tags</button>
+            </div>
+            <input class="form-input" type="text" id="blog-tag-input" placeholder="Type a tag and press Enter…" onkeydown="blogTagKeydown(event)" onblur="blogTagAdd()" />
             <div class="tag-pills" id="blog-tag-pills"></div>
             <input type="hidden" id="blog-tags" value="" />
-            <div style="font-size:0.7rem;color:#aaa;margin-top:0.3rem;">Tags help categorise posts and improve discoverability. Add 3–8 tags.</div>
+            <div style="display:flex;justify-content:space-between;margin-top:0.3rem;">
+              <span style="font-size:0.7rem;color:#aaa;">Tags help with SEO and discoverability. Aim for 5–15 tags.</span>
+              <span class="tag-count" id="tag-count">0 / 30</span>
+            </div>
           </div>
 
           <!-- Open Graph Title override -->
@@ -495,9 +521,22 @@
           <button type="button" class="rte-btn" title="Remove formatting" onclick="rteCmd('removeFormat')">&#10005; Clear</button>
         </div>
 
-        <!-- Editable area -->
-        <div class="rte-body" id="blog-content" contenteditable="true" spellcheck="true">
-          <p>Start writing your post here...</p>
+        <!-- Editable area + floating controls -->
+        <div class="rte-wrap" id="rte-wrap" style="margin-left:38px;">
+          <!-- Floating + button -->
+          <button type="button" class="rte-inline-btn" id="rte-plus-btn" title="Insert image or video" onclick="rteToggleInlineMenu(event)">+</button>
+          <!-- Mini insert menu -->
+          <div class="rte-inline-menu" id="rte-inline-menu">
+            <button type="button" class="rte-inline-opt" onclick="rteInlineImage()">&#128247; Insert Image</button>
+            <button type="button" class="rte-inline-opt" onclick="rteInlineVideo()">&#127916; Insert Video</button>
+          </div>
+          <!-- Image delete overlay (portal) -->
+          <div id="rte-img-overlay" class="rte-img-overlay" style="display:none;">
+            <button type="button" class="rte-img-del" onclick="rteDeleteSelectedImg()">&#128465; Delete Image</button>
+          </div>
+          <div class="rte-body" id="blog-content" contenteditable="true" spellcheck="true">
+            <p>Start writing your post here...</p>
+          </div>
         </div>
       </div>
 
@@ -706,6 +745,51 @@
       <div style="display:flex;gap:0.75rem;">
         <button class="btn btn-primary btn-sm" onclick="rteConfirmImage()">Insert Image</button>
         <button class="btn btn-secondary btn-sm" onclick="rteCloseModal('rte-img-modal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RTE: Insert Video Modal -->
+  <div class="rte-modal" id="rte-video-modal">
+    <div class="rte-modal-box">
+      <div class="modal-title" style="font-size:1.3rem;margin-bottom:0.5rem;">&#127916; Insert Video</div>
+      <p style="font-size:0.8rem;color:#888;margin-bottom:1.25rem;">Paste a YouTube or Vimeo URL, or upload an MP4 video file.</p>
+
+      <!-- URL tab -->
+      <div style="display:flex;gap:0.3rem;background:#f5f7fb;border:1.5px solid #dde2f0;border-radius:6px;padding:0.2rem;margin-bottom:1rem;">
+        <button type="button" id="vtab-url" onclick="vTab('url')" style="flex:1;padding:0.35rem;border:none;border-radius:5px;font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;background:#fff;color:#2B317B;box-shadow:0 1px 4px rgba(0,0,0,0.08);">&#127759; URL Embed</button>
+        <button type="button" id="vtab-file" onclick="vTab('file')" style="flex:1;padding:0.35rem;border:none;border-radius:5px;font-family:'Poppins',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;background:none;color:#888;">&#128190; Upload MP4</button>
+      </div>
+
+      <div id="vtab-url-body">
+        <div class="form-group" style="margin-bottom:0.85rem;">
+          <label class="form-label">YouTube or Vimeo URL</label>
+          <input class="form-input" id="rte-video-url" placeholder="https://www.youtube.com/watch?v=... or https://vimeo.com/..." oninput="rteVideoPreview()" />
+        </div>
+        <div id="rte-video-preview-wrap" style="margin-bottom:1rem;display:none;">
+          <div style="font-size:0.72rem;color:#aaa;margin-bottom:0.4rem;">Preview</div>
+          <div id="rte-video-preview" style="border-radius:8px;overflow:hidden;background:#000;aspect-ratio:16/9;"></div>
+        </div>
+      </div>
+
+      <div id="vtab-file-body" style="display:none;">
+        <div class="form-group" style="margin-bottom:0.85rem;">
+          <label class="form-label">Upload MP4 / WebM</label>
+          <div class="upload-area" onclick="document.getElementById('rte-video-file').click()">
+            <input type="file" id="rte-video-file" accept="video/mp4,video/webm" />
+            <div class="upload-label"><strong>Click to upload</strong> a video file<br><span style="font-size:0.72rem;color:#bbb;">MP4 or WebM · max 50 MB</span></div>
+            <div id="rte-video-filename" style="font-size:0.8rem;color:#2B317B;margin-top:0.5rem;display:none;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:1.25rem;">
+        <label class="form-label">Caption <span style="color:#aaa;font-weight:400;">(optional)</span></label>
+        <input class="form-input" id="rte-video-caption" placeholder="e.g. Cielo House activation at Gold Coast 500" />
+      </div>
+      <div style="display:flex;gap:0.75rem;">
+        <button class="btn btn-primary btn-sm" onclick="rteConfirmVideo()">Insert Video</button>
+        <button class="btn btn-secondary btn-sm" onclick="rteCloseModal('rte-video-modal')">Cancel</button>
       </div>
     </div>
   </div>
@@ -1449,6 +1533,7 @@
  // ── Tag Pills ──
  function blogRenderTagPills(tags) {
    var container = document.getElementById('blog-tag-pills');
+   var counter   = document.getElementById('tag-count');
    container.innerHTML = '';
    tags.forEach(function(tag, i) {
      var pill = document.createElement('span');
@@ -1456,6 +1541,10 @@
      pill.innerHTML = esc(tag) + '<button type="button" class="tag-pill-x" onclick="blogRemoveTag(' + i + ')" title="Remove">&#215;</button>';
      container.appendChild(pill);
    });
+   if (counter) {
+     counter.textContent = tags.length + ' / 30';
+     counter.style.color = tags.length >= 30 ? '#e74c3c' : tags.length >= 20 ? '#f39c12' : '#aaa';
+   }
  }
 
  function blogTagsFromHidden() {
@@ -1472,6 +1561,7 @@
    var raw = input.value.replace(/,/g,'').trim();
    if (!raw) return;
    var tags = blogTagsFromHidden();
+   if (tags.length >= 30) { input.value = ''; alert('Maximum 30 tags reached.'); return; }
    if (!tags.includes(raw)) { tags.push(raw); }
    document.getElementById('blog-tags').value = tags.join(', ');
    blogRenderTagPills(tags);
@@ -1679,6 +1769,277 @@
  document.addEventListener('keydown', function(e) {
    if (e.key === 'Escape') document.querySelectorAll('.rte-modal.open').forEach(function(m){ m.classList.remove('open'); });
  });
+
+ // ══════════════════════════════════════════════
+ // ── Floating + Button (inline insert) ──
+ // ══════════════════════════════════════════════
+ var _rteContent = document.getElementById('blog-content');
+ var _plusBtn    = document.getElementById('rte-plus-btn');
+ var _inlineMenu = document.getElementById('rte-inline-menu');
+
+ function rteUpdatePlusPos() {
+   var sel = window.getSelection();
+   if (!sel || sel.rangeCount === 0) return;
+   var range = sel.getRangeAt(0);
+   var rect  = range.getBoundingClientRect();
+   var wrap  = document.getElementById('rte-wrap');
+   var wRect = wrap.getBoundingClientRect();
+   if (rect.top === 0 && rect.left === 0) {
+     // Caret at start — use first line of content
+     var firstEl = _rteContent.firstElementChild;
+     if (firstEl) { rect = firstEl.getBoundingClientRect(); } else { return; }
+   }
+   var top = rect.top - wRect.top + (rect.height / 2) - 14;
+   _plusBtn.style.top  = Math.max(0, top) + 'px';
+   _plusBtn.style.display = 'flex';
+   _inlineMenu.style.top = Math.max(0, top) + 'px';
+ }
+
+ _rteContent.addEventListener('keyup',   rteUpdatePlusPos);
+ _rteContent.addEventListener('mouseup',  rteUpdatePlusPos);
+ _rteContent.addEventListener('focus',    rteUpdatePlusPos);
+ _rteContent.addEventListener('blur', function() {
+   setTimeout(function() {
+     if (!_inlineMenu.matches(':hover') && !_plusBtn.matches(':hover')) {
+       _plusBtn.style.display = 'none';
+       _inlineMenu.classList.remove('open');
+     }
+   }, 200);
+ });
+
+ function rteToggleInlineMenu(e) {
+   e.stopPropagation();
+   _inlineMenu.classList.toggle('open');
+ }
+
+ function rteInlineImage() {
+   _inlineMenu.classList.remove('open');
+   _rteContent.focus();
+   rteInsertImage();
+ }
+
+ function rteInlineVideo() {
+   _inlineMenu.classList.remove('open');
+   _rteContent.focus();
+   // Save selection before opening modal
+   _rteSelection = window.getSelection && window.getSelection().rangeCount
+     ? window.getSelection().getRangeAt(0) : null;
+   document.getElementById('rte-video-url').value = '';
+   document.getElementById('rte-video-caption').value = '';
+   document.getElementById('rte-video-preview-wrap').style.display = 'none';
+   document.getElementById('rte-video-filename').style.display = 'none';
+   vTab('url');
+   document.getElementById('rte-video-modal').classList.add('open');
+ }
+
+ document.addEventListener('click', function(e) {
+   if (!e.target.closest('#rte-inline-menu') && !e.target.closest('#rte-plus-btn')) {
+     _inlineMenu.classList.remove('open');
+   }
+ });
+
+ // ══════════════════════════════════════════════
+ // ── Video Modal ──
+ // ══════════════════════════════════════════════
+ function vTab(tab) {
+   var isUrl = (tab === 'url');
+   document.getElementById('vtab-url-body').style.display  = isUrl ? '' : 'none';
+   document.getElementById('vtab-file-body').style.display = isUrl ? 'none' : '';
+   document.getElementById('vtab-url').style.background  = isUrl ? '#fff' : 'none';
+   document.getElementById('vtab-url').style.color        = isUrl ? '#2B317B' : '#888';
+   document.getElementById('vtab-url').style.boxShadow   = isUrl ? '0 1px 4px rgba(0,0,0,0.08)' : 'none';
+   document.getElementById('vtab-file').style.background = isUrl ? 'none' : '#fff';
+   document.getElementById('vtab-file').style.color      = isUrl ? '#888' : '#2B317B';
+   document.getElementById('vtab-file').style.boxShadow  = isUrl ? 'none' : '0 1px 4px rgba(0,0,0,0.08)';
+ }
+
+ function rteVideoPreview() {
+   var url = document.getElementById('rte-video-url').value.trim();
+   var wrap = document.getElementById('rte-video-preview-wrap');
+   var prev = document.getElementById('rte-video-preview');
+   var embedUrl = rteVideoEmbed(url);
+   if (embedUrl) {
+     prev.innerHTML = '<iframe width="100%" height="100%" src="' + embedUrl + '" frameborder="0" allowfullscreen style="display:block;width:100%;aspect-ratio:16/9;border-radius:6px;"></iframe>';
+     wrap.style.display = '';
+   } else {
+     prev.innerHTML = '';
+     wrap.style.display = 'none';
+   }
+ }
+
+ function rteVideoEmbed(url) {
+   // YouTube
+   var yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+   if (yt) return 'https://www.youtube.com/embed/' + yt[1] + '?rel=0';
+   // Vimeo
+   var vm = url.match(/vimeo\.com\/(\d+)/);
+   if (vm) return 'https://player.vimeo.com/video/' + vm[1];
+   return null;
+ }
+
+ document.getElementById('rte-video-file').addEventListener('change', function() {
+   var file = this.files[0];
+   if (!file) return;
+   if (file.size > 50 * 1024 * 1024) { alert('Video must be under 50 MB.'); return; }
+   document.getElementById('rte-video-filename').textContent = '✓ ' + file.name;
+   document.getElementById('rte-video-filename').style.display = '';
+ });
+
+ function rteConfirmVideo() {
+   var caption = document.getElementById('rte-video-caption').value.trim();
+   var isUrl   = document.getElementById('vtab-url-body').style.display !== 'none';
+   var html    = '';
+
+   if (isUrl) {
+     var url = document.getElementById('rte-video-url').value.trim();
+     if (!url) { alert('Please enter a YouTube or Vimeo URL.'); return; }
+     var embedUrl = rteVideoEmbed(url);
+     if (!embedUrl) { alert('Please enter a valid YouTube (youtube.com or youtu.be) or Vimeo URL.'); return; }
+     html = '<figure style="margin:1rem 0;">'
+       + '<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;">'
+       + '<iframe src="' + esc(embedUrl) + '" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen loading="lazy"></iframe>'
+       + '</div>'
+       + (caption ? '<figcaption>' + esc(caption) + '</figcaption>' : '')
+       + '</figure>';
+   } else {
+     var file = document.getElementById('rte-video-file').files[0];
+     if (!file) { alert('Please select a video file.'); return; }
+     var objUrl = URL.createObjectURL(file);
+     html = '<figure style="margin:1rem 0;">'
+       + '<video controls style="width:100%;border-radius:8px;display:block;" src="' + objUrl + '"></video>'
+       + (caption ? '<figcaption>' + esc(caption) + '</figcaption>' : '')
+       + '</figure>';
+   }
+
+   rteCloseModal('rte-video-modal');
+   _rteContent.focus();
+   if (_rteSelection) {
+     var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(_rteSelection);
+   }
+   document.execCommand('insertHTML', false, html);
+ }
+
+ // ══════════════════════════════════════════════
+ // ── Image delete on click ──
+ // ══════════════════════════════════════════════
+ var _selectedImg = null;
+ var _imgOverlay  = document.getElementById('rte-img-overlay');
+
+ _rteContent.addEventListener('click', function(e) {
+   var img = e.target.closest('img');
+   if (img && _rteContent.contains(img)) {
+     e.preventDefault();
+     // Deselect previous
+     if (_selectedImg && _selectedImg !== img) {
+       _selectedImg.classList.remove('rte-img-selected');
+     }
+     _selectedImg = img;
+     img.classList.add('rte-img-selected');
+
+     // Position overlay on the image
+     var imgRect  = img.getBoundingClientRect();
+     var wrapRect = document.getElementById('rte-wrap').getBoundingClientRect();
+     _imgOverlay.style.top   = (imgRect.top - wrapRect.top + 6) + 'px';
+     _imgOverlay.style.right = (wrapRect.right - imgRect.right + 6) + 'px';
+     _imgOverlay.style.left  = 'auto';
+     _imgOverlay.style.display = 'flex';
+   } else {
+     // Click elsewhere — deselect
+     if (_selectedImg) { _selectedImg.classList.remove('rte-img-selected'); _selectedImg = null; }
+     _imgOverlay.style.display = 'none';
+   }
+ });
+
+ document.addEventListener('click', function(e) {
+   if (!e.target.closest('#rte-wrap')) {
+     if (_selectedImg) { _selectedImg.classList.remove('rte-img-selected'); _selectedImg = null; }
+     _imgOverlay.style.display = 'none';
+   }
+ });
+
+ function rteDeleteSelectedImg() {
+   if (!_selectedImg) return;
+   // Remove the figure if the image is inside one, otherwise just the img
+   var parent = _selectedImg.parentElement;
+   if (parent && parent.tagName === 'FIGURE') {
+     parent.parentNode.removeChild(parent);
+   } else {
+     _selectedImg.parentNode.removeChild(_selectedImg);
+   }
+   _selectedImg = null;
+   _imgOverlay.style.display = 'none';
+ }
+
+ // ══════════════════════════════════════════════
+ // ── AI Tag Generation ──
+ // ══════════════════════════════════════════════
+ function aiGenerateTags() {
+   var title    = document.getElementById('blog-title').value.trim();
+   var excerpt  = document.getElementById('blog-excerpt').value.trim();
+   var content  = document.getElementById('blog-content').innerText.trim();
+   var keyword  = document.getElementById('blog-focus-keyword').value.trim();
+   var category = document.getElementById('blog-category').value;
+
+   if (!title && !content) {
+     alert('Please enter at least a title or some content before generating tags.');
+     return;
+   }
+
+   var btn = document.getElementById('ai-tag-btn');
+   btn.disabled = true;
+   btn.textContent = '⏳ Generating…';
+
+   var textBody = [
+     title ? 'Title: ' + title : '',
+     category ? 'Category: ' + category : '',
+     keyword ? 'Focus keyword: ' + keyword : '',
+     excerpt ? 'Excerpt: ' + excerpt : '',
+     content ? 'Content excerpt: ' + content.slice(0, 800) : ''
+   ].filter(Boolean).join('\n');
+
+   var messages = [{
+     role: 'user',
+     content: 'You are an SEO specialist. Based on the following blog post details, generate exactly 15 to 20 relevant SEO tags. Return ONLY a JSON array of tag strings — no explanations, no markdown, no extra text. Each tag should be 1-4 words, lowercase, and highly relevant to the content. Include a mix of: specific topics, broad industry terms, location-based terms (Australia, Gold Coast), and action-based terms.\n\n' + textBody
+   }];
+
+   fetch('/api/chat', {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json' },
+     body: JSON.stringify({ messages: messages })
+   })
+   .then(function(r) { return r.json(); })
+   .then(function(data) {
+     var reply = (data.reply || '').trim();
+     // Parse JSON array from response
+     var match = reply.match(/\[[\s\S]*\]/);
+     if (!match) throw new Error('No array found in response');
+     var newTags = JSON.parse(match[0]);
+     if (!Array.isArray(newTags)) throw new Error('Not an array');
+
+     var existing = blogTagsFromHidden();
+     var combined = existing.slice();
+     newTags.forEach(function(tag) {
+       tag = String(tag).trim().toLowerCase();
+       if (tag && !combined.includes(tag) && combined.length < 30) {
+         combined.push(tag);
+       }
+     });
+     // Limit to 30
+     combined = combined.slice(0, 30);
+     document.getElementById('blog-tags').value = combined.join(', ');
+     blogRenderTagPills(combined);
+     seoUpdate();
+
+     btn.disabled = false;
+     btn.textContent = '✨ AI Generate Tags';
+   })
+   .catch(function(err) {
+     console.error('AI tag error:', err);
+     btn.disabled = false;
+     btn.textContent = '✨ AI Generate Tags';
+     alert('Could not generate tags — make sure the AI chat is running and try again.');
+   });
+ }
 
  renderPosts();
 
