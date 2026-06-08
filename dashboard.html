@@ -163,6 +163,27 @@
  .status-published { background:#e8faf0;color:#1a7a40; }
  .status-draft { background:#fff7e6;color:#a05a00; }
  .status-scheduled { background:#eef0ff;color:#2B317B; }
+ /* SEO Section */
+ .seo-section { border:1.5px solid #dde2f0;border-radius:8px;overflow:hidden;margin-top:0.25rem; }
+ .seo-toggle { width:100%;display:flex;align-items:center;justify-content:space-between;padding:0.85rem 1rem;background:#f5f7fb;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;font-size:0.85rem;color:#2B317B;text-align:left;transition:background 0.15s; }
+ .seo-toggle:hover { background:#eef1fb; }
+ .seo-body { padding:1.5rem 1.25rem;border-top:1px solid #eee;display:none; }
+ .seo-body.open { display:block; }
+ .char-counter { font-size:0.7rem;font-weight:600;margin-top:0.2rem;text-align:right; }
+ .char-ok { color:#27ae60; } .char-warn { color:#f39c12; } .char-bad { color:#e74c3c; }
+ .serp-preview { background:#fff;border:1.5px solid #dde2f0;border-radius:8px;padding:1rem 1.1rem;margin-bottom:1.25rem; }
+ .serp-url { font-size:0.72rem;color:#1a7a40;margin-bottom:0.25rem;word-break:break-all; }
+ .serp-title { font-size:1.02rem;color:#1a0dab;font-weight:400;margin-bottom:0.2rem;text-decoration:underline;cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis; }
+ .serp-desc { font-size:0.82rem;color:#555;line-height:1.5; }
+ .seo-score { display:inline-flex;align-items:center;gap:0.4rem;padding:0.25rem 0.75rem;border-radius:20px;font-size:0.75rem;font-weight:700; }
+ .seo-score-0,.seo-score-1 { background:#fde8e8;color:#c0392b; }
+ .seo-score-2,.seo-score-3 { background:#fff7e6;color:#a05a00; }
+ .seo-score-4,.seo-score-5 { background:#e8faf0;color:#1a7a40; }
+ .tag-pills { display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.5rem; }
+ .tag-pill { display:inline-flex;align-items:center;gap:0.3rem;background:#eef1fb;color:#2B317B;border-radius:20px;padding:0.2rem 0.65rem;font-size:0.74rem;font-weight:500; }
+ .tag-pill-x { background:none;border:none;cursor:pointer;color:#aaa;font-size:0.85rem;line-height:1;padding:0; }
+ .tag-pill-x:hover { color:#e74c3c; }
+ .seo-badge { display:inline-flex;align-items:center;gap:0.25rem;font-size:0.66rem;font-weight:600;padding:0.1rem 0.4rem;border-radius:10px;background:#eef1fb;color:#2B317B;margin-left:0.3rem; }
  /* Insert modals */
  .rte-modal { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:600;align-items:center;justify-content:center; }
  .rte-modal.open { display:flex; }
@@ -355,6 +376,7 @@
           <label class="form-label">Status</label>
           <select class="form-select" id="blog-status">
             <option value="Published">Published</option>
+            <option value="Scheduled">Scheduled</option>
             <option value="Draft">Draft</option>
           </select>
         </div>
@@ -379,6 +401,73 @@
           <div class="upload-remove" id="blog-img-remove">Remove image</div>
         </div>
         <input type="hidden" id="blog-image" />
+      </div>
+
+      <!-- SEO Panel -->
+      <div class="seo-section">
+        <button type="button" class="seo-toggle" onclick="toggleSeo(this)">
+          <span>&#128269; SEO Settings &nbsp;<span id="seo-score-badge" class="seo-badge">0/5</span></span>
+          <span class="seo-arrow" style="transition:transform 0.2s;">&#9660;</span>
+        </button>
+        <div class="seo-body" id="seo-body">
+
+          <!-- SERP Preview -->
+          <div style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#999;margin-bottom:0.6rem;">Google Preview</div>
+          <div class="serp-preview">
+            <div class="serp-url" id="serp-url">www.cielohouse.com.au › blog › <span id="serp-slug-part">your-post-slug</span></div>
+            <div class="serp-title" id="serp-title-prev">Your SEO title will appear here</div>
+            <div class="serp-desc" id="serp-desc-prev">Your meta description will appear here — this is what people read before clicking. Keep it compelling and under 160 characters.</div>
+          </div>
+
+          <!-- Meta Title -->
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label class="form-label">Meta Title <span style="color:#aaa;font-weight:400;">(shown in Google — 50–60 characters ideal)</span></label>
+            <input class="form-input" type="text" id="blog-seo-title" placeholder="e.g. Brand Activations at Sporting Events Australia | Cielo House" maxlength="80" oninput="seoUpdate()" />
+            <div class="char-counter" id="seo-title-counter">0 / 60</div>
+          </div>
+
+          <!-- Meta Description -->
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label class="form-label">Meta Description <span style="color:#aaa;font-weight:400;">(shown in Google — 140–160 characters ideal)</span></label>
+            <textarea class="form-textarea" id="blog-seo-desc" rows="2" maxlength="200" placeholder="Write a compelling description that includes your focus keyword and tells readers exactly what this post covers." style="min-height:70px;" oninput="seoUpdate()"></textarea>
+            <div class="char-counter" id="seo-desc-counter">0 / 160</div>
+          </div>
+
+          <div class="form-row">
+            <!-- Focus Keyword -->
+            <div class="form-group">
+              <label class="form-label">Focus Keyword <span style="color:#aaa;font-weight:400;">(primary target keyword)</span></label>
+              <input class="form-input" type="text" id="blog-focus-keyword" placeholder="e.g. brand activation Australia" oninput="seoUpdate()" />
+              <div style="font-size:0.7rem;color:#aaa;margin-top:0.2rem;">Should appear in title, description &amp; content.</div>
+            </div>
+
+            <!-- URL Slug -->
+            <div class="form-group">
+              <label class="form-label">URL Slug <span style="color:#aaa;font-weight:400;">(auto-generated)</span></label>
+              <div style="display:flex;gap:0.4rem;align-items:center;">
+                <input class="form-input" type="text" id="blog-slug" placeholder="brand-activation-australia" oninput="seoUpdate()" style="font-family:monospace;font-size:0.82rem;" />
+                <button type="button" onclick="blogAutoSlug()" style="background:#f0f2f8;border:1.5px solid #dde2f0;border-radius:6px;padding:0.55rem 0.7rem;cursor:pointer;font-size:0.75rem;color:#2B317B;white-space:nowrap;font-family:'Poppins',sans-serif;" title="Re-generate from title">&#8635; Auto</button>
+              </div>
+              <div style="font-size:0.7rem;color:#aaa;margin-top:0.2rem;">cielohouse.com.au/blog/<span id="slug-preview" style="color:#2B317B;font-weight:500;">your-post-slug</span></div>
+            </div>
+          </div>
+
+          <!-- Tags -->
+          <div class="form-group">
+            <label class="form-label">Tags <span style="color:#aaa;font-weight:400;">(press Enter or comma to add)</span></label>
+            <input class="form-input" type="text" id="blog-tag-input" placeholder="e.g. brand activation, sporting events, sponsorship" onkeydown="blogTagKeydown(event)" onblur="blogTagAdd()" />
+            <div class="tag-pills" id="blog-tag-pills"></div>
+            <input type="hidden" id="blog-tags" value="" />
+            <div style="font-size:0.7rem;color:#aaa;margin-top:0.3rem;">Tags help categorise posts and improve discoverability. Add 3–8 tags.</div>
+          </div>
+
+          <!-- Open Graph Title override -->
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Social Share Title <span style="color:#aaa;font-weight:400;">(Open Graph — shown when shared on LinkedIn, Facebook, etc.)</span></label>
+            <input class="form-input" type="text" id="blog-og-title" placeholder="Leave blank to use Meta Title" oninput="seoUpdate()" />
+          </div>
+
+        </div>
       </div>
 
       <!-- Rich text editor -->
@@ -1138,10 +1227,17 @@
      var schedMeta = post.status === 'Scheduled' && post.scheduledAt
        ? '<span style="color:#2B317B;font-size:0.72rem;">&#128197; ' + blogFmtScheduled(post.scheduledAt) + '</span>'
        : '';
+     var seoScore = blogCalcSeoScore(post);
+     var seoColors = ['#e74c3c','#e74c3c','#f39c12','#f39c12','#27ae60','#27ae60'];
+     var seoBadge = '<span style="font-size:0.66rem;font-weight:700;padding:0.1rem 0.45rem;border-radius:10px;background:' + (seoScore>=4?'#e8faf0':seoScore>=2?'#fff7e6':'#fde8e8') + ';color:' + seoColors[seoScore] + ';">SEO ' + seoScore + '/5</span>';
+     var tagsHtml = (post.tags && post.tags.length)
+       ? post.tags.slice(0,3).map(function(t){ return '<span style="font-size:0.65rem;background:#eef1fb;color:#2B317B;border-radius:10px;padding:0.08rem 0.4rem;">' + esc(t) + '</span>'; }).join('')
+       : '';
      row.innerHTML = thumb
        + '<div class="blog-info">'
        +   '<div class="blog-title-row">' + esc(post.title) + '</div>'
-       +   '<div class="blog-meta">' + badge + '<span>' + esc(post.category||'') + '</span><span>' + esc(post.date||'') + '</span>' + schedMeta + '</div>'
+       +   '<div class="blog-meta">' + badge + '<span>' + esc(post.category||'') + '</span><span>' + esc(post.date||'') + '</span>' + schedMeta + seoBadge + '</div>'
+       +   (tagsHtml ? '<div style="margin-top:0.3rem;display:flex;gap:0.3rem;flex-wrap:wrap;">' + tagsHtml + '</div>' : '')
        + '</div>'
        + '<div class="item-actions">'
        +   '<button class="btn btn-secondary btn-sm" data-edit="' + idx + '">Edit</button>'
@@ -1175,6 +1271,15 @@
          document.getElementById('blog-img-preview').style.display = 'block';
          document.getElementById('blog-img-remove').style.display = 'block';
        }
+       // Load SEO fields
+       document.getElementById('blog-seo-title').value = p.seoTitle || '';
+       document.getElementById('blog-seo-desc').value = p.seoDesc || '';
+       document.getElementById('blog-focus-keyword').value = p.focusKeyword || '';
+       document.getElementById('blog-slug').value = p.slug || blogMakeSlug(p.title || '');
+       document.getElementById('blog-og-title').value = p.ogTitle || '';
+       document.getElementById('blog-tags').value = (p.tags || []).join(', ');
+       blogRenderTagPills(p.tags || []);
+       seoUpdate();
        document.getElementById('blog-form-label').textContent = 'Edit Post';
        document.getElementById('blog-submit-btn').textContent = 'Update Post';
        document.getElementById('blog-cancel-btn').style.display = '';
@@ -1194,15 +1299,25 @@
    var posts = getPosts();
    var editId = document.getElementById('blog-edit-id').value;
    var newStatus = document.getElementById('blog-status').value;
+   var rawTags = document.getElementById('blog-tags').value;
+   var tagsArr = rawTags ? rawTags.split(',').map(function(t){ return t.trim(); }).filter(Boolean) : [];
+   var slugVal = document.getElementById('blog-slug').value.trim() || blogMakeSlug(title);
    var post = {
-     title:    title,
-     category: document.getElementById('blog-category').value,
-     status:   newStatus,
-     date:     document.getElementById('blog-date').value,
-     excerpt:  document.getElementById('blog-excerpt').value.trim(),
-     content:  document.getElementById('blog-content').innerHTML,
-     image:    document.getElementById('blog-image').value,
-     views:    parseInt(document.getElementById('blog-views').value) || 0
+     title:        title,
+     category:     document.getElementById('blog-category').value,
+     status:       newStatus,
+     date:         document.getElementById('blog-date').value,
+     excerpt:      document.getElementById('blog-excerpt').value.trim(),
+     content:      document.getElementById('blog-content').innerHTML,
+     image:        document.getElementById('blog-image').value,
+     views:        parseInt(document.getElementById('blog-views').value) || 0,
+     // SEO fields
+     seoTitle:     document.getElementById('blog-seo-title').value.trim(),
+     seoDesc:      document.getElementById('blog-seo-desc').value.trim(),
+     focusKeyword: document.getElementById('blog-focus-keyword').value.trim(),
+     slug:         slugVal,
+     tags:         tagsArr,
+     ogTitle:      document.getElementById('blog-og-title').value.trim()
    };
    // Preserve scheduledAt if still Scheduled; carry it if editing
    if (editId !== '') {
@@ -1227,9 +1342,149 @@
    document.getElementById('blog-views').value = '';
    document.getElementById('blog-img-preview').style.display = 'none';
    document.getElementById('blog-img-remove').style.display = 'none';
+   // SEO fields
+   document.getElementById('blog-seo-title').value = '';
+   document.getElementById('blog-seo-desc').value = '';
+   document.getElementById('blog-focus-keyword').value = '';
+   document.getElementById('blog-slug').value = '';
+   document.getElementById('blog-og-title').value = '';
+   document.getElementById('blog-tags').value = '';
+   document.getElementById('blog-tag-pills').innerHTML = '';
+   document.getElementById('blog-tag-input').value = '';
+   seoUpdate();
    document.getElementById('blog-form-label').textContent = 'New Post';
    document.getElementById('blog-submit-btn').textContent = 'Save Post';
    document.getElementById('blog-cancel-btn').style.display = 'none';
+ }
+
+ // ── SEO helpers ──
+ function blogMakeSlug(title) {
+   return title.toLowerCase()
+     .replace(/[^a-z0-9\s-]/g, '')
+     .trim().replace(/\s+/g, '-')
+     .replace(/-+/g, '-').slice(0, 80);
+ }
+
+ function blogAutoSlug() {
+   var title = document.getElementById('blog-title').value.trim();
+   if (!title) { alert('Enter a title first.'); return; }
+   document.getElementById('blog-slug').value = blogMakeSlug(title);
+   seoUpdate();
+ }
+
+ // Auto-fill slug from title if slug is empty
+ document.getElementById('blog-title').addEventListener('input', function() {
+   var slugEl = document.getElementById('blog-slug');
+   var editId = document.getElementById('blog-edit-id').value;
+   if (!editId) { slugEl.value = blogMakeSlug(this.value); }
+   // Also update seo-title placeholder
+   var seoTitleEl = document.getElementById('blog-seo-title');
+   if (!seoTitleEl.value) {
+     document.getElementById('serp-title-prev').textContent = this.value || 'Your SEO title will appear here';
+   }
+   seoUpdate();
+ });
+
+ function seoUpdate() {
+   var title     = document.getElementById('blog-title').value.trim();
+   var seoTitle  = document.getElementById('blog-seo-title').value.trim();
+   var seoDesc   = document.getElementById('blog-seo-desc').value.trim();
+   var keyword   = document.getElementById('blog-focus-keyword').value.trim();
+   var slug      = document.getElementById('blog-slug').value.trim() || blogMakeSlug(title);
+   var ogTitle   = document.getElementById('blog-og-title').value.trim();
+   var tagsVal   = document.getElementById('blog-tags').value;
+   var hasTags   = tagsVal && tagsVal.split(',').filter(function(t){ return t.trim(); }).length > 0;
+
+   // SERP preview
+   var displayTitle = seoTitle || title || 'Your SEO title will appear here';
+   var displayDesc  = seoDesc || 'Your meta description will appear here — this is what people read before clicking. Keep it compelling and under 160 characters.';
+   document.getElementById('serp-title-prev').textContent = displayTitle;
+   document.getElementById('serp-desc-prev').textContent  = displayDesc;
+   document.getElementById('serp-slug-part').textContent  = slug || 'your-post-slug';
+   document.getElementById('slug-preview').textContent    = slug || 'your-post-slug';
+
+   // Char counters
+   var tc = (seoTitle || title).length;
+   var dc = seoDesc.length;
+   var titleCounterEl = document.getElementById('seo-title-counter');
+   var descCounterEl  = document.getElementById('seo-desc-counter');
+   titleCounterEl.textContent = tc + ' / 60';
+   titleCounterEl.className   = 'char-counter ' + (tc === 0 ? '' : tc <= 60 && tc >= 50 ? 'char-ok' : tc < 50 ? 'char-warn' : 'char-bad');
+   descCounterEl.textContent  = dc + ' / 160';
+   descCounterEl.className    = 'char-counter ' + (dc === 0 ? '' : dc <= 160 && dc >= 140 ? 'char-ok' : dc < 140 ? 'char-warn' : 'char-bad');
+
+   // SEO score (5 fields)
+   var score = [
+     !!(seoTitle),
+     !!(seoDesc && dc >= 100),
+     !!(keyword),
+     !!(slug),
+     !!(hasTags)
+   ].filter(Boolean).length;
+   var badge = document.getElementById('seo-score-badge');
+   if (badge) {
+     badge.textContent = score + '/5';
+     badge.style.background = score >= 4 ? '#e8faf0' : score >= 2 ? '#fff7e6' : '#fde8e8';
+     badge.style.color      = score >= 4 ? '#1a7a40' : score >= 2 ? '#a05a00' : '#c0392b';
+   }
+ }
+
+ function blogCalcSeoScore(post) {
+   return [
+     !!(post.seoTitle),
+     !!(post.seoDesc && post.seoDesc.length >= 100),
+     !!(post.focusKeyword),
+     !!(post.slug),
+     !!(post.tags && post.tags.length > 0)
+   ].filter(Boolean).length;
+ }
+
+ function toggleSeo(btn) {
+   var body  = document.getElementById('seo-body');
+   var arrow = btn.querySelector('.seo-arrow');
+   body.classList.toggle('open');
+   arrow.style.transform = body.classList.contains('open') ? 'rotate(180deg)' : '';
+ }
+
+ // ── Tag Pills ──
+ function blogRenderTagPills(tags) {
+   var container = document.getElementById('blog-tag-pills');
+   container.innerHTML = '';
+   tags.forEach(function(tag, i) {
+     var pill = document.createElement('span');
+     pill.className = 'tag-pill';
+     pill.innerHTML = esc(tag) + '<button type="button" class="tag-pill-x" onclick="blogRemoveTag(' + i + ')" title="Remove">&#215;</button>';
+     container.appendChild(pill);
+   });
+ }
+
+ function blogTagsFromHidden() {
+   var v = document.getElementById('blog-tags').value;
+   return v ? v.split(',').map(function(t){ return t.trim(); }).filter(Boolean) : [];
+ }
+
+ function blogTagKeydown(e) {
+   if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); blogTagAdd(); }
+ }
+
+ function blogTagAdd() {
+   var input = document.getElementById('blog-tag-input');
+   var raw = input.value.replace(/,/g,'').trim();
+   if (!raw) return;
+   var tags = blogTagsFromHidden();
+   if (!tags.includes(raw)) { tags.push(raw); }
+   document.getElementById('blog-tags').value = tags.join(', ');
+   blogRenderTagPills(tags);
+   input.value = '';
+   seoUpdate();
+ }
+
+ function blogRemoveTag(idx) {
+   var tags = blogTagsFromHidden();
+   tags.splice(idx, 1);
+   document.getElementById('blog-tags').value = tags.join(', ');
+   blogRenderTagPills(tags);
+   seoUpdate();
  }
 
  // ── Schedule helpers ──

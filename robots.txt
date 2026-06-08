@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Block admin/internal pages
+Disallow: /dashboard.html
+Disallow: /login.html
+Disallow: /coming-soon.html
+
+# Sitemap location
+Sitemap: https://www.cielohouse.com.au/sitemap.xml
