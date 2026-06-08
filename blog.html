@@ -170,8 +170,28 @@
        `${U}/rest/v1/blog_posts?status=eq.Published&select=slug,title,excerpt,category,image,author,date&order=date.desc`,
        { headers: { apikey: K, Authorization: 'Bearer ' + K } }
      );
-     posts = await r.json();
+     const data = await r.json();
+     if (Array.isArray(data)) posts = data;
    } catch (e) {}
+
+   // Fallback: if Supabase returns nothing, read from dashboard localStorage
+   if (!posts.length) {
+     try {
+       const local = JSON.parse(localStorage.getItem('ch_blog_posts') || '[]');
+       posts = local
+         .filter(p => p.status === 'Published')
+         .sort((a, b) => new Date(b.date || b.created_at || 0) - new Date(a.date || a.created_at || 0))
+         .map(p => ({
+           slug: p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g,'-'),
+           title: p.title,
+           excerpt: p.excerpt || '',
+           category: p.category || 'Insights',
+           image: p.image || null,
+           author: p.author || 'Britt Niven',
+           date: p.date || null
+         }));
+     } catch(e) {}
+   }
 
    // Clear skeletons
    grid.innerHTML = '';
