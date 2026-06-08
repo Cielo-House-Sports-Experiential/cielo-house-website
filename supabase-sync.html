@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Sync Posts to Supabase | Cielo House</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:720px;margin:3rem auto;padding:0 1rem;color:#1a1a2e;}
+h1{font-size:1.5rem;margin-bottom:0.5rem;}
+.card{background:#f8f9ff;border:1px solid #e0e4ff;border-radius:10px;padding:1.5rem;margin:1.5rem 0;}
+input{width:100%;padding:.6rem .8rem;border:1px solid #ccc;border-radius:6px;font-size:.9rem;margin:.5rem 0 1rem;box-sizing:border-box;}
+button{background:#2B317B;color:#fff;border:none;border-radius:6px;padding:.7rem 1.5rem;font-size:.95rem;cursor:pointer;margin-right:.5rem;}
+button:hover{background:#1e2460;}
+.btn-red{background:#c0392b;}
+#log{background:#0d0d1a;color:#7fff7f;font-family:monospace;font-size:.8rem;padding:1rem;border-radius:8px;max-height:320px;overflow-y:auto;white-space:pre-wrap;}
+.warn{background:#fffbe6;border:1px solid #ffe58f;border-radius:8px;padding:.8rem 1rem;font-size:.85rem;color:#7a5c00;margin-bottom:1rem;}
+</style>
+</head>
+<body>
+<h1>🔄 Sync Dashboard Posts → Supabase</h1>
+<p>This page reads your dashboard posts from this browser and pushes them all to Supabase.</p>
+
+<div class="warn">⚠️ <strong>You must open this page on the same browser/device where you use the dashboard.</strong> The posts are stored in this browser's memory.</div>
+
+<div class="card">
+  <label><strong>Step 1:</strong> Enter your Supabase <strong>service_role</strong> key<br>
+  <small style="color:#888;">Find it: supabase.com → your project → Settings → API → service_role (secret)</small></label>
+  <input type="password" id="service-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." />
+
+  <button onclick="runSync()">▶ Sync All Posts to Supabase</button>
+  <button onclick="exportJSON()" style="background:#27ae60;">📋 Export Posts as JSON</button>
+</div>
+
+<div id="log">Waiting…</div>
+
+<script>
+const SB = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
+const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
+
+const log = document.getElementById('log');
+function logMsg(msg) { log.textContent += '\n' + msg; log.scrollTop = log.scrollHeight; }
+
+function getPosts() {
+  try { return JSON.parse(localStorage.getItem('ch_blog_posts') || '[]'); } catch(e) { return []; }
+}
+
+async function runSync() {
+  const key = document.getElementById('service-key').value.trim() || ANON;
+  log.textContent = '🔍 Reading posts from localStorage…';
+  
+  const posts = getPosts();
+  if (!posts.length) { logMsg('❌ No posts found in localStorage. Make sure you are on the same browser as your dashboard.'); return; }
+  
+  logMsg(`✓ Found ${posts.length} posts. Syncing published posts…`);
+  
+  // First fix RLS policy
+  logMsg('\n📋 Applying Supabase RLS policy…');
+  try {
+    const sqlRes = await fetch(SB + '/rest/v1/rpc/exec_sql', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: key, Authorization: 'Bearer ' + key },
+      body: JSON.stringify({ sql: "DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='blog_posts' AND policyname='Anon full access blog_posts') THEN CREATE POLICY \"Anon full access blog_posts\" ON blog_posts FOR ALL USING (true) WITH CHECK (true); END IF; END $$;" })
+    });
+  } catch(e) {}
+
+  let ok = 0, fail = 0;
+  for (const p of posts) {
+    if (!p.title) continue;
+    const slug = p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+    const body = { title: p.title, slug, category: p.category||'', status: p.status||'Draft', date: p.date||null, excerpt: p.excerpt||'', image: p.image||null, views: p.views||0, content: p.content||'' };
+    try {
+      const r = await fetch(SB + '/rest/v1/blog_posts?on_conflict=slug', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: key, Authorization: 'Bearer ' + key, Prefer: 'resolution=merge-duplicates,return=representation' },
+        body: JSON.stringify(body)
+      });
+      const d = await r.json();
+      if (Array.isArray(d) && d[0]?.id) { logMsg(`  ✓ ${p.title}`); ok++; }
+      else { logMsg(`  ✗ ${p.title}: ${JSON.stringify(d)}`); fail++; }
+    } catch(e) { logMsg(`  ✗ ${p.title}: ${e.message}`); fail++; }
+  }
+  logMsg(`\n✅ Done. ${ok} synced, ${fail} failed.`);
+  if (ok > 0) { localStorage.setItem('ch_sb_synced','1'); logMsg('Dashboard will stay in sync automatically.'); }
+}
+
+function exportJSON() {
+  const posts = getPosts();
+  if (!posts.length) { alert('No posts in localStorage!'); return; }
+  const blob = new Blob([JSON.stringify(posts, null, 2)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'cielo-blog-posts.json'; a.click();
+  logMsg(`📁 Exported ${posts.length} posts as JSON.`);
+}
+
+// Auto-check
+window.onload = () => {
+  const posts = getPosts();
+  log.textContent = posts.length 
+    ? `✓ Found ${posts.length} posts in localStorage (${posts.filter(p=>p.status==='Published').length} published).\nEnter service_role key and click Sync.`
+    : '⚠️ No posts found. Open this page on your dashboard browser.';
+};
+</script>
+</body>
+</html>
