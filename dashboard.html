@@ -1973,6 +1973,40 @@
  // ══════════════════════════════════════════════
  // ── AI Tag Generation ──
  // ══════════════════════════════════════════════
+ // ── Smart keyword extraction (works fully client-side, no server needed) ──
+ var TAG_STOPWORDS = new Set([
+   'a','an','the','and','or','but','in','on','at','to','for','of','with','by','from',
+   'up','about','into','through','during','is','are','was','were','be','been','being',
+   'have','has','had','do','does','did','will','would','could','should','may','might',
+   'this','that','these','those','it','its','they','them','their','we','our','you',
+   'your','he','she','his','her','i','my','me','us','as','if','then','than','so',
+   'when','where','which','who','what','how','not','no','can','just','more','also',
+   'very','well','only','even','most','some','such','all','any','each','both','few',
+   'other','many','much','own','same','too','most','get','make','take','give','know',
+   'see','think','come','go','say','work','use','one','two','three','new','great',
+   'good','best','top','key','real','right','true','long','back','way','now','day',
+   'time','year','part','need','help','set','put','first','last','next','why','there',
+   'here','out','over','after','before','between','because','while','every','across',
+   'without','within','around','however','whether','once','since','still','already',
+   'always','often','never','again','further','show','keep'
+ ]);
+
+ // Industry-specific keyword seeds mapped to topics
+ var TAG_SEEDS = {
+   activation: ['brand activation','event activation','sports activation','experiential marketing','activation strategy','on-ground activation'],
+   sponsorship: ['event sponsorship','sponsorship strategy','naming rights','sponsorship roi','sports sponsorship','sponsorship activation'],
+   hospitality: ['corporate hospitality','vip hospitality','premium hospitality','hospitality suite','guest experience','corporate entertainment'],
+   sports: ['sporting events','sports marketing','sports industry','athlete engagement','sports event','live sport'],
+   motorsport: ['motorsport','formula 1','supercars','gold coast 500','f1 australia','race day','circuit event'],
+   surfing: ['wsl','bells beach','surfing sponsorship','surf event','surf marketing','coastal activation'],
+   australia: ['australia','gold coast','queensland','australian brand','australian market','brisbane','sydney','melbourne'],
+   hospitality_general: ['event management','event production','event agency','event planning','brand experience'],
+   digital: ['content creation','social media','digital marketing','instagram','linkedin','content strategy'],
+   roi: ['event roi','brand roi','marketing roi','campaign performance','event measurement','engagement metrics'],
+   vip: ['vip experience','premium experience','luxury event','client entertainment','bespoke experience'],
+   staff: ['promotional models','brand ambassadors','event staff','promo staff','hospitality staff']
+ };
+
  function aiGenerateTags() {
    var title    = document.getElementById('blog-title').value.trim();
    var excerpt  = document.getElementById('blog-excerpt').value.trim();
@@ -1980,65 +2014,116 @@
    var keyword  = document.getElementById('blog-focus-keyword').value.trim();
    var category = document.getElementById('blog-category').value;
 
-   if (!title && !content) {
+   if (!title && !content && !excerpt) {
      alert('Please enter at least a title or some content before generating tags.');
      return;
    }
 
    var btn = document.getElementById('ai-tag-btn');
    btn.disabled = true;
-   btn.textContent = '⏳ Generating…';
+   btn.innerHTML = '&#9203; Generating…';
 
-   var textBody = [
-     title ? 'Title: ' + title : '',
-     category ? 'Category: ' + category : '',
-     keyword ? 'Focus keyword: ' + keyword : '',
-     excerpt ? 'Excerpt: ' + excerpt : '',
-     content ? 'Content excerpt: ' + content.slice(0, 800) : ''
-   ].filter(Boolean).join('\n');
-
-   var messages = [{
-     role: 'user',
-     content: 'You are an SEO specialist. Based on the following blog post details, generate exactly 15 to 20 relevant SEO tags. Return ONLY a JSON array of tag strings — no explanations, no markdown, no extra text. Each tag should be 1-4 words, lowercase, and highly relevant to the content. Include a mix of: specific topics, broad industry terms, location-based terms (Australia, Gold Coast), and action-based terms.\n\n' + textBody
-   }];
-
-   fetch('/api/chat', {
-     method: 'POST',
-     headers: { 'Content-Type': 'application/json' },
-     body: JSON.stringify({ messages: messages })
-   })
-   .then(function(r) { return r.json(); })
-   .then(function(data) {
-     var reply = (data.reply || '').trim();
-     // Parse JSON array from response
-     var match = reply.match(/\[[\s\S]*\]/);
-     if (!match) throw new Error('No array found in response');
-     var newTags = JSON.parse(match[0]);
-     if (!Array.isArray(newTags)) throw new Error('Not an array');
+   // Simulate brief processing time so it feels responsive
+   setTimeout(function() {
+     var tags = smartExtractTags(title, excerpt, content, keyword, category);
 
      var existing = blogTagsFromHidden();
      var combined = existing.slice();
-     newTags.forEach(function(tag) {
-       tag = String(tag).trim().toLowerCase();
-       if (tag && !combined.includes(tag) && combined.length < 30) {
-         combined.push(tag);
-       }
+     tags.forEach(function(tag) {
+       if (tag && !combined.includes(tag) && combined.length < 30) combined.push(tag);
      });
-     // Limit to 30
      combined = combined.slice(0, 30);
+
      document.getElementById('blog-tags').value = combined.join(', ');
      blogRenderTagPills(combined);
      seoUpdate();
 
      btn.disabled = false;
-     btn.textContent = '✨ AI Generate Tags';
-   })
-   .catch(function(err) {
-     console.error('AI tag error:', err);
-     btn.disabled = false;
-     btn.textContent = '✨ AI Generate Tags';
-     alert('Could not generate tags — make sure the AI chat is running and try again.');
+     btn.innerHTML = '&#10024; AI Generate Tags';
+   }, 600);
+ }
+
+ function smartExtractTags(title, excerpt, content, keyword, category) {
+   var allText = [title, excerpt, content.slice(0, 1200)].join(' ').toLowerCase();
+   var tags = [];
+
+   // 1. Add focus keyword first if provided
+   if (keyword) tags.push(keyword.toLowerCase());
+
+   // 2. Extract meaningful 1–3 word phrases from title (highest weight)
+   var titlePhrases = extractPhrases(title.toLowerCase(), 3);
+   titlePhrases.forEach(function(p) { if (!tags.includes(p)) tags.push(p); });
+
+   // 3. Category-based seed tags
+   var catLower = (category || '').toLowerCase();
+   var relevant = [];
+   if (/event|activation|experiential/.test(allText + catLower)) relevant = relevant.concat(TAG_SEEDS.activation);
+   if (/sponsor/.test(allText + catLower))       relevant = relevant.concat(TAG_SEEDS.sponsorship);
+   if (/hospitality|suite|vip|corporate/.test(allText + catLower)) relevant = relevant.concat(TAG_SEEDS.hospitality);
+   if (/sport|race|circuit|motor|f1|supercars|gp|grand prix/.test(allText + catLower)) relevant = relevant.concat(TAG_SEEDS.motorsport);
+   if (/surf|wsl|beach|wave/.test(allText + catLower)) relevant = relevant.concat(TAG_SEEDS.surfing);
+   if (/content|social|instagram|video|photo/.test(allText + catLower)) relevant = relevant.concat(TAG_SEEDS.digital);
+   if (/roi|measur|metric|perform|return/.test(allText + catLower)) relevant = relevant.concat(TAG_SEEDS.roi);
+   if (/premium|bespoke|luxury|exclusive/.test(allText + catLower)) relevant = relevant.concat(TAG_SEEDS.vip);
+   if (/promo|model|ambassador|staff/.test(allText + catLower)) relevant = relevant.concat(TAG_SEEDS.staff);
+   // Always include some general sports + Australia tags
+   relevant = relevant.concat(TAG_SEEDS.sports.slice(0,3));
+   relevant = relevant.concat(TAG_SEEDS.australia.slice(0,3));
+   relevant = relevant.concat(TAG_SEEDS.hospitality_general.slice(0,2));
+
+   // 4. Extract high-frequency meaningful words from content
+   var freqWords = topFreqWords(allText, 10);
+   freqWords.forEach(function(w) { if (!tags.includes(w)) relevant.push(w); });
+
+   // 5. De-dup relevant seeds and merge
+   var seen = new Set(tags.map(function(t){ return t.toLowerCase(); }));
+   relevant.forEach(function(tag) {
+     tag = tag.toLowerCase().trim();
+     if (tag && !seen.has(tag) && tags.length < 28) { tags.push(tag); seen.add(tag); }
    });
+
+   // Shuffle middle section for variety (keep first 3 intact)
+   var head = tags.slice(0, Math.min(3, tags.length));
+   var rest = tags.slice(head.length);
+   for (var i = rest.length - 1; i > 0; i--) {
+     var j = Math.floor(Math.random() * (i + 1));
+     var tmp = rest[i]; rest[i] = rest[j]; rest[j] = tmp;
+   }
+   return head.concat(rest).slice(0, 25);
+ }
+
+ function extractPhrases(text, maxWords) {
+   var words = text.replace(/[^\w\s]/g,' ').split(/\s+/).filter(function(w){ return w.length > 2 && !TAG_STOPWORDS.has(w); });
+   var phrases = [];
+   // Single words
+   words.forEach(function(w){ if (w.length > 4) phrases.push(w); });
+   // Bigrams
+   for (var i = 0; i < words.length - 1; i++) {
+     if (!TAG_STOPWORDS.has(words[i]) && !TAG_STOPWORDS.has(words[i+1])) {
+       phrases.push(words[i] + ' ' + words[i+1]);
+     }
+   }
+   // Trigrams (maxWords=3)
+   if (maxWords >= 3) {
+     for (var i = 0; i < words.length - 2; i++) {
+       if (!TAG_STOPWORDS.has(words[i]) && !TAG_STOPWORDS.has(words[i+2])) {
+         phrases.push(words[i] + ' ' + words[i+1] + ' ' + words[i+2]);
+       }
+     }
+   }
+   // Unique only
+   var seen = {}, out = [];
+   phrases.forEach(function(p){ if (!seen[p]){ seen[p]=1; out.push(p); } });
+   return out.slice(0, 12);
+ }
+
+ function topFreqWords(text, n) {
+   var words = text.replace(/[^\w\s]/g,' ').split(/\s+/).filter(function(w){
+     return w.length > 4 && !TAG_STOPWORDS.has(w);
+   });
+   var freq = {};
+   words.forEach(function(w){ freq[w] = (freq[w]||0)+1; });
+   return Object.keys(freq).sort(function(a,b){ return freq[b]-freq[a]; }).slice(0,n);
  }
 
  renderPosts();
