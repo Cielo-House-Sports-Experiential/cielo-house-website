@@ -1610,8 +1610,10 @@
            var d = await r.json();
            if (!d.access_token) {
              var errDetail = d.error_description || d.error || JSON.stringify(d);
+             var cidDebug = cid ? cid.slice(0,12)+'...'+cid.slice(-6) : 'EMPTY';
+             var secDebug = sec ? sec.slice(0,8)+'...'+sec.slice(-4) : 'EMPTY';
              var fixHint = '';
-             if (d.error === 'invalid_client') fixHint = ' — Your Client ID or Client Secret is wrong. <a href="#" onclick="showGoogleSetup();return false;" style="color:#f8b400;text-decoration:underline;">Update credentials</a>';
+             if (d.error === 'invalid_client') fixHint = '<br><small>Using Client ID: <code>' + cidDebug + '</code> | Secret: <code>' + secDebug + '</code></small><br><a href="#" onclick="showGoogleSetup();return false;" style="color:#f8b400;text-decoration:underline;">Update credentials</a>';
              document.getElementById('gbar-error-msg').innerHTML = 'Token exchange failed: ' + errDetail + fixHint;
              gbarShow('error'); return;
            }
