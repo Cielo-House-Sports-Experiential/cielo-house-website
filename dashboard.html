@@ -1250,11 +1250,18 @@
 
  function showPropertyIdInput() {
    var picker = document.getElementById('ga4-prop-picker');
-   picker.innerHTML = '<div style="font-size:0.82rem;font-weight:600;color:#2B317B;margin-bottom:0.4rem;">Enter your GA4 Property ID</div>'
-     + '<div style="font-size:0.77rem;color:#888;margin-bottom:0.6rem;">Find it in <a href="https://analytics.google.com/" target="_blank" style="color:#2B317B;">GA4</a> → Admin → Property Settings → Property ID (a number like <code>381234567</code>)</div>'
+   picker.innerHTML = ''
+     + '<div style="font-size:0.82rem;font-weight:600;color:#2B317B;margin-bottom:0.5rem;">Enter your GA4 Property ID</div>'
+     + '<div style="background:#fff7e6;border:1.5px solid #f5a623;border-radius:8px;padding:0.65rem 0.9rem;margin-bottom:0.75rem;font-size:0.78rem;color:#7a5000;line-height:1.6;">'
+     + '⚠ <strong>Not</strong> your Measurement ID (G-TPHXH530F6). The Property ID is a <strong>plain number</strong>.<br>'
+     + '→ Go to <a href="https://analytics.google.com/" target="_blank" style="color:#7a5000;font-weight:700;">analytics.google.com</a> '
+     + '→ click <strong>Admin</strong> (gear icon, bottom left) '
+     + '→ <strong>Property Settings</strong> '
+     + '→ copy the <strong>Property ID</strong> shown at the top (e.g. <code style="background:#fff;padding:0 3px;border-radius:3px;">381234567</code>)'
+     + '</div>'
      + '<div style="display:flex;gap:0.5rem;align-items:center;">'
-     + '<input class="form-input" id="ga4-manual-prop" placeholder="e.g. 381234567" style="flex:1;" />'
-     + '<button class="btn btn-primary" onclick="confirmManualProperty()" style="font-size:0.8rem;padding:0.5rem 1rem;">Connect</button>'
+     + '<input class="form-input" id="ga4-manual-prop" placeholder="Numeric Property ID — e.g. 381234567" style="flex:1;" />'
+     + '<button class="btn btn-primary" onclick="confirmManualProperty()" style="font-size:0.8rem;padding:0.5rem 1rem;white-space:nowrap;">Connect</button>'
      + '</div>';
    picker.style.display = 'block';
  }
