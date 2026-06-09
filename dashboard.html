@@ -1607,7 +1607,10 @@
            });
            var d = await r.json();
            if (!d.access_token) {
-             document.getElementById('gbar-error-msg').innerHTML = 'Token exchange failed: ' + (d.error_description || d.error || JSON.stringify(d));
+             var errDetail = d.error_description || d.error || JSON.stringify(d);
+             var fixHint = '';
+             if (d.error === 'invalid_client') fixHint = ' — Your Client ID or Client Secret is wrong. <a href="#" onclick="showGoogleSetup();return false;" style="color:#f8b400;text-decoration:underline;">Update credentials</a>';
+             document.getElementById('gbar-error-msg').innerHTML = 'Token exchange failed: ' + errDetail + fixHint;
              gbarShow('error'); return;
            }
            _gaToken = d.access_token;
