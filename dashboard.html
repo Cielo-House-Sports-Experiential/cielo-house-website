@@ -340,20 +340,22 @@
 
  <!-- AI Platforms -->
  <div class="card">
-   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.3rem;">
+   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.3rem;flex-wrap:wrap;gap:0.4rem;">
      <div style="font-weight:600;font-size:0.95rem;color:#222;">Performance on AI Platforms</div>
-     <button class="btn btn-secondary btn-sm" onclick="openModal()" style="font-size:0.74rem;">✎ Update</button>
+     <div style="display:flex;gap:0.4rem;">
+       <button class="btn btn-secondary btn-sm" onclick="runAiChecks(true)" id="ai-refresh-btn" style="font-size:0.74rem;">↻ Refresh</button>
+       <button class="btn btn-primary" onclick="openAiKeys()" style="font-size:0.74rem;padding:0.35rem 0.8rem;">⚙ API Keys</button>
+     </div>
    </div>
-   <div style="font-size:0.75rem;color:#999;margin-bottom:0.6rem;" id="ai-updated">No public API exists for AI visibility — update manually below or test each platform.</div>
-   <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.1rem;">
-     <a href="https://chatgpt.com/?q=Cielo+House+sports+activation" target="_blank" rel="noopener" style="font-size:0.73rem;font-weight:600;color:#2B317B;background:#eef1fb;border-radius:6px;padding:0.28rem 0.7rem;text-decoration:none;">Test ChatGPT ↗</a>
-     <a href="https://www.perplexity.ai/?q=Cielo+House+sports+activation+Australia" target="_blank" rel="noopener" style="font-size:0.73rem;font-weight:600;color:#2B317B;background:#eef1fb;border-radius:6px;padding:0.28rem 0.7rem;text-decoration:none;">Test Perplexity ↗</a>
-     <a href="https://gemini.google.com/app?q=Cielo+House+sports+activation" target="_blank" rel="noopener" style="font-size:0.73rem;font-weight:600;color:#2B317B;background:#eef1fb;border-radius:6px;padding:0.28rem 0.7rem;text-decoration:none;">Test Gemini ↗</a>
+   <div style="font-size:0.75rem;color:#999;margin-bottom:0.75rem;" id="ai-updated">Add API keys to enable automatic AI visibility checks.</div>
+   <div id="ai-loading-bar" style="display:none;background:#f0f4ff;border-radius:6px;padding:0.5rem 0.85rem;margin-bottom:0.75rem;font-size:0.78rem;color:#2B317B;display:none;align-items:center;gap:0.5rem;">
+     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#668DC6" stroke-width="2" style="animation:spin 1s linear infinite;flex-shrink:0;"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0"/></svg>
+     Checking your visibility on AI platforms…
    </div>
    <div class="ai-grid">
-     <div class="ai-card"><div class="ai-platform">ChatGPT</div><div class="ai-score" id="ai-cgpt-score">--</div><div class="ai-score-label">Visibility score</div><div class="ai-queries">User queries: <strong id="ai-cgpt-q">--</strong> <span id="ai-cgpt-trend"></span></div></div>
-     <div class="ai-card"><div class="ai-platform">Perplexity</div><div class="ai-score" id="ai-plex-score">--</div><div class="ai-score-label">Visibility score</div><div class="ai-queries">User queries: <strong id="ai-plex-q">--</strong> <span id="ai-plex-trend"></span></div></div>
-     <div class="ai-card"><div class="ai-platform">Gemini</div><div class="ai-score" id="ai-gem-score">--</div><div class="ai-score-label">Visibility score</div><div class="ai-queries">User queries: <strong id="ai-gem-q">--</strong> <span id="ai-gem-trend"></span></div></div>
+     <div class="ai-card"><div class="ai-platform">ChatGPT</div><div class="ai-score" id="ai-cgpt-score">--</div><div class="ai-score-label">Visibility score</div><div class="ai-queries"><strong id="ai-cgpt-q">--</strong></div><div id="ai-cgpt-summary" style="font-size:0.68rem;color:#aaa;margin-top:0.35rem;line-height:1.4;"></div></div>
+     <div class="ai-card"><div class="ai-platform">Perplexity</div><div class="ai-score" id="ai-plex-score">--</div><div class="ai-score-label">Visibility score</div><div class="ai-queries"><strong id="ai-plex-q">--</strong></div><div id="ai-plex-summary" style="font-size:0.68rem;color:#aaa;margin-top:0.35rem;line-height:1.4;"></div></div>
+     <div class="ai-card"><div class="ai-platform">Gemini</div><div class="ai-score" id="ai-gem-score">--</div><div class="ai-score-label">Visibility score</div><div class="ai-queries"><strong id="ai-gem-q">--</strong></div><div id="ai-gem-summary" style="font-size:0.68rem;color:#aaa;margin-top:0.35rem;line-height:1.4;"></div></div>
    </div>
  </div>
 
@@ -1020,6 +1022,36 @@
  </div>
  </div>
 
+ <!-- AI Keys modal -->
+ <div class="modal-overlay" id="ai-keys-modal" onclick="if(event.target===this)closeAiKeys()">
+ <div class="modal-box" style="max-width:500px;">
+   <button class="modal-close" onclick="closeAiKeys()">&#215;</button>
+   <div class="modal-title">AI Platform API Keys</div>
+   <p class="modal-sub">Add your API keys below and the dashboard will automatically check your visibility on each AI platform every time you open it.</p>
+   <div style="background:#f0f4ff;border-radius:8px;padding:0.85rem 1rem;margin-bottom:1.25rem;font-size:0.8rem;color:#2B317B;line-height:1.7;">
+     <strong>OpenAI</strong> — <a href="https://platform.openai.com/api-keys" target="_blank" style="color:#2B317B;">platform.openai.com/api-keys</a> (free $5 credit on signup)<br>
+     <strong>Perplexity</strong> — <a href="https://www.perplexity.ai/settings/api" target="_blank" style="color:#2B317B;">perplexity.ai/settings/api</a><br>
+     <strong>Gemini</strong> — <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#2B317B;">aistudio.google.com/app/apikey</a> (free tier)
+   </div>
+   <div class="form-group" style="margin-bottom:0.85rem;">
+     <label class="form-label">OpenAI API Key (for ChatGPT visibility)</label>
+     <input class="form-input" id="key-openai" placeholder="sk-..." type="password" />
+   </div>
+   <div class="form-group" style="margin-bottom:0.85rem;">
+     <label class="form-label">Perplexity API Key</label>
+     <input class="form-input" id="key-perplexity" placeholder="pplx-..." type="password" />
+   </div>
+   <div class="form-group" style="margin-bottom:1.25rem;">
+     <label class="form-label">Gemini API Key</label>
+     <input class="form-input" id="key-gemini" placeholder="AIza..." type="password" />
+   </div>
+   <div style="display:flex;gap:0.75rem;">
+     <button class="btn btn-primary" onclick="saveAiKeys()" style="flex:1;">Save &amp; Run Check Now</button>
+     <button class="btn btn-secondary btn-sm" onclick="closeAiKeys()">Cancel</button>
+   </div>
+ </div>
+ </div>
+
  <script>
  // Tab switching
  document.querySelectorAll('.nav-btn[data-panel]').forEach(function(btn) {
@@ -1057,7 +1089,7 @@
  return d.toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
  }
 
- // ===================== AI STATS MODAL =====================
+ // ===================== AI STATS MODAL (manual fallback) =====================
  function openModal() {
    var s = JSON.parse(localStorage.getItem('ch_stats') || '{}');
    var ai = s.ai || {};
@@ -1068,6 +1100,91 @@
    document.getElementById('stats-modal').style.display = 'block';
  }
  function closeModal() { document.getElementById('stats-modal').style.display = 'none'; }
+
+ // ===================== AI API KEYS =====================
+ function openAiKeys() {
+   document.getElementById('key-openai').value      = localStorage.getItem('ch_key_openai') || '';
+   document.getElementById('key-perplexity').value  = localStorage.getItem('ch_key_perplexity') || '';
+   document.getElementById('key-gemini').value      = localStorage.getItem('ch_key_gemini') || '';
+   document.getElementById('ai-keys-modal').style.display = 'block';
+ }
+ function closeAiKeys() { document.getElementById('ai-keys-modal').style.display = 'none'; }
+ function saveAiKeys() {
+   var ok = document.getElementById('key-openai').value.trim();
+   var pk = document.getElementById('key-perplexity').value.trim();
+   var gk = document.getElementById('key-gemini').value.trim();
+   if (ok) localStorage.setItem('ch_key_openai', ok);
+   if (pk) localStorage.setItem('ch_key_perplexity', pk);
+   if (gk) localStorage.setItem('ch_key_gemini', gk);
+   closeAiKeys();
+   runAiChecks(true);
+ }
+
+ var _AI_PROMPT = 'You are assessing brand visibility for "Cielo House" — an Australian sports activation and experiential marketing agency based on the Gold Coast. Rate how visible this brand is in your knowledge when users search for sports activation agencies, experiential marketing, or corporate hospitality in Australia. Respond ONLY with a valid JSON object, no other text: {"score": <integer 0-100>, "mentioned": <true or false>, "summary": "<one sentence of what you know about them>"}';
+
+ async function queryOpenAI(key) {
+   var r = await fetch('https://api.openai.com/v1/chat/completions', {
+     method: 'POST',
+     headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
+     body: JSON.stringify({ model: 'gpt-4o-mini', messages: [{ role: 'user', content: _AI_PROMPT }], max_tokens: 150, temperature: 0.3 })
+   });
+   var d = await r.json();
+   if (d.error) throw new Error(d.error.message);
+   return JSON.parse(d.choices[0].message.content.replace(/```json|```/g,'').trim());
+ }
+
+ async function queryPerplexity(key) {
+   var r = await fetch('https://api.perplexity.ai/chat/completions', {
+     method: 'POST',
+     headers: { 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
+     body: JSON.stringify({ model: 'llama-3.1-sonar-small-128k-online', messages: [{ role: 'user', content: _AI_PROMPT }], max_tokens: 150, temperature: 0.3 })
+   });
+   var d = await r.json();
+   if (d.error) throw new Error(d.error.message || 'Perplexity error');
+   return JSON.parse(d.choices[0].message.content.replace(/```json|```/g,'').trim());
+ }
+
+ async function queryGemini(key) {
+   var r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + key, {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json' },
+     body: JSON.stringify({ contents: [{ parts: [{ text: _AI_PROMPT }] }], generationConfig: { maxOutputTokens: 150, temperature: 0.3 } })
+   });
+   var d = await r.json();
+   if (d.error) throw new Error(d.error.message);
+   var text = d.candidates[0].content.parts[0].text.replace(/```json|```/g,'').trim();
+   return JSON.parse(text);
+ }
+
+ async function runAiChecks(manual) {
+   var ok = localStorage.getItem('ch_key_openai');
+   var pk = localStorage.getItem('ch_key_perplexity');
+   var gk = localStorage.getItem('ch_key_gemini');
+   if (!ok && !pk && !gk) {
+     if (manual) openAiKeys();
+     return;
+   }
+   // Show loading
+   var bar = document.getElementById('ai-loading-bar');
+   if (bar) bar.style.display = 'flex';
+   var s = JSON.parse(localStorage.getItem('ch_stats') || '{}');
+   s.ai = s.ai || {};
+   var checks = [];
+   if (ok) checks.push(queryOpenAI(ok).then(function(res) {
+     s.ai.cgpt = { score: res.score, queries: res.mentioned ? '✓ Mentioned' : '✗ Not found', summary: res.summary, pct: null };
+   }).catch(function(e) { s.ai.cgpt = s.ai.cgpt || { score: '--', queries: 'Error: ' + e.message }; }));
+   if (pk) checks.push(queryPerplexity(pk).then(function(res) {
+     s.ai.plex = { score: res.score, queries: res.mentioned ? '✓ Mentioned' : '✗ Not found', summary: res.summary, pct: null };
+   }).catch(function(e) { s.ai.plex = s.ai.plex || { score: '--', queries: 'Error: ' + e.message }; }));
+   if (gk) checks.push(queryGemini(gk).then(function(res) {
+     s.ai.gem = { score: res.score, queries: res.mentioned ? '✓ Mentioned' : '✗ Not found', summary: res.summary, pct: null };
+   }).catch(function(e) { s.ai.gem = s.ai.gem || { score: '--', queries: 'Error: ' + e.message }; }));
+   await Promise.all(checks);
+   s.aiUpdatedAt = new Date().toISOString();
+   localStorage.setItem('ch_stats', JSON.stringify(s));
+   if (bar) bar.style.display = 'none';
+   loadAnalytics();
+ }
 
  document.getElementById('stats-form').addEventListener('submit', function(e) {
    e.preventDefault();
@@ -1285,7 +1402,6 @@
  }
 
  async function fetchGA4Report(token, propId) {
-   var today = new Date().toISOString().split('T')[0];
    var r = await fetch('https://analyticsdata.googleapis.com/v1beta/properties/' + propId + ':runReport', {
      method: 'POST',
      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
@@ -1294,6 +1410,7 @@
          { startDate: '30daysAgo', endDate: 'today', name: 'current' },
          { startDate: '60daysAgo', endDate: '31daysAgo', name: 'previous' }
        ],
+       dimensions: [{ name: 'dateRange' }],
        metrics: [
          { name: 'sessions' },
          { name: 'activeUsers' },
@@ -1346,18 +1463,27 @@
 
  function parseGA4(ga4Main, ga4Events, gscData) {
    var out = {};
-   // GA4 main metrics — rows[0]=current 30d, rows[1]=previous 30d
-   if (ga4Main && ga4Main.rows && ga4Main.rows.length >= 1) {
-     var cur = ga4Main.rows[0].metricValues;
-     out.sessions = parseInt(cur[0].value) || 0;
-     out.visitors = parseInt(cur[1].value) || 0;
-     out.pageviews = parseInt(cur[2].value) || 0;
-     if (ga4Main.rows.length >= 2) {
-       var prev = ga4Main.rows[1].metricValues;
-       var prevSess = parseInt(prev[0].value) || 1;
-       var prevVis = parseInt(prev[1].value) || 1;
+   // GA4 main metrics — rows have dimensionValues[0].value = 'date_range_0' (current) or 'date_range_1' (previous)
+   if (ga4Main && ga4Main.rows) {
+     var curRow = null, prevRow = null;
+     ga4Main.rows.forEach(function(row) {
+       var rangeKey = (row.dimensionValues && row.dimensionValues[0]) ? row.dimensionValues[0].value : '';
+       if (rangeKey === 'date_range_0') curRow = row.metricValues;
+       else if (rangeKey === 'date_range_1') prevRow = row.metricValues;
+     });
+     // Fallback: if no dimension value, treat first row as current
+     if (!curRow && ga4Main.rows.length > 0) curRow = ga4Main.rows[0].metricValues;
+     if (!prevRow && ga4Main.rows.length > 1) prevRow = ga4Main.rows[1].metricValues;
+     if (curRow) {
+       out.sessions  = parseInt(curRow[0].value) || 0;
+       out.visitors  = parseInt(curRow[1].value) || 0;
+       out.pageviews = parseInt(curRow[2].value) || 0;
+     }
+     if (curRow && prevRow) {
+       var prevSess = parseInt(prevRow[0].value) || 1;
+       var prevVis  = parseInt(prevRow[1].value) || 1;
        out.sessionsPct = Math.round(((out.sessions - prevSess) / prevSess) * 100);
-       out.visitorsPct = Math.round(((out.visitors - prevVis) / prevVis) * 100);
+       out.visitorsPct = Math.round(((out.visitors - prevVis)  / prevVis)  * 100);
      }
    }
    // Schedule call events
@@ -1416,15 +1542,21 @@
 
    // AI
    var ai = s.ai || {};
+   var hasKeys = !!(localStorage.getItem('ch_key_openai') || localStorage.getItem('ch_key_perplexity') || localStorage.getItem('ch_key_gemini'));
    ['cgpt','plex','gem'].forEach(function(k) {
      var d = ai[k] || {};
-     document.getElementById('ai-' + k + '-score').textContent = d.score ? d.score + '%' : '--';
-     document.getElementById('ai-' + k + '-q').textContent = d.queries || '--';
-     document.getElementById('ai-' + k + '-trend').innerHTML = trend(d.pct);
+     var scoreEl = document.getElementById('ai-' + k + '-score');
+     var qEl = document.getElementById('ai-' + k + '-q');
+     var sumEl = document.getElementById('ai-' + k + '-summary');
+     if (scoreEl) scoreEl.textContent = (d.score != null && d.score !== '--') ? d.score + '%' : '--';
+     if (qEl) qEl.textContent = d.queries || '--';
+     if (sumEl) sumEl.textContent = d.summary || '';
    });
    if (s.aiUpdatedAt) {
      var ad = new Date(s.aiUpdatedAt);
-     document.getElementById('ai-updated').textContent = 'Manually updated ' + ad.toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' }) + ' · No public API for AI visibility';
+     document.getElementById('ai-updated').textContent = '✓ Auto-checked ' + ad.toLocaleTimeString('en-AU', {hour:'2-digit',minute:'2-digit'}) + ' on ' + ad.toLocaleDateString('en-AU', { day:'numeric', month:'short' });
+   } else if (!hasKeys) {
+     document.getElementById('ai-updated').textContent = 'Click ⚙ API Keys to enable automatic AI visibility checks.';
    }
 
    // Insights (combine GA4 + AI data)
@@ -1462,6 +1594,9 @@
  }
 
  loadAnalytics();
+
+ // Auto-run AI checks on load (silent — only if keys exist)
+ runAiChecks(false);
 
  // Init Google bar state + auto-connect if token exists
  (function initGoogleBar() {
