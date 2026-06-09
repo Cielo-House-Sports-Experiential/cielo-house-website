@@ -291,6 +291,15 @@
    </div>
  </div>
 
+ <!-- Required API enablement notice -->
+ <div id="api-enable-notice" style="display:none;background:#fff7e6;border:1.5px solid #f5a623;border-radius:10px;padding:0.85rem 1.1rem;margin-bottom:1rem;font-size:0.8rem;color:#7a5000;line-height:1.8;">
+   <strong>⚠ One-time step — enable 2 Google APIs (30 seconds total):</strong><br>
+   <a href="https://console.developers.google.com/apis/api/analyticsdata.googleapis.com/overview?project=79629460838" target="_blank" style="color:#7a5000;font-weight:700;">1. Enable Google Analytics Data API →</a><br>
+   <a href="https://console.developers.google.com/apis/api/searchconsole.googleapis.com/overview?project=79629460838" target="_blank" style="color:#7a5000;font-weight:700;">2. Enable Google Search Console API →</a><br>
+   After enabling both, click <strong>↻ Sync Now</strong>. Data loads instantly.
+   <button onclick="document.getElementById('api-enable-notice').style.display='none';localStorage.setItem('api_notice_ok','1');" style="float:right;background:none;border:none;cursor:pointer;font-size:1rem;color:#7a5000;margin-top:-0.15rem;">✕</button>
+ </div>
+
  <!-- Property selector (shown after auth if multiple) -->
  <div id="ga4-prop-picker" style="display:none;margin-bottom:1.25rem;background:#fff;border:1.5px solid #e0e4ef;border-radius:10px;padding:0.85rem 1.1rem;">
    <div style="font-size:0.82rem;font-weight:600;color:#2B317B;margin-bottom:0.5rem;">Select your GA4 Property</div>
@@ -1385,7 +1394,7 @@
        ].join(' '),
        callback: function(resp) {
          if (resp.error || !resp.access_token) {
-           document.getElementById('gbar-error-msg').textContent = 'Google sign-in failed: ' + (resp.error || 'unknown error');
+           document.getElementById('gbar-error-msg').innerHTML = 'Google sign-in failed: ' + (resp.error || 'unknown error');
            gbarShow('error'); return;
          }
          _gaToken = resp.access_token;
@@ -1397,7 +1406,7 @@
      });
      client.requestAccessToken();
    } catch(e) {
-     document.getElementById('gbar-error-msg').textContent = 'Error: ' + e.message;
+     document.getElementById('gbar-error-msg').innerHTML = 'Error: ' + e.message;
      gbarShow('error');
    }
  }
@@ -1415,61 +1424,57 @@
  async function syncGoogleData(manual) {
    var token = _gaToken || localStorage.getItem('ch_ga_token');
    var exp = _gaTokenExp || parseInt(localStorage.getItem('ch_ga_token_exp') || '0');
-   if (!token || Date.now() > exp - 60000) {
-     // Token expired or missing — re-auth
-     connectGoogle(); return;
-   }
+   if (!token || Date.now() > exp - 60000) { connectGoogle(); return; }
    _gaToken = token; _gaTokenExp = exp;
    gbarShow('loading');
+   var propId = localStorage.getItem('ch_ga4_property_id') || _GA4_PROPERTY_ID;
+   localStorage.setItem('ch_ga4_property_id', propId);
    try {
-     var propId = localStorage.getItem('ch_ga4_property_id');
-     // Step 1: if no property ID, try Admin API; fall back to manual entry
-     if (!propId) {
-       try {
-         var props = await fetchGA4Properties(token);
-         if (props.length === 1) {
-           propId = props[0].id;
-           localStorage.setItem('ch_ga4_property_id', propId);
-         } else if (props.length > 1) {
-           _gaProperties = props;
-           showPropertyPicker(props);
-           gbarShow('connected');
-           document.getElementById('gbar-sync-label').textContent = 'Select your GA4 property below';
-           return;
-         }
-       } catch(adminErr) {
-         // Admin API not enabled or failed — ask user to enter Property ID manually
-         showPropertyIdInput();
-         gbarShow('connected');
-         document.getElementById('gbar-sync-label').textContent = 'Enter your GA4 Property ID below';
-         return;
-       }
-       if (!propId) { showPropertyIdInput(); gbarShow('connected'); document.getElementById('gbar-sync-label').textContent = 'Enter your GA4 Property ID below'; return; }
-     }
-     // Step 2: fetch GA4 + GSC data in parallel
-     var [ga4Main, ga4Events, gscData] = await Promise.all([
-       fetchGA4Report(token, propId),
-       fetchGA4Events(token, propId),
-       fetchGSC(token)
-     ]);
-     // Step 3: parse + cache
+     // Fetch GA4 + GSC in parallel; GSC failure is non-fatal
+     var ga4Main, ga4Events, gscData;
+     try { ga4Main = await fetchGA4Report(token, propId); } catch(e) { showApiError('GA4', e); return; }
+     try { ga4Events = await fetchGA4Events(token, propId); } catch(e) { ga4Events = null; }
+     try { gscData = await fetchGSC(token); } catch(e) { gscData = null; }
      var parsed = parseGA4(ga4Main, ga4Events, gscData);
      parsed.syncedAt = new Date().toISOString();
-     // Merge into ch_stats (preserve AI data)
      var s = JSON.parse(localStorage.getItem('ch_stats') || '{}');
      Object.assign(s, parsed);
      localStorage.setItem('ch_stats', JSON.stringify(s));
      localStorage.setItem('ch_ga4_cache', JSON.stringify(parsed));
      gbarShow('connected');
-     var d = new Date(parsed.syncedAt);
-     document.getElementById('gbar-sync-label').textContent = 'Last synced ' + d.toLocaleTimeString('en-AU', { hour:'2-digit', minute:'2-digit' });
+     document.getElementById('gbar-sync-label').textContent = 'Last synced ' + new Date().toLocaleTimeString('en-AU', {hour:'2-digit',minute:'2-digit'});
      document.getElementById('ga4-prop-picker').style.display = 'none';
      loadAnalytics();
-     // Run free AI checks using the same Google token (Gemini) + Reddit (no key needed)
      runFreeAiChecks(token);
    } catch(e) {
-     document.getElementById('gbar-error-msg').textContent = e.message || 'Failed to fetch Google data.';
-     gbarShow('error');
+     showApiError('Google', e);
+   }
+ }
+
+ function showApiError(api, e) {
+   var msg = e.message || 'Unknown error';
+   var proj = '79629460838';
+   var html = msg;
+   if (/analyticsdata|Analytics Data API/i.test(msg) || /has not been used|disabled/i.test(msg)) {
+     html = '⚠ Google Analytics Data API is not enabled. '
+       + '<a href="https://console.developers.google.com/apis/api/analyticsdata.googleapis.com/overview?project=' + proj + '" target="_blank" style="color:#c0392b;font-weight:700;text-decoration:underline;">Click here to enable it →</a>'
+       + ' then click Reconnect.';
+   } else if (/searchconsole|Search Console/i.test(msg)) {
+     html = '⚠ Search Console API not enabled. '
+       + '<a href="https://console.developers.google.com/apis/api/searchconsole.googleapis.com/overview?project=' + proj + '" target="_blank" style="color:#c0392b;font-weight:700;text-decoration:underline;">Enable it here →</a>';
+   } else if (/401|unauthorized|invalid_token/i.test(msg)) {
+     html = 'Session expired — click Reconnect to sign in again.';
+   } else if (/403|forbidden/i.test(msg)) {
+     html = '⚠ Permission denied. Make sure the Analytics Data API is enabled: '
+       + '<a href="https://console.developers.google.com/apis/api/analyticsdata.googleapis.com/overview?project=' + proj + '" target="_blank" style="color:#c0392b;font-weight:700;text-decoration:underline;">Enable here →</a>';
+   }
+   var errEl = document.getElementById('gbar-error-msg');
+   if (errEl) errEl.innerHTML = html;
+   gbarShow('error');
+   // Show API notice automatically on error so the fix is obvious
+   if (!localStorage.getItem('api_notice_ok')) {
+     var notice = document.getElementById('api-enable-notice');
+     if (notice) notice.style.display = 'block';
    }
  }
 
@@ -1766,29 +1771,36 @@
 
  // AI checks auto-run after Google connects (inside syncGoogleData → runFreeAiChecks)
 
- // Init Google bar state + auto-connect if token exists
+ // Init: auto-sync immediately if token is valid
  (function initGoogleBar() {
    var token = localStorage.getItem('ch_ga_token');
    var exp = parseInt(localStorage.getItem('ch_ga_token_exp') || '0');
-   var clientId = localStorage.getItem('ch_google_client_id');
+   // Show API enablement notice if not dismissed
+   if (!localStorage.getItem('api_notice_ok')) {
+     var notice = document.getElementById('api-enable-notice');
+     if (notice) notice.style.display = 'block';
+   }
    if (token && Date.now() < exp - 60000) {
-     // Token still valid — show connected state
      gbarShow('connected');
-     var cached = localStorage.getItem('ch_ga4_cache');
-     if (cached) {
-       var c = JSON.parse(cached);
-       var d = new Date(c.syncedAt);
-       document.getElementById('gbar-sync-label').textContent = 'Last synced ' + d.toLocaleTimeString('en-AU', { hour:'2-digit', minute:'2-digit' });
-     } else {
-       document.getElementById('gbar-sync-label').textContent = 'connected — click Sync Now';
-     }
-   } else if (clientId) {
-     // Have client ID but token expired — show setup with reconnect prompt
-     gbarShow('setup');
+     document.getElementById('gbar-sync-label').textContent = 'Syncing…';
+     syncGoogleData(false);
    } else {
      gbarShow('setup');
    }
  })();
+
+ // Auto-sync every time the Analytics tab is opened
+ document.querySelectorAll('.nav-btn[data-panel]').forEach(function(btn) {
+   btn.addEventListener('click', function() {
+     if (btn.getAttribute('data-panel') === 'analytics') {
+       var token = localStorage.getItem('ch_ga_token');
+       var exp = parseInt(localStorage.getItem('ch_ga_token_exp') || '0');
+       if (token && Date.now() < exp - 60000) {
+         syncGoogleData(false);
+       }
+     }
+   });
+ });
 
  // Blog posts seed from live website data if never set
  (function seedBlogPosts() {
