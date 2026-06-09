@@ -279,7 +279,6 @@
  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem;flex-wrap:wrap;gap:0.5rem;">
    <h1 class="page-title" style="margin-bottom:0;">Analytics</h1>
    <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
-     <button class="btn btn-secondary btn-sm" onclick="openModal()" style="font-size:0.78rem;">✎ Update AI Stats</button>
      <button class="btn btn-secondary btn-sm" onclick="showGoogleSetup()" id="google-setup-btn" style="font-size:0.78rem;">⚙ Google Setup</button>
    </div>
  </div>
@@ -1074,26 +1073,6 @@
 
   <!-- Stats Modal -->
  <!-- AI Stats modal (manual entry) -->
- <div class="modal-overlay" id="stats-modal" onclick="if(event.target===this)closeModal()">
- <div class="modal-box">
- <button class="modal-close" onclick="closeModal()">&#215;</button>
- <div class="modal-title">Update AI Platform Stats</div>
- <p class="modal-sub">AI platforms (ChatGPT, Perplexity, Gemini) have no public API — test each one manually and enter your visibility scores below.</p>
- <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.25rem;">
-   <a href="https://chatgpt.com/?q=Cielo+House+sports+activation" target="_blank" rel="noopener" style="font-size:0.73rem;font-weight:600;color:#2B317B;background:#eef1fb;border-radius:6px;padding:0.3rem 0.8rem;text-decoration:none;">Test ChatGPT ↗</a>
-   <a href="https://www.perplexity.ai/?q=Cielo+House+sports+activation+Australia" target="_blank" rel="noopener" style="font-size:0.73rem;font-weight:600;color:#2B317B;background:#eef1fb;border-radius:6px;padding:0.3rem 0.8rem;text-decoration:none;">Test Perplexity ↗</a>
-   <a href="https://gemini.google.com/app?q=Cielo+House+sports+activation" target="_blank" rel="noopener" style="font-size:0.73rem;font-weight:600;color:#2B317B;background:#eef1fb;border-radius:6px;padding:0.3rem 0.8rem;text-decoration:none;">Test Gemini ↗</a>
- </div>
- <form class="form" id="stats-form">
- <div class="form-row-3">
- <div><div class="form-label" style="margin-bottom:0.4rem;">ChatGPT</div><input class="form-input" id="ai-cgpt-score" type="number" placeholder="Visibility %" style="margin-bottom:0.35rem;" /><input class="form-input" id="ai-cgpt-queries" type="number" placeholder="User queries" style="margin-bottom:0.35rem;" /><input class="form-input" id="ai-cgpt-pct" type="number" placeholder="% Change" /></div>
- <div><div class="form-label" style="margin-bottom:0.4rem;">Perplexity</div><input class="form-input" id="ai-plex-score" type="number" placeholder="Visibility %" style="margin-bottom:0.35rem;" /><input class="form-input" id="ai-plex-queries" type="number" placeholder="User queries" style="margin-bottom:0.35rem;" /><input class="form-input" id="ai-plex-pct" type="number" placeholder="% Change" /></div>
- <div><div class="form-label" style="margin-bottom:0.4rem;">Gemini</div><input class="form-input" id="ai-gem-score" type="number" placeholder="Visibility %" style="margin-bottom:0.35rem;" /><input class="form-input" id="ai-gem-queries" type="number" placeholder="User queries" style="margin-bottom:0.35rem;" /><input class="form-input" id="ai-gem-pct" type="number" placeholder="% Change" /></div>
- </div>
- <button type="submit" class="btn btn-primary btn-full" style="margin-top:1.5rem;">Save AI Stats</button>
- </form>
- </div>
- </div>
 
  <!-- Google Setup modal -->
  <div class="modal-overlay" id="google-setup-modal" onclick="if(event.target===this)closeGoogleSetup()">
@@ -1214,14 +1193,7 @@
  }
 
  // ===================== AI STATS MODAL (manual fallback) =====================
- function openModal() {
-   var s = JSON.parse(localStorage.getItem('ch_stats') || '{}');
-   var ai = s.ai || {};
-   ['cgpt','plex','gem'].forEach(function(k) {
-     var d = ai[k] || {};
-     ['score','queries','pct'].forEach(function(f) { var el = document.getElementById('ai-' + k + '-' + f); if (el && d[f] != null) el.value = d[f]; });
-   });
-   document.getElementById('stats-modal').style.display = 'block';
+ function openModal() { // legacy — no-op
  }
  function closeModal() { document.getElementById('stats-modal').style.display = 'none'; }
 
@@ -1421,18 +1393,6 @@
    loadAnalytics();
  }
 
- document.getElementById('stats-form').addEventListener('submit', function(e) {
-   e.preventDefault();
-   var s = JSON.parse(localStorage.getItem('ch_stats') || '{}');
-   s.aiUpdatedAt = new Date().toISOString();
-   s.ai = s.ai || {};
-   ['cgpt','plex','gem'].forEach(function(k) {
-     s.ai[k] = { score: document.getElementById('ai-' + k + '-score').value, queries: document.getElementById('ai-' + k + '-queries').value, pct: document.getElementById('ai-' + k + '-pct').value };
-   });
-   localStorage.setItem('ch_stats', JSON.stringify(s));
-   closeModal();
-   loadAnalytics();
- });
 
  // ===================== GOOGLE SETUP MODAL =====================
  function showGoogleSetup() {
