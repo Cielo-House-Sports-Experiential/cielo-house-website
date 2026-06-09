@@ -99,15 +99,28 @@
   </div>
  </section>
 
- <!-- FEATURED ARTICLE — populated by Supabase -->
- <section class="section section--lg" aria-label="Featured article" id="featured-section" style="display:none;">
+ <!-- FEATURED ARTICLE -->
+ <section class="section section--lg" aria-label="Featured article" id="featured-section">
  <div class="container">
  <article id="featured-article" style="display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center; padding-bottom:var(--space-16); border-bottom:1px solid var(--color-light-grey); margin-bottom:var(--space-16);">
+  <div data-animate="fade-left" style="border-radius:var(--radius-lg);overflow:hidden;aspect-ratio:16/10;">
+   <img src="images/our-work/boost-mobile-gold-coast-500.jpg" alt="Why companies should invest in sponsorship activations" style="width:100%;height:100%;object-fit:cover;" loading="lazy"/>
+  </div>
+  <div data-animate="fade-right">
+   <span class="eyebrow">Featured</span>
+   <span style="font-size:.75rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--color-gold);display:block;margin-bottom:.75rem;">Sponsorship</span>
+   <h2 style="font-family:var(--font-display);font-size:clamp(1.75rem,3vw,2.75rem);margin-bottom:1rem;line-height:1.2;"><a href="blog/post.html?slug=why-invest-in-sponsorship-activations" style="color:var(--color-midnight);">Why Companies Should Invest in Sponsorship Activations</a></h2>
+   <p style="color:var(--color-text-light);line-height:1.75;margin-bottom:1.5rem;">Sponsorship without activation is just a logo on a fence. Here's why smart brands invest in live activations to turn their sponsorship spend into real brand equity.</p>
+   <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
+    <span style="font-size:.8rem;color:var(--color-mid-grey);">By Britt Niven</span>
+    <a href="blog/post.html?slug=why-invest-in-sponsorship-activations" class="link-arrow">Read article <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>
+   </div>
+  </div>
  </article>
  </div>
  </section>
 
- <!-- ARTICLE GRID — populated by Supabase -->
+ <!-- ARTICLE GRID -->
  <section class="section section--off-white" aria-label="All articles">
  <div class="container">
  <div class="section-header--center" data-animate>
@@ -115,13 +128,62 @@
  <h2>Everything You Need to Know About <em style="font-style:italic">Brand Events</em></h2>
  <span class="divider divider--center"></span>
  </div>
- <!-- skeleton placeholders shown while loading -->
  <div class="blog-grid" id="blog-grid">
- <article class="blog-card blog-card--skeleton" aria-hidden="true"><div class="blog-card__img-wrap" style="background:#e8e8e8;"></div><div style="padding:1.25rem;"><div style="height:12px;background:#e8e8e8;border-radius:4px;width:40%;margin-bottom:0.75rem;"></div><div style="height:18px;background:#e8e8e8;border-radius:4px;width:85%;margin-bottom:0.5rem;"></div><div style="height:14px;background:#e8e8e8;border-radius:4px;width:65%;"></div></div></article>
- <article class="blog-card blog-card--skeleton" aria-hidden="true"><div class="blog-card__img-wrap" style="background:#e8e8e8;"></div><div style="padding:1.25rem;"><div style="height:12px;background:#e8e8e8;border-radius:4px;width:40%;margin-bottom:0.75rem;"></div><div style="height:18px;background:#e8e8e8;border-radius:4px;width:85%;margin-bottom:0.5rem;"></div><div style="height:14px;background:#e8e8e8;border-radius:4px;width:65%;"></div></div></article>
- <article class="blog-card blog-card--skeleton" aria-hidden="true"><div class="blog-card__img-wrap" style="background:#e8e8e8;"></div><div style="padding:1.25rem;"><div style="height:12px;background:#e8e8e8;border-radius:4px;width:40%;margin-bottom:0.75rem;"></div><div style="height:18px;background:#e8e8e8;border-radius:4px;width:65%;margin-bottom:0.5rem;"></div><div style="height:14px;background:#e8e8e8;border-radius:4px;width:50%;"></div></div></article>
+  <article class="blog-card" data-animate>
+   <a href="blog/post.html?slug=elevating-brands-through-live-experiences">
+    <div class="blog-card__img-wrap"><img src="images/our-work/chiko-bathurst-1000.jpg" alt="Elevating brands through unforgettable live experiences" class="blog-card__img" loading="lazy"/></div>
+    <span class="blog-card__tag">Brand Experience</span>
+    <h3 class="blog-card__title">Cielo House: Elevating Brands Through Unforgettable Live Experiences</h3>
+    <p class="blog-card__excerpt">How a strategic-first approach to live events turns moments into meaningful brand equity.</p>
+    <span class="blog-card__meta">Britt Niven</span>
+   </a>
+  </article>
+  <article class="blog-card" data-animate data-animate-delay="1">
+   <a href="blog/post.html?slug=corporate-hospitality-guide">
+    <div class="blog-card__img-wrap"><img src="images/our-work/coates-formula-1-australian-grand-prix.jpg" alt="Corporate hospitality guide" class="blog-card__img" loading="lazy"/></div>
+    <span class="blog-card__tag">Hospitality</span>
+    <h3 class="blog-card__title">How to Organise Corporate Hospitality at Major Australian Events</h3>
+    <p class="blog-card__excerpt">Everything you need to know about planning a premium corporate hospitality program at major Australian sporting events.</p>
+    <span class="blog-card__meta">Britt Niven</span>
+   </a>
+  </article>
+  <article class="blog-card" data-animate data-animate-delay="2">
+   <a href="blog/post.html?slug=promotional-models-brand-ambassadors">
+    <div class="blog-card__img-wrap"><img src="images/our-work/boost-mobile-gold-coast-500.jpg" alt="Promotional models vs brand ambassadors" class="blog-card__img" loading="lazy"/></div>
+    <span class="blog-card__tag">Talent</span>
+    <h3 class="blog-card__title">Promotional Models vs Brand Ambassadors: What's the Difference?</h3>
+    <p class="blog-card__excerpt">Understanding the distinction and how to select the right talent to represent your brand at events.</p>
+    <span class="blog-card__meta">Britt Niven</span>
+   </a>
+  </article>
+  <article class="blog-card" data-animate>
+   <a href="blog/post.html?slug=content-creation-at-events">
+    <div class="blog-card__img-wrap"><img src="images/our-work/chiko-bathurst-1000.jpg" alt="Content creation at events" class="blog-card__img" loading="lazy"/></div>
+    <span class="blog-card__tag">Content</span>
+    <h3 class="blog-card__title">Why On-Site Content Creation Is the Secret Weapon of Great Activations</h3>
+    <p class="blog-card__excerpt">The activation ends but your content lives on. How smart brands maximise the digital value of every live event moment.</p>
+    <span class="blog-card__meta">Britt Niven</span>
+   </a>
+  </article>
+  <article class="blog-card" data-animate data-animate-delay="1">
+   <a href="blog/post.html?slug=supercars-gold-coast-500-guide">
+    <div class="blog-card__img-wrap"><img src="images/our-work/boost-mobile-gold-coast-500.jpg" alt="Supercars Gold Coast 500 guide" class="blog-card__img" loading="lazy"/></div>
+    <span class="blog-card__tag">Events Guide</span>
+    <h3 class="blog-card__title">The Brand Marketer's Guide to the Supercars Gold Coast 500</h3>
+    <p class="blog-card__excerpt">One of Australia's biggest street racing events is a prime opportunity for brand activation.</p>
+    <span class="blog-card__meta">Britt Niven</span>
+   </a>
+  </article>
+  <article class="blog-card" data-animate data-animate-delay="2">
+   <a href="blog/post.html?slug=vip-experiences-australia">
+    <div class="blog-card__img-wrap"><img src="images/our-work/coates-formula-1-australian-grand-prix.jpg" alt="VIP experiences Australia" class="blog-card__img" loading="lazy"/></div>
+    <span class="blog-card__tag">VIP Experiences</span>
+    <h3 class="blog-card__title">What Makes a Truly Unforgettable VIP Experience in Australia?</h3>
+    <p class="blog-card__excerpt">Five elements that turn a good VIP experience into an extraordinary one.</p>
+    <span class="blog-card__meta">Britt Niven</span>
+   </a>
+  </article>
  </div>
- <p id="blog-empty" style="display:none;text-align:center;color:var(--color-mid-grey);padding:3rem 0;">No articles published yet. Check back soon.</p>
  </div>
  </section>
 
@@ -155,22 +217,12 @@
  </div>
  </footer>
  <script>
+ /* Upgrades static hardcoded posts with live data from Supabase or localStorage */
  (async function () {
    const U = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
    const K = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
    const esc = s => (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
    const postUrl = slug => 'blog/post.html?slug=' + encodeURIComponent(slug);
-
-   // ── TIER 3: Static fallback — always shown if Supabase + localStorage both empty ──
-   const STATIC_POSTS = [
-     { slug:'why-invest-in-sponsorship-activations', title:'Why Companies Should Invest in Sponsorship Activations', excerpt:'Sponsorship without activation is just a logo on a fence. Here\'s why smart brands invest in live activations to turn their sponsorship spend into real brand equity.', category:'Sponsorship', image:'images/our-work/boost-mobile-gold-coast-500.jpg', author:'Britt Niven' },
-     { slug:'elevating-brands-through-live-experiences', title:'Cielo House: Elevating Brands Through Unforgettable Live Experiences', excerpt:'How a strategic-first approach to live events turns moments into meaningful brand equity and why the best activations are built backwards from the audience.', category:'Brand Experience', image:'images/our-work/chiko-bathurst-1000.jpg', author:'Cielo House Team' },
-     { slug:'corporate-hospitality-guide', title:'How to Organise Corporate Hospitality at Major Australian Events', excerpt:'Everything you need to know about planning a premium corporate hospitality program at major Australian sporting and cultural events.', category:'Hospitality', image:'images/our-work/coates-formula-1-australian-grand-prix.jpg', author:'Britt Niven' },
-     { slug:'promotional-models-brand-ambassadors', title:'Promotional Models vs Brand Ambassadors: What\'s the Difference?', excerpt:'Understanding the distinction between promotional models and brand ambassadors and how to select the right talent for your brand at events.', category:'Talent', image:'images/our-work/boost-mobile-gold-coast-500.jpg', author:'Britt Niven' },
-     { slug:'content-creation-at-events', title:'Why On-Site Content Creation Is the Secret Weapon of Great Activations', excerpt:'The activation ends but your content lives on. Here\'s how smart brands are maximising the digital value of every live event moment.', category:'Content', image:'images/our-work/chiko-bathurst-1000.jpg', author:'Britt Niven' },
-     { slug:'supercars-gold-coast-500-guide', title:'The Brand Marketer\'s Guide to the Supercars Gold Coast 500', excerpt:'One of Australia\'s biggest street racing events is a prime opportunity for brand activation. Here\'s how to make the most of your presence at the Gold Coast 500.', category:'Events Guide', image:'images/our-work/boost-mobile-gold-coast-500.jpg', author:'Britt Niven' },
-     { slug:'vip-experiences-australia', title:'What Makes a Truly Unforgettable VIP Experience in Australia?', excerpt:'Money-can\'t-buy access is just the beginning. Five elements that turn a good VIP experience into an extraordinary one.', category:'VIP Experiences', image:'images/our-work/coates-formula-1-australian-grand-prix.jpg', author:'Britt Niven' },
-   ];
 
    const grid = document.getElementById('blog-grid');
    const emptyMsg = document.getElementById('blog-empty');
@@ -198,17 +250,15 @@
      } catch(e) {}
    }
 
-   // ── TIER 3: Static fallback ──
-   if (!posts.length) posts = STATIC_POSTS;
+   // If no live data, keep the hardcoded HTML — nothing to do
+   if (!posts.length) return;
 
-   // Clear skeletons
+   // Live data available — replace hardcoded cards
    grid.innerHTML = '';
 
-   // ── Render featured (most recent) ──
+   // ── Replace featured with live data (most recent post) ──
    const feat = posts[0];
-   const featSection = document.getElementById('featured-section');
    const featArticle = document.getElementById('featured-article');
-   featSection.style.display = '';
    featArticle.innerHTML =
      `<div data-animate="fade-left" style="border-radius:var(--radius-lg);overflow:hidden;aspect-ratio:16/10;">`
      + (feat.image ? `<img src="${esc(feat.image)}" alt="${esc(feat.title)}" style="width:100%;height:100%;object-fit:cover;" loading="lazy"/>` : `<div style="width:100%;height:100%;background:var(--color-off-white);"></div>`)
