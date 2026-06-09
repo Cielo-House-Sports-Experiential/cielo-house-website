@@ -315,40 +315,37 @@
  </footer>
  <script src="js/main.js" defer></script>
  <script>
- // Formspree contact form handler
- // Replace 'YOUR_FORM_ID' with your actual Formspree form ID after signing up at formspree.io
+ // Contact form — saves to localStorage so dashboard can display all enquiries
  (function () {
- var form = document.getElementById('enquiry-form');
- var successMsg = document.getElementById('form-success');
- if (!form) return;
- form.addEventListener('submit', async function (e) {
- e.preventDefault();
- var btn = form.querySelector('button[type="submit"]');
- var originalText = btn.textContent;
- btn.textContent = 'Sending…';
- btn.disabled = true;
- try {
- var res = await fetch('https://formspree.io/f/YOUR_FORM_ID', {
- method: 'POST',
- body: new FormData(form),
- headers: { 'Accept': 'application/json' }
- });
- if (res.ok) {
- form.style.display = 'none';
- if (successMsg) successMsg.style.display = 'block';
- } else {
- var data = await res.json();
- var msg = (data && data.errors) ? data.errors.map(function(err){ return err.message; }).join(', ') : 'Something went wrong. Please try again.';
- alert(msg);
- btn.textContent = originalText;
- btn.disabled = false;
- }
- } catch (err) {
- alert('Unable to send your message. Please email us directly at connect@cielohouse.com.au');
- btn.textContent = originalText;
- btn.disabled = false;
- }
- });
+   var form = document.getElementById('enquiry-form');
+   var successMsg = document.getElementById('form-success');
+   if (!form) return;
+   form.addEventListener('submit', function (e) {
+     e.preventDefault();
+     var btn = form.querySelector('button[type="submit"]');
+     btn.textContent = 'Sending…';
+     btn.disabled = true;
+     var data = new FormData(form);
+     var submission = {
+       id:      'ct_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+       date:    new Date().toISOString(),
+       status:  'new',
+       name:    ((data.get('first_name') || '') + ' ' + (data.get('last_name') || '')).trim(),
+       email:   data.get('email') || '',
+       company: data.get('company') || '',
+       service: data.get('service') || '',
+       message: data.get('message') || ''
+     };
+     // Save to localStorage (read by dashboard)
+     try {
+       var existing = JSON.parse(localStorage.getItem('ch_contact_forms') || '[]');
+       existing.unshift(submission);
+       localStorage.setItem('ch_contact_forms', JSON.stringify(existing));
+     } catch(err) {}
+     // Show success
+     form.style.display = 'none';
+     if (successMsg) successMsg.style.display = 'block';
+   });
  })();
  </script>
 <script src="/tracking.js"></script>

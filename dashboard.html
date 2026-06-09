@@ -262,9 +262,10 @@
  </a>
  <div class="sidebar__label">Dashboard</div>
  <button class="nav-btn active" data-panel="analytics">Analytics</button>
+ <button class="nav-btn" data-panel="contacts">Contact Forms <span id="contacts-badge" style="display:none;background:#e74c3c;color:#fff;border-radius:20px;font-size:0.65rem;font-weight:700;padding:0.1rem 0.45rem;margin-left:0.35rem;"></span></button>
+ <button class="nav-btn" data-panel="subscribers">Subscribers</button>
  <button class="nav-btn" data-panel="events">Events Calendar</button>
  <button class="nav-btn" data-panel="blog">Blog Posts</button>
- <button class="nav-btn" data-panel="subscribers">Subscribers</button>
  <div class="sidebar__label">Content</div>
  <button class="nav-btn" data-panel="testimonials">Testimonials</button>
  <button class="nav-btn" data-panel="faq">FAQ</button>
@@ -279,7 +280,7 @@
  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem;flex-wrap:wrap;gap:0.5rem;">
    <h1 class="page-title" style="margin-bottom:0;">Analytics</h1>
    <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
-     <button class="btn btn-secondary btn-sm" onclick="showGoogleSetup()" id="google-setup-btn" style="font-size:0.78rem;">⚙ Google Setup</button>
+     <button class="btn btn-secondary btn-sm" onclick="showGoogleSetup()" id="google-setup-btn" style="font-size:0.78rem;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:-2px;"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> Google Setup</button>
    </div>
  </div>
  <p class="page-sub" id="analytics-sub">Connect your Google account below to pull live data automatically.</p>
@@ -296,7 +297,7 @@
    <div id="gbar-connected" style="display:none;align-items:center;gap:0.75rem;flex-wrap:wrap;width:100%;background:#f0fff4;border:1.5px solid #a3e6c0;border-radius:10px;padding:0.75rem 1.1rem;">
      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="12" cy="12" r="10" fill="#27ae60"/><path d="M8 12l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
      <span style="color:#1a7a40;flex:1;">Google Connected — <span id="gbar-sync-label" style="font-weight:400;">syncing…</span></span>
-     <button onclick="syncGoogleData(true)" style="background:none;border:1.5px solid #27ae60;color:#1a7a40;border-radius:6px;padding:0.35rem 0.85rem;cursor:pointer;font-size:0.78rem;font-weight:600;font-family:'Poppins',sans-serif;">↻ Sync Now</button>
+     <button onclick="syncGoogleData(true)" style="background:none;border:1.5px solid #27ae60;color:#1a7a40;border-radius:6px;padding:0.35rem 0.85rem;cursor:pointer;font-size:0.78rem;font-weight:600;font-family:'Poppins',sans-serif;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline-block;vertical-align:-2px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg> Sync Now</button>
      <button onclick="disconnectGoogle()" style="background:none;border:none;color:#999;cursor:pointer;font-size:0.78rem;font-weight:500;font-family:'Poppins',sans-serif;">Disconnect</button>
    </div>
    <!-- State: loading -->
@@ -313,11 +314,11 @@
 
  <!-- Required API enablement notice -->
  <div id="api-enable-notice" style="display:none;background:#fff7e6;border:1.5px solid #f5a623;border-radius:10px;padding:0.85rem 1.1rem;margin-bottom:1rem;font-size:0.8rem;color:#7a5000;line-height:1.8;">
-   <strong>⚠ One-time step — enable 2 Google APIs (30 seconds total):</strong><br>
+   <strong><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:-2px;"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> One-time step — enable 2 Google APIs (30 seconds total):</strong><br>
    <a href="https://console.developers.google.com/apis/api/analyticsdata.googleapis.com/overview?project=79629460838" target="_blank" style="color:#7a5000;font-weight:700;">1. Enable Google Analytics Data API →</a><br>
    <a href="https://console.developers.google.com/apis/api/searchconsole.googleapis.com/overview?project=79629460838" target="_blank" style="color:#7a5000;font-weight:700;">2. Enable Google Search Console API →</a><br>
-   After enabling both, click <strong>↻ Sync Now</strong>. Data loads instantly.
-   <button onclick="document.getElementById('api-enable-notice').style.display='none';localStorage.setItem('api_notice_ok','1');" style="float:right;background:none;border:none;cursor:pointer;font-size:1rem;color:#7a5000;margin-top:-0.15rem;">✕</button>
+   After enabling both, click <strong><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline-block;vertical-align:-2px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg> Sync Now</strong>. Data loads instantly.
+   <button onclick="document.getElementById('api-enable-notice').style.display='none';localStorage.setItem('api_notice_ok','1');" style="float:right;background:none;border:none;cursor:pointer;font-size:1rem;color:#7a5000;margin-top:-0.15rem;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline-block;vertical-align:-2px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
  </div>
 
  <!-- Property selector (shown after auth if multiple) -->
@@ -357,7 +358,7 @@
  <div class="card">
    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.3rem;">
      <div style="font-weight:600;font-size:0.95rem;color:#222;">Search Performance on Google</div>
-     <a href="https://search.google.com/search-console" target="_blank" rel="noopener" style="font-size:0.75rem;color:#668DC6;text-decoration:none;font-weight:600;">Open GSC ↗</a>
+     <a href="https://search.google.com/search-console" target="_blank" rel="noopener" style="font-size:0.75rem;color:#668DC6;text-decoration:none;font-weight:600;">Open GSC <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline-block;vertical-align:-1px;margin-left:2px;"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
    </div>
    <div style="font-size:0.75rem;color:#999;margin-bottom:1.25rem;" id="google-period">Connect Google to load search data automatically</div>
    <div class="search-grid">
@@ -376,8 +377,8 @@
      </div>
      <div style="display:flex;gap:0.4rem;align-items:center;">
        <span style="font-size:0.72rem;color:#27ae60;font-weight:600;" id="ai-updated"></span>
-       <button class="btn btn-secondary btn-sm" onclick="refreshAiAll()" style="font-size:0.74rem;">↻ Run Checks</button>
-       <button class="btn btn-secondary btn-sm" onclick="openAiKeys()" style="font-size:0.74rem;">⚙ Add ChatGPT/Perplexity</button>
+       <button class="btn btn-secondary btn-sm" onclick="refreshAiAll()" style="font-size:0.74rem;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline-block;vertical-align:-2px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg> Run Checks</button>
+       <button class="btn btn-secondary btn-sm" onclick="openAiKeys()" style="font-size:0.74rem;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:-2px;"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> Add ChatGPT/Perplexity</button>
      </div>
    </div>
 
@@ -390,17 +391,17 @@
    <!-- Score summary row -->
    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin:0.85rem 0;" id="ai-score-row">
      <div style="background:#fafbff;border:1px solid #eef0f8;border-radius:8px;padding:0.65rem 0.85rem;text-align:center;">
-       <div style="font-size:0.72rem;font-weight:700;color:#888;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:0.2rem;">Gemini <span style="color:#27ae60;font-weight:600;">● Free</span></div>
+       <div style="font-size:0.72rem;font-weight:700;color:#888;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:0.2rem;">Gemini <span style="color:#27ae60;font-weight:600;">Free</span></div>
        <div style="font-size:1.5rem;font-weight:700;color:#2B317B;" id="gem-score-summary">--</div>
        <div style="font-size:0.68rem;color:#aaa;">queries with mention</div>
      </div>
      <div style="background:#fafbff;border:1px solid #eef0f8;border-radius:8px;padding:0.65rem 0.85rem;text-align:center;">
-       <div style="font-size:0.72rem;font-weight:700;color:#888;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:0.2rem;">ChatGPT <span style="color:#c8a04a;font-weight:600;">⚙ Key needed</span></div>
+       <div style="font-size:0.72rem;font-weight:700;color:#888;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:0.2rem;">ChatGPT <span style="color:#c8a04a;font-weight:600;">Key needed</span></div>
        <div style="font-size:1.5rem;font-weight:700;color:#2B317B;" id="cgpt-score-summary">--</div>
        <div style="font-size:0.68rem;color:#aaa;">queries with mention</div>
      </div>
      <div style="background:#fafbff;border:1px solid #eef0f8;border-radius:8px;padding:0.65rem 0.85rem;text-align:center;">
-       <div style="font-size:0.72rem;font-weight:700;color:#888;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:0.2rem;">Perplexity <span style="color:#c8a04a;font-weight:600;">⚙ Key needed</span></div>
+       <div style="font-size:0.72rem;font-weight:700;color:#888;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:0.2rem;">Perplexity <span style="color:#c8a04a;font-weight:600;">Key needed</span></div>
        <div style="font-size:1.5rem;font-weight:700;color:#2B317B;" id="plex-score-summary">--</div>
        <div style="font-size:0.68rem;color:#aaa;">queries with mention</div>
      </div>
@@ -430,8 +431,8 @@
          <span style="width:8px;height:8px;border-radius:50%;background:#27ae60;display:inline-block;animation:pulse-dot 1.4s infinite;"></span>
          <span id="live-now-count">0</span> live now
        </div>
-       <button class="btn btn-secondary btn-sm" onclick="refreshActivityLog()" style="font-size:0.74rem;">↻ Refresh</button>
-       <button class="btn btn-danger btn-sm" onclick="clearActivityLog()" style="font-size:0.74rem;">🗑 Clear</button>
+       <button class="btn btn-secondary btn-sm" onclick="refreshActivityLog()" style="font-size:0.74rem;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline-block;vertical-align:-2px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg> Refresh</button>
+       <button class="btn btn-danger btn-sm" onclick="clearActivityLog()" style="font-size:0.74rem;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:-2px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg> Clear</button>
      </div>
    </div>
 
@@ -770,13 +771,70 @@
  </div>
 
  <!-- SUBSCRIBERS -->
- <div class="panel" id="panel-subscribers">
- <h1 class="page-title">Subscribers</h1>
- <p class="page-sub">Email addresses collected via the homepage mailing list form.</p>
- <div class="card">
- <div class="card-title">Subscriber List (<span id="sub-count">0</span>)</div>
- <div class="sub-list" id="sub-list"><div class="empty">No subscribers yet.</div></div>
+ <!-- ===== CONTACT FORMS ===== -->
+ <div class="panel" id="panel-contacts">
+   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem;flex-wrap:wrap;gap:0.75rem;">
+     <h1 class="page-title" style="margin-bottom:0;">Contact Forms</h1>
+     <div style="display:flex;gap:0.5rem;">
+       <button class="btn btn-secondary btn-sm" onclick="contactsMarkAllRead()">Mark All Read</button>
+       <button class="btn btn-secondary btn-sm" onclick="contactsExportCSV()">Export CSV</button>
+     </div>
+   </div>
+   <p class="page-sub">All enquiries submitted via the website contact form.</p>
+
+   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;">
+     <div class="metric"><div class="metric__label">Total Enquiries</div><div class="metric__value" id="ct-total">0</div></div>
+     <div class="metric"><div class="metric__label">New / Unread</div><div class="metric__value" id="ct-unread" style="color:#e74c3c;">0</div></div>
+     <div class="metric"><div class="metric__label">This Month</div><div class="metric__value" id="ct-month">0</div></div>
+   </div>
+
+   <!-- Filter tabs -->
+   <div style="display:flex;gap:0.25rem;background:#f5f7fb;border:1.5px solid #dde2f0;border-radius:8px;padding:0.25rem;margin-bottom:1.25rem;width:fit-content;">
+     <button class="blog-tab active" id="ct-tab-all" onclick="contactsFilter('all')">All</button>
+     <button class="blog-tab" id="ct-tab-new" onclick="contactsFilter('new')">New</button>
+     <button class="blog-tab" id="ct-tab-read" onclick="contactsFilter('read')">Read</button>
+     <button class="blog-tab" id="ct-tab-archived" onclick="contactsFilter('archived')">Archived</button>
+   </div>
+
+   <div id="contacts-list" class="item-list"><div class="empty">No enquiries yet. They will appear here automatically when someone fills in the contact form.</div></div>
  </div>
+
+ <!-- ===== SUBSCRIBERS ===== -->
+ <div class="panel" id="panel-subscribers">
+   <h1 class="page-title">Subscribers</h1>
+   <p class="page-sub">Manage your mailing list. Add previous subscribers manually or in bulk.</p>
+
+   <!-- Add subscriber -->
+   <div class="card" style="margin-bottom:1.25rem;">
+     <div class="card-title">Add Subscribers</div>
+     <div style="display:flex;gap:0.75rem;align-items:flex-end;flex-wrap:wrap;margin-bottom:1.25rem;">
+       <div class="form-group" style="flex:1;min-width:220px;margin-bottom:0;">
+         <label class="form-label">Single Email</label>
+         <input class="form-input" id="sub-add-email" type="email" placeholder="name@company.com.au" />
+       </div>
+       <button class="btn btn-primary" onclick="subAddSingle()" style="padding:0.7rem 1.25rem;">Add</button>
+     </div>
+     <div class="form-group">
+       <label class="form-label">Bulk Import <span style="font-weight:400;color:#aaa;">(paste one email per line, or comma-separated)</span></label>
+       <textarea class="form-textarea" id="sub-bulk-input" rows="4" placeholder="email1@domain.com&#10;email2@domain.com&#10;email3@domain.com"></textarea>
+     </div>
+     <div style="display:flex;gap:0.75rem;align-items:center;margin-top:0.75rem;flex-wrap:wrap;">
+       <button class="btn btn-primary" onclick="subBulkImport()">Import All</button>
+       <span id="sub-import-msg" style="font-size:0.78rem;color:#27ae60;display:none;"></span>
+     </div>
+   </div>
+
+   <!-- Subscriber list -->
+   <div class="card">
+     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+       <div class="card-title" style="margin-bottom:0;">Subscriber List (<span id="sub-count">0</span>)</div>
+       <div style="display:flex;gap:0.5rem;">
+         <input class="form-input" id="sub-search" placeholder="Search…" style="max-width:180px;padding:0.45rem 0.75rem;font-size:0.82rem;" oninput="renderSubs()" />
+         <button class="btn btn-secondary btn-sm" onclick="subExportCSV()">Export CSV</button>
+       </div>
+     </div>
+     <div class="sub-list" id="sub-list"><div class="empty">No subscribers yet.</div></div>
+   </div>
  </div>
 
  <!-- ===== TESTIMONIALS ===== -->
@@ -866,11 +924,16 @@
 
  <div class="card" id="faq-editor-list"></div>
 
- <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;margin-bottom:2rem;">
- <button class="btn btn-secondary" id="faq-add-btn" style="display:none;">+ Add Question</button>
- <button class="btn btn-primary" id="faq-save-btn">Save FAQs</button>
- <button class="btn btn-secondary" id="faq-reset-btn">Reset to Defaults</button>
- <span id="faq-saved-msg" style="font-size:0.78rem;color:#27ae60;display:none;">✓ Saved live on the website now.</span>
+ <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;margin-bottom:2rem;">
+   <button class="btn btn-secondary" id="faq-add-btn" style="display:none;">+ Add Question</button>
+   <button class="btn btn-primary" id="faq-save-btn">Save FAQs</button>
+   <button class="btn btn-secondary" id="faq-reset-btn">Reset to Defaults</button>
+   <button class="btn-ai" id="faq-ai-btn" onclick="faqAiRefresh()">
+     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+     Refresh with AI
+   </button>
+   <span id="faq-saved-msg" style="font-size:0.78rem;color:#27ae60;display:none;">Saved — live on website now.</span>
+   <span id="faq-ai-msg" style="font-size:0.78rem;color:#2B317B;display:none;"></span>
  </div>
  </div>
 
@@ -900,7 +963,7 @@
 
  <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;">
  <button class="btn btn-primary" id="aik-save">Save Knowledge Base</button>
- <span id="aik-saved-msg" style="font-size:0.78rem;color:#27ae60;display:none;">✓ Saved the AI chat will use this immediately.</span>
+ <span id="aik-saved-msg" style="font-size:0.78rem;color:#27ae60;display:none;">Saved — the AI chat will use this immediately.</span>
  </div>
  </div>
 
@@ -1083,7 +1146,7 @@
 
    <!-- Already connected state -->
    <div id="setup-connected-state" style="display:none;background:#f0fff4;border:1.5px solid #a3e6c0;border-radius:8px;padding:1rem 1.1rem;margin-bottom:1.25rem;">
-     <div style="font-size:0.85rem;font-weight:700;color:#1a7a40;margin-bottom:0.35rem;">✓ Google is connected and will stay connected automatically.</div>
+     <div style="font-size:0.85rem;font-weight:700;color:#1a7a40;margin-bottom:0.35rem;">Google is connected and will stay connected automatically.</div>
      <div style="font-size:0.78rem;color:#555;">Refresh token stored — access renews silently in the background forever.</div>
      <button onclick="resetGoogleCredentials()" style="margin-top:0.75rem;background:none;border:1.5px solid #ccc;color:#888;border-radius:6px;padding:0.3rem 0.75rem;font-size:0.74rem;cursor:pointer;font-family:'Poppins',sans-serif;">Reset credentials</button>
    </div>
@@ -1091,8 +1154,8 @@
    <!-- Setup steps (hidden when already connected) -->
    <div id="setup-steps-state">
      <div style="background:#fff3cd;border:1.5px solid #f5c518;border-radius:8px;padding:0.85rem 1rem;margin-bottom:1.1rem;font-size:0.8rem;color:#7a4f00;line-height:1.7;">
-       <strong>⚠ You need to add one extra item in Google Cloud Console first:</strong><br>
-       Go to <a href="https://console.cloud.google.com/apis/credentials?project=79629460838" target="_blank" style="color:#7a4f00;font-weight:700;">Credentials ↗</a>
+       <strong><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:-2px;"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> You need to add one extra item in Google Cloud Console first:</strong><br>
+       Go to <a href="https://console.cloud.google.com/apis/credentials?project=79629460838" target="_blank" style="color:#7a4f00;font-weight:700;">Credentials<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline-block;vertical-align:-1px;margin-left:2px;"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
        → click your <strong>OAuth 2.0 Client ID</strong>
        → under <strong>Authorized JavaScript origins</strong> add: <code style="background:#fef9e7;padding:1px 5px;border-radius:3px;font-size:0.78rem;">https://www.cielohouse.com.au</code><br>
        → under <strong>Authorized redirect URIs</strong> add: <code style="background:#fef9e7;padding:1px 5px;border-radius:3px;font-size:0.78rem;">https://www.cielohouse.com.au/dashboard.html</code><br>
@@ -1378,13 +1441,13 @@
    s.ai = s.ai || {};
    var checks = [];
    if (ok) checks.push(queryOpenAI(ok).then(function(res) {
-     s.ai.cgpt = { score: res.score, queries: res.mentioned ? '✓ Mentioned' : '✗ Not found', summary: res.summary, pct: null };
+     s.ai.cgpt = { score: res.score, queries: res.mentioned ? 'Mentioned' : 'Not found', summary: res.summary, pct: null };
    }).catch(function(e) { s.ai.cgpt = s.ai.cgpt || { score: '--', queries: 'Error: ' + e.message }; }));
    if (pk) checks.push(queryPerplexity(pk).then(function(res) {
-     s.ai.plex = { score: res.score, queries: res.mentioned ? '✓ Mentioned' : '✗ Not found', summary: res.summary, pct: null };
+     s.ai.plex = { score: res.score, queries: res.mentioned ? 'Mentioned' : 'Not found', summary: res.summary, pct: null };
    }).catch(function(e) { s.ai.plex = s.ai.plex || { score: '--', queries: 'Error: ' + e.message }; }));
    if (gk) checks.push(queryGemini(gk).then(function(res) {
-     s.ai.gem = { score: res.score, queries: res.mentioned ? '✓ Mentioned' : '✗ Not found', summary: res.summary, pct: null };
+     s.ai.gem = { score: res.score, queries: res.mentioned ? 'Mentioned' : 'Not found', summary: res.summary, pct: null };
    }).catch(function(e) { s.ai.gem = s.ai.gem || { score: '--', queries: 'Error: ' + e.message }; }));
    await Promise.all(checks);
    s.aiUpdatedAt = new Date().toISOString();
@@ -1424,7 +1487,7 @@
    var errEl = document.getElementById('setup-cid-error');
    var btn = document.getElementById('setup-save-btn');
    if (cid && !cid.endsWith('.apps.googleusercontent.com')) {
-     errEl.textContent = '✕ Client ID must end in .apps.googleusercontent.com';
+     errEl.textContent = 'Client ID must end in .apps.googleusercontent.com';
      errEl.style.display = 'block'; btn.disabled = true; return false;
    }
    errEl.style.display = 'none'; btn.disabled = false; return true;
@@ -1776,11 +1839,11 @@
 
  function sourceName(medium) {
    if (!medium || medium === '(none)' || medium === '(not set)') return 'Direct';
-   if (/organic/i.test(medium)) return '🔍 Google';
-   if (/social/i.test(medium)) return '📱 Social';
-   if (/email/i.test(medium)) return '✉ Email';
-   if (/referral/i.test(medium)) return '🔗 Referral';
-   if (/cpc|paid/i.test(medium)) return '💰 Paid';
+   if (/organic/i.test(medium)) return 'Google';
+   if (/social/i.test(medium)) return 'Social';
+   if (/email/i.test(medium)) return 'Email';
+   if (/referral/i.test(medium)) return 'Referral';
+   if (/cpc|paid/i.test(medium)) return 'Paid';
    return medium;
  }
 
@@ -1789,16 +1852,16 @@
    var proj = '79629460838';
    var html = msg;
    if (/analyticsdata|Analytics Data API/i.test(msg) || /has not been used|disabled/i.test(msg)) {
-     html = '⚠ Google Analytics Data API is not enabled. '
+     html = warn_svg + ' Google Analytics Data API is not enabled. '
        + '<a href="https://console.developers.google.com/apis/api/analyticsdata.googleapis.com/overview?project=' + proj + '" target="_blank" style="color:#c0392b;font-weight:700;text-decoration:underline;">Click here to enable it →</a>'
        + ' then click Reconnect.';
    } else if (/searchconsole|Search Console/i.test(msg)) {
-     html = '⚠ Search Console API not enabled. '
+     html = '<b>Search Console API not enabled.</b> '
        + '<a href="https://console.developers.google.com/apis/api/searchconsole.googleapis.com/overview?project=' + proj + '" target="_blank" style="color:#c0392b;font-weight:700;text-decoration:underline;">Enable it here →</a>';
    } else if (/401|unauthorized|invalid_token/i.test(msg)) {
      html = 'Session expired — click Reconnect to sign in again.';
    } else if (/403|forbidden/i.test(msg)) {
-     html = '⚠ Permission denied. Make sure the Analytics Data API is enabled: '
+     html = '<b>Permission denied.</b> Make sure the Analytics Data API is enabled: '
        + '<a href="https://console.developers.google.com/apis/api/analyticsdata.googleapis.com/overview?project=' + proj + '" target="_blank" style="color:#c0392b;font-weight:700;text-decoration:underline;">Enable here →</a>';
    }
    var errEl = document.getElementById('gbar-error-msg');
@@ -1848,7 +1911,7 @@
    picker.innerHTML = ''
      + '<div style="font-size:0.82rem;font-weight:600;color:#2B317B;margin-bottom:0.5rem;">Enter your GA4 Property ID</div>'
      + '<div style="background:#fff7e6;border:1.5px solid #f5a623;border-radius:8px;padding:0.65rem 0.9rem;margin-bottom:0.75rem;font-size:0.78rem;color:#7a5000;line-height:1.6;">'
-     + '⚠ <strong>Not</strong> your Measurement ID (G-TPHXH530F6). The Property ID is a <strong>plain number</strong>.<br>'
+     + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:-2px;"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> <strong>Not</strong> your Measurement ID (G-TPHXH530F6). The Property ID is a <strong>plain number</strong>.<br>'
      + '→ Go to <a href="https://analytics.google.com/" target="_blank" style="color:#7a5000;font-weight:700;">analytics.google.com</a> '
      + '→ click <strong>Admin</strong> (gear icon, bottom left) '
      + '→ <strong>Property Settings</strong> '
@@ -1993,7 +2056,7 @@
    // Sub-text
    if (s.syncedAt) {
      var d = new Date(s.syncedAt);
-     document.getElementById('analytics-sub').textContent = '✓ Live data from Google Analytics · Last synced ' + d.toLocaleTimeString('en-AU', { hour:'2-digit', minute:'2-digit' }) + ' on ' + d.toLocaleDateString('en-AU', { day:'numeric', month:'short' });
+     document.getElementById('analytics-sub').textContent = 'Live data from Google Analytics · Last synced ' + d.toLocaleTimeString('en-AU', { hour:'2-digit', minute:'2-digit' }) + ' on ' + d.toLocaleDateString('en-AU', { day:'numeric', month:'short' });
    }
 
    // GSC
@@ -2027,7 +2090,7 @@
      var html = '<table style="width:100%;border-collapse:collapse;font-size:0.78rem;">'
        + '<thead><tr style="border-bottom:2px solid #eef0f8;">'
        + '<th style="text-align:left;padding:0.5rem 0.75rem;color:#888;font-weight:600;">Query people ask AI</th>'
-       + '<th style="text-align:center;padding:0.5rem;color:#27ae60;font-weight:600;white-space:nowrap;">Gemini ●</th>'
+       + '<th style="text-align:center;padding:0.5rem;color:#27ae60;font-weight:600;white-space:nowrap;">Gemini</th>'
        + (hasCgpt ? '<th style="text-align:center;padding:0.5rem;color:#888;font-weight:600;">ChatGPT</th>' : '')
        + (hasPlex ? '<th style="text-align:center;padding:0.5rem;color:#888;font-weight:600;">Perplexity</th>' : '')
        + '<th style="text-align:left;padding:0.5rem 0.75rem;color:#888;font-weight:600;">Snippet</th>'
@@ -2038,9 +2101,9 @@
        var snippet = row.snippet || cgRow.snippet || plRow.snippet || '';
        html += '<tr style="border-bottom:1px solid #f2f4fb;' + (anyMention ? 'background:#f0fff4;' : '') + '">'
          + '<td style="padding:0.55rem 0.75rem;color:#333;">' + esc(row.query) + '</td>'
-         + '<td style="text-align:center;padding:0.55rem;">' + (row.mentioned ? '<span style="color:#27ae60;font-size:1rem;font-weight:700;">✓</span>' : '<span style="color:#ddd;font-size:0.95rem;">–</span>') + '</td>'
-         + (hasCgpt ? '<td style="text-align:center;padding:0.55rem;">' + (cgRow.mentioned ? '<span style="color:#27ae60;font-size:1rem;font-weight:700;">✓</span>' : '<span style="color:#ddd;">–</span>') + '</td>' : '')
-         + (hasPlex ? '<td style="text-align:center;padding:0.55rem;">' + (plRow.mentioned ? '<span style="color:#27ae60;font-size:1rem;font-weight:700;">✓</span>' : '<span style="color:#ddd;">–</span>') + '</td>' : '')
+         + '<td style="text-align:center;padding:0.55rem;">' + (row.mentioned ? '<span style="color:#27ae60;font-weight:700;">Yes</span>' : '<span style="color:#ccc;">—</span>') + '</td>'
+         + (hasCgpt ? '<td style="text-align:center;padding:0.55rem;">' + (cgRow.mentioned ? '<span style="color:#27ae60;font-weight:700;">Yes</span>' : '<span style="color:#ccc;">—</span>') + '</td>' : '')
+         + (hasPlex ? '<td style="text-align:center;padding:0.55rem;">' + (plRow.mentioned ? '<span style="color:#27ae60;font-weight:700;">Yes</span>' : '<span style="color:#ccc;">—</span>') + '</td>' : '')
          + '<td style="padding:0.55rem 0.75rem;color:#888;font-style:italic;font-size:0.73rem;">' + (snippet ? '"' + esc(snippet.slice(0,120)) + (snippet.length > 120 ? '…' : '') + '"' : '') + '</td>'
          + '</tr>';
      });
@@ -2053,7 +2116,7 @@
    if (s.aiUpdatedAt) {
      var ad = new Date(s.aiUpdatedAt);
      var aiUpdEl = document.getElementById('ai-updated');
-     if (aiUpdEl) aiUpdEl.textContent = '✓ Last checked ' + ad.toLocaleTimeString('en-AU', {hour:'2-digit',minute:'2-digit'}) + ' · ' + ad.toLocaleDateString('en-AU', {day:'numeric',month:'short'});
+     if (aiUpdEl) aiUpdEl.textContent = 'Last checked ' + ad.toLocaleTimeString('en-AU', {hour:'2-digit',minute:'2-digit'}) + ' · ' + ad.toLocaleDateString('en-AU', {day:'numeric',month:'short'});
    }
 
    // Insights (combine GA4 + AI data)
@@ -2096,9 +2159,9 @@
  }
 
  function deviceIcon(d) {
-   if (d === 'Mobile') return '📱';
-   if (d === 'Tablet') return '📲';
-   return '💻';
+   if (d === 'Mobile') return '<svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"5\" y=\"2\" width=\"14\" height=\"20\" rx=\"2\"/><line x1=\"12\" y1=\"18\" x2=\"12.01\" y2=\"18\"/></svg>';
+   if (d === 'Tablet') return '<svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"4\" y=\"2\" width=\"16\" height=\"20\" rx=\"2\"/><line x1=\"12\" y1=\"18\" x2=\"12.01\" y2=\"18\"/></svg>';
+   return '<svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"2\" y=\"3\" width=\"20\" height=\"14\" rx=\"2\"/><polyline points=\"8 21 12 17 16 21\"/></svg>';
  }
 
  function renderActivityLog() {
@@ -3583,16 +3646,185 @@
 
  renderPosts();
 
- // Subscribers
+ // ===================== SUBSCRIBERS =====================
+ function getSubs() { try { return JSON.parse(localStorage.getItem('ch_subscribers') || '[]'); } catch(e) { return []; } }
+ function saveSubs(arr) { localStorage.setItem('ch_subscribers', JSON.stringify(arr)); }
+
+ function subAddSingle() {
+   var input = document.getElementById('sub-add-email');
+   var email = (input.value || '').trim().toLowerCase();
+   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Enter a valid email address.'); return; }
+   var subs = getSubs();
+   if (subs.includes(email)) { alert('That email is already in the list.'); return; }
+   subs.push(email);
+   saveSubs(subs);
+   input.value = '';
+   renderSubs();
+ }
+
+ function subBulkImport() {
+   var raw = (document.getElementById('sub-bulk-input').value || '');
+   var emails = raw.split(/[\n,;]+/).map(function(e){ return e.trim().toLowerCase(); }).filter(function(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); });
+   if (!emails.length) { alert('No valid email addresses found.'); return; }
+   var subs = getSubs();
+   var added = 0;
+   emails.forEach(function(e) { if (!subs.includes(e)) { subs.push(e); added++; } });
+   saveSubs(subs);
+   document.getElementById('sub-bulk-input').value = '';
+   var msg = document.getElementById('sub-import-msg');
+   msg.textContent = added + ' added' + (emails.length - added > 0 ? ', ' + (emails.length - added) + ' already existed' : '') + '.';
+   msg.style.display = 'inline';
+   setTimeout(function(){ msg.style.display = 'none'; }, 4000);
+   renderSubs();
+ }
+
+ function subDelete(email) {
+   var subs = getSubs().filter(function(e){ return e !== email; });
+   saveSubs(subs);
+   renderSubs();
+ }
+
+ function subExportCSV() {
+   var subs = getSubs();
+   if (!subs.length) { alert('No subscribers to export.'); return; }
+   var csv = 'Email\n' + subs.join('\n');
+   var a = document.createElement('a');
+   a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+   a.download = 'cielo-house-subscribers-' + new Date().toISOString().slice(0,10) + '.csv';
+   a.click();
+ }
+
  function renderSubs() {
- var subs = JSON.parse(localStorage.getItem('ch_subscribers') || '[]');
- document.getElementById('sub-count').textContent = subs.length;
- var list = document.getElementById('sub-list');
- if (!subs.length) { list.innerHTML = '<div class="empty">No subscribers yet.</div>'; return; }
- list.innerHTML = '';
- subs.forEach(function(email, idx) { var item = document.createElement('div'); item.className = 'sub-item'; item.innerHTML = '<span class="sub-num">' + (idx+1) + '</span><span>' + esc(email) + '</span>'; list.appendChild(item); });
+   var subs = getSubs();
+   var search = (document.getElementById('sub-search') || {}).value || '';
+   var filtered = search ? subs.filter(function(e){ return e.toLowerCase().includes(search.toLowerCase()); }) : subs;
+   document.getElementById('sub-count').textContent = subs.length;
+   var list = document.getElementById('sub-list');
+   if (!filtered.length) { list.innerHTML = '<div class="empty">' + (search ? 'No results for "' + esc(search) + '".' : 'No subscribers yet. Add some above.') + '</div>'; return; }
+   list.innerHTML = '';
+   filtered.forEach(function(email, idx) {
+     var item = document.createElement('div');
+     item.className = 'sub-item';
+     item.style.cssText = 'justify-content:space-between;';
+     item.innerHTML = '<span class="sub-num">' + (idx+1) + '</span>'
+       + '<span style="flex:1;">' + esc(email) + '</span>'
+       + '<button onclick="subDelete(\'' + esc(email) + '\')" style="background:none;border:none;cursor:pointer;color:#c0392b;font-size:0.72rem;font-weight:600;font-family:\'Poppins\',sans-serif;padding:0.2rem 0.4rem;">Remove</button>';
+     list.appendChild(item);
+   });
  }
  renderSubs();
+
+ // ===================== CONTACT FORMS =====================
+ var CT_KEY = 'ch_contact_forms';
+ var _ctFilter = 'all';
+
+ function getContacts() { try { return JSON.parse(localStorage.getItem(CT_KEY) || '[]'); } catch(e) { return []; } }
+ function saveContacts(arr) { localStorage.setItem(CT_KEY, JSON.stringify(arr)); }
+
+ function contactsFilter(f) {
+   _ctFilter = f;
+   ['all','new','read','archived'].forEach(function(s){
+     var el = document.getElementById('ct-tab-' + s);
+     if (el) el.classList.toggle('active', s === f);
+   });
+   renderContacts();
+ }
+
+ function contactsMarkAllRead() {
+   var ct = getContacts();
+   ct.forEach(function(c){ if (c.status === 'new') c.status = 'read'; });
+   saveContacts(ct);
+   renderContacts();
+   updateContactsBadge();
+ }
+
+ function contactsExportCSV() {
+   var ct = getContacts();
+   if (!ct.length) { alert('No enquiries to export.'); return; }
+   var rows = ['Date,Name,Email,Company,Service,Message,Status'];
+   ct.forEach(function(c) {
+     rows.push([c.date, c.name, c.email, c.company || '', c.service || '', '"' + (c.message || '').replace(/"/g,'""') + '"', c.status].join(','));
+   });
+   var a = document.createElement('a');
+   a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(rows.join('\n'));
+   a.download = 'cielo-house-enquiries-' + new Date().toISOString().slice(0,10) + '.csv';
+   a.click();
+ }
+
+ function contactSetStatus(id, status) {
+   var ct = getContacts();
+   ct.forEach(function(c){ if (c.id === id) c.status = status; });
+   saveContacts(ct);
+   renderContacts();
+   updateContactsBadge();
+ }
+
+ function contactDelete(id) {
+   if (!confirm('Delete this enquiry?')) return;
+   saveContacts(getContacts().filter(function(c){ return c.id !== id; }));
+   renderContacts();
+   updateContactsBadge();
+ }
+
+ function updateContactsBadge() {
+   var unread = getContacts().filter(function(c){ return c.status === 'new'; }).length;
+   var badge = document.getElementById('contacts-badge');
+   if (badge) { badge.textContent = unread; badge.style.display = unread ? 'inline' : 'none'; }
+   var el = document.getElementById('ct-unread'); if (el) el.textContent = unread;
+ }
+
+ function renderContacts() {
+   var ct = getContacts();
+   var now = new Date();
+   var monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+   var total = ct.length, unread = 0, thisMonth = 0;
+   ct.forEach(function(c){
+     if (c.status === 'new') unread++;
+     if (new Date(c.date).getTime() >= monthStart) thisMonth++;
+   });
+   var el;
+   el = document.getElementById('ct-total'); if(el) el.textContent = total;
+   el = document.getElementById('ct-unread'); if(el) el.textContent = unread;
+   el = document.getElementById('ct-month'); if(el) el.textContent = thisMonth;
+
+   var filtered = ct.filter(function(c){ return _ctFilter === 'all' || c.status === _ctFilter; });
+   filtered.sort(function(a,b){ return new Date(b.date) - new Date(a.date); });
+
+   var list = document.getElementById('contacts-list');
+   if (!list) return;
+   if (!filtered.length) {
+     list.innerHTML = '<div class="empty">No ' + (_ctFilter !== 'all' ? _ctFilter + ' ' : '') + 'enquiries yet.</div>';
+   } else {
+     list.innerHTML = '';
+     filtered.forEach(function(c) {
+       var isNew = c.status === 'new';
+       var card = document.createElement('div');
+       card.className = 'item-row';
+       card.style.cssText = 'flex-direction:column;align-items:stretch;gap:0.5rem;' + (isNew ? 'border-left:3px solid #2B317B;background:#f8f9ff;' : '');
+       var d = new Date(c.date);
+       var dateStr = d.toLocaleDateString('en-AU', {day:'numeric',month:'short',year:'numeric'}) + ' ' + d.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
+       card.innerHTML =
+         '<div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">'
+         + (isNew ? '<span style="font-size:0.65rem;font-weight:700;background:#2B317B;color:#fff;border-radius:20px;padding:0.1rem 0.55rem;letter-spacing:0.05em;text-transform:uppercase;">New</span>' : '')
+         + '<span style="font-weight:600;font-size:0.9rem;color:#2B317B;">' + esc(c.name) + '</span>'
+         + '<span style="font-size:0.8rem;color:#668DC6;">' + esc(c.email) + '</span>'
+         + (c.company ? '<span style="font-size:0.78rem;color:#aaa;">' + esc(c.company) + '</span>' : '')
+         + '<span style="font-size:0.72rem;color:#ccc;margin-left:auto;">' + dateStr + '</span>'
+         + '</div>'
+         + (c.service ? '<div style="font-size:0.78rem;color:#668DC6;font-weight:600;">' + esc(c.service) + '</div>' : '')
+         + (c.message ? '<div style="font-size:0.82rem;color:#444;line-height:1.55;background:#f5f7fb;border-radius:6px;padding:0.55rem 0.75rem;">' + esc(c.message) + '</div>' : '')
+         + '<div style="display:flex;gap:0.4rem;flex-wrap:wrap;">'
+         + (isNew ? '<button onclick="contactSetStatus(\'' + c.id + '\',\'read\')" class="btn btn-secondary btn-sm" style="font-size:0.72rem;">Mark Read</button>' : '')
+         + (c.status !== 'archived' ? '<button onclick="contactSetStatus(\'' + c.id + '\',\'archived\')" class="btn btn-secondary btn-sm" style="font-size:0.72rem;">Archive</button>' : '<button onclick="contactSetStatus(\'' + c.id + '\',\'read\')" class="btn btn-secondary btn-sm" style="font-size:0.72rem;">Unarchive</button>')
+         + '<a href="mailto:' + esc(c.email) + '?subject=Re: Your Cielo House Enquiry" class="btn btn-primary btn-sm" style="font-size:0.72rem;text-decoration:none;">Reply by Email</a>'
+         + '<button onclick="contactDelete(\'' + c.id + '\')" class="btn btn-danger btn-sm" style="font-size:0.72rem;">Delete</button>'
+         + '</div>';
+       list.appendChild(card);
+     });
+   }
+   updateContactsBadge();
+ }
+ renderContacts();
 
  /* ── AI Knowledge Base ── */
  var AIK_KEY = 'ch_ai_knowledge';
@@ -3925,6 +4157,65 @@
  });
 
  faqRenderEditor();
+
+ // ===================== FAQ AI REFRESH =====================
+ async function faqAiRefresh() {
+   var token = _gaToken || localStorage.getItem('ch_ga_token');
+   if (!token) { alert('Connect Google first — Gemini uses your existing Google login for free.'); return; }
+   var btn = document.getElementById('faq-ai-btn');
+   var msg = document.getElementById('faq-ai-msg');
+   btn.disabled = true;
+   btn.textContent = 'Generating…';
+   msg.textContent = 'Asking Gemini for fresh, SEO-optimised FAQs…';
+   msg.style.display = 'inline';
+   var prompt = `You are an SEO expert for Cielo House, a sports activation and experiential marketing agency based on the Gold Coast, Australia. They specialise in: brand activations at sporting events, corporate hospitality, premium VIP experiences, experiential marketing, promotional models and brand ambassadors, content creation at events. Key events: F1 Australian Grand Prix, Supercars Gold Coast 500, WSL surfing events.
+
+Generate exactly 5 FAQ questions and answers optimised for Google featured snippets and current search trends in Australia for sports activation and experiential marketing services.
+
+Rules:
+- Each answer must be 280-480 characters (count carefully)
+- Questions must reflect what potential clients actually search for
+- Answers must be informative, specific to Cielo House, and include Gold Coast / Australia
+- No bullet points in answers — flowing sentences only
+- No fluff or filler
+
+Respond ONLY with valid JSON array, no other text:
+[
+  {"q": "question 1", "a": "answer 1"},
+  {"q": "question 2", "a": "answer 2"},
+  {"q": "question 3", "a": "answer 3"},
+  {"q": "question 4", "a": "answer 4"},
+  {"q": "question 5", "a": "answer 5"}
+]`;
+
+   try {
+     var r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent', {
+       method: 'POST',
+       headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+       body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 1500, temperature: 0.6 } })
+     });
+     var d = await r.json();
+     if (d.error) throw new Error(d.error.message);
+     var text = d.candidates[0].content.parts[0].text || '';
+     // Extract JSON array from response
+     var match = text.match(/\[[\s\S]*\]/);
+     if (!match) throw new Error('No JSON returned by Gemini');
+     var faqs = JSON.parse(match[0]);
+     if (!Array.isArray(faqs) || faqs.length === 0) throw new Error('Empty FAQ array');
+     // Validate + trim to FAQ_MAX
+     faqs = faqs.slice(0, FAQ_MAX).filter(function(f){ return f.q && f.a; });
+     localStorage.setItem(FAQ_KEY, JSON.stringify(faqs));
+     faqRenderEditor();
+     msg.textContent = faqs.length + ' FAQs refreshed — review and click Save FAQs when ready.';
+     msg.style.color = '#27ae60';
+   } catch(e) {
+     msg.textContent = 'Error: ' + (e.message || 'Unknown error');
+     msg.style.color = '#c0392b';
+   } finally {
+     btn.disabled = false;
+     btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg> Refresh with AI';
+   }
+ }
  </script>
 </body>
 </html>
