@@ -1602,7 +1602,7 @@
            gbarShow('error'); return;
          }
          try {
-           var redirectUri = 'https://www.cielohouse.com.au/dashboard.html';
+           var redirectUri = 'postmessage';
            var r = await fetch('https://oauth2.googleapis.com/token', {
              method: 'POST',
              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
