@@ -1097,43 +1097,50 @@
 
  <!-- Google Setup modal -->
  <div class="modal-overlay" id="google-setup-modal" onclick="if(event.target===this)closeGoogleSetup()">
- <div class="modal-box" style="max-width:580px;">
+ <div class="modal-box" style="max-width:600px;">
    <button class="modal-close" onclick="closeGoogleSetup()">&#215;</button>
-   <div class="modal-title">Connect Google Analytics</div>
-   <p class="modal-sub">One-time setup — takes about 5 minutes in Google Cloud Console.</p>
+   <div class="modal-title">Connect Google — One Time Only</div>
+   <p class="modal-sub">Do this once. After that the dashboard stays connected forever — no reconnecting, ever.</p>
 
-   <!-- Current saved ID (debug) -->
-   <div id="setup-current-id-row" style="display:none;background:#fff7e6;border:1.5px solid #f5a623;border-radius:8px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.8rem;color:#7a5000;">
-     <strong>⚠ Currently saved Client ID:</strong><br>
-     <code id="setup-current-id-val" style="font-size:0.75rem;word-break:break-all;color:#555;"></code><br>
-     <span style="font-size:0.72rem;color:#999;margin-top:0.25rem;display:block;">If this looks wrong, clear it and re-enter the correct one below.</span>
-     <button onclick="clearSavedClientId()" style="margin-top:0.5rem;background:#e74c3c;color:#fff;border:none;border-radius:5px;padding:0.3rem 0.75rem;font-size:0.75rem;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;">✕ Clear &amp; Re-enter</button>
+   <!-- Already connected state -->
+   <div id="setup-connected-state" style="display:none;background:#f0fff4;border:1.5px solid #a3e6c0;border-radius:8px;padding:1rem 1.1rem;margin-bottom:1.25rem;">
+     <div style="font-size:0.85rem;font-weight:700;color:#1a7a40;margin-bottom:0.35rem;">✓ Google is connected and will stay connected automatically.</div>
+     <div style="font-size:0.78rem;color:#555;">Refresh token stored — access renews silently in the background forever.</div>
+     <button onclick="resetGoogleCredentials()" style="margin-top:0.75rem;background:none;border:1.5px solid #ccc;color:#888;border-radius:6px;padding:0.3rem 0.75rem;font-size:0.74rem;cursor:pointer;font-family:'Poppins',sans-serif;">Reset credentials</button>
    </div>
 
-   <!-- Steps -->
-   <div style="background:#f0f4ff;border-radius:8px;padding:1rem 1.1rem;margin-bottom:1.25rem;font-size:0.81rem;line-height:2;color:#2B317B;">
-     <strong>Step 1</strong> — Open <a href="https://console.cloud.google.com/apis/credentials?project=79629460838" target="_blank" rel="noopener" style="color:#2B317B;font-weight:700;">Google Cloud Credentials ↗</a> (your existing project)<br>
-     <strong>Step 2</strong> — Click your <strong>OAuth 2.0 Client ID</strong> to open it<br>
-     <strong>Step 3</strong> — Under <strong>Authorized JavaScript origins</strong> make sure BOTH are listed:<br>
-     &nbsp;&nbsp;• <code style="background:#e8eeff;padding:0 4px;border-radius:3px;">https://www.cielohouse.com.au</code><br>
-     &nbsp;&nbsp;• <code style="background:#e8eeff;padding:0 4px;border-radius:3px;">https://cielohouse.com.au</code><br>
-     <strong>Step 4</strong> — Click <strong>Save</strong>, then copy the <strong>Client ID</strong> (ends in <code>.apps.googleusercontent.com</code>)<br>
-     <strong>Step 5</strong> — Paste it below and click Connect
-   </div>
+   <!-- Setup steps (hidden when already connected) -->
+   <div id="setup-steps-state">
+     <div style="background:#fff3cd;border:1.5px solid #f5c518;border-radius:8px;padding:0.85rem 1rem;margin-bottom:1.1rem;font-size:0.8rem;color:#7a4f00;line-height:1.7;">
+       <strong>⚠ You need to add one extra item in Google Cloud Console first:</strong><br>
+       Go to <a href="https://console.cloud.google.com/apis/credentials?project=79629460838" target="_blank" style="color:#7a4f00;font-weight:700;">Credentials ↗</a>
+       → click your <strong>OAuth 2.0 Client ID</strong>
+       → under <strong>Authorized redirect URIs</strong> add exactly: <code style="background:#fef9e7;padding:1px 5px;border-radius:3px;font-size:0.78rem;">postmessage</code>
+       → <strong>Save</strong>. Then come back here.
+     </div>
 
-   <!-- Input -->
-   <div class="form-group" style="margin-bottom:0.5rem;">
-     <label class="form-label">Google OAuth Client ID</label>
-     <input class="form-input" id="setup-client-id" placeholder="123456789-abcdefg.apps.googleusercontent.com" oninput="validateClientId()" />
-   </div>
-   <div id="setup-cid-error" style="display:none;font-size:0.75rem;color:#c0392b;margin-bottom:0.75rem;"></div>
-   <div style="font-size:0.75rem;color:#999;margin-bottom:1.25rem;">
-     ⚠ The Client ID must end in <strong>.apps.googleusercontent.com</strong> — do not paste the Client Secret or Project ID.
-   </div>
+     <div style="background:#f0f4ff;border-radius:8px;padding:0.9rem 1.1rem;margin-bottom:1.25rem;font-size:0.8rem;line-height:1.9;color:#2B317B;">
+       <strong>Client ID</strong> — from Google Cloud → Credentials → your OAuth 2.0 Client ID<br>
+       <strong>Client Secret</strong> — same page, right below the Client ID
+     </div>
 
-   <div style="display:flex;gap:0.75rem;">
-     <button class="btn btn-primary" id="setup-save-btn" onclick="saveGoogleSetup()" style="flex:1;">Save &amp; Connect Google</button>
-     <button class="btn btn-secondary btn-sm" onclick="closeGoogleSetup()">Cancel</button>
+     <div class="form-row" style="margin-bottom:0.5rem;">
+       <div class="form-group">
+         <label class="form-label">Client ID</label>
+         <input class="form-input" id="setup-client-id" placeholder="123456789-abc.apps.googleusercontent.com" oninput="validateSetupForm()" />
+       </div>
+       <div class="form-group">
+         <label class="form-label">Client Secret</label>
+         <input class="form-input" id="setup-client-secret" placeholder="GOCSPX-..." oninput="validateSetupForm()" />
+       </div>
+     </div>
+     <div id="setup-cid-error" style="display:none;font-size:0.75rem;color:#c0392b;margin-bottom:0.75rem;"></div>
+     <div style="font-size:0.74rem;color:#aaa;margin-bottom:1.25rem;">Both are stored only in your browser. Never shared with anyone.</div>
+
+     <div style="display:flex;gap:0.75rem;">
+       <button class="btn btn-primary" id="setup-save-btn" onclick="saveGoogleSetup()" style="flex:1;">Connect Google Forever →</button>
+       <button class="btn btn-secondary btn-sm" onclick="closeGoogleSetup()">Cancel</button>
+     </div>
    </div>
  </div>
  </div>
@@ -1428,54 +1435,47 @@
 
  // ===================== GOOGLE SETUP MODAL =====================
  function showGoogleSetup() {
-   var existing = localStorage.getItem('ch_google_client_id') || '';
-   var row = document.getElementById('setup-current-id-row');
-   var val = document.getElementById('setup-current-id-val');
-   if (existing) {
-     val.textContent = existing;
-     row.style.display = 'block';
-     document.getElementById('setup-client-id').value = '';
-   } else {
-     row.style.display = 'none';
-     document.getElementById('setup-client-id').value = '';
+   var hasRefresh = !!localStorage.getItem('ch_ga_refresh_token');
+   document.getElementById('setup-connected-state').style.display = hasRefresh ? 'block' : 'none';
+   document.getElementById('setup-steps-state').style.display = hasRefresh ? 'none' : 'block';
+   if (!hasRefresh) {
+     document.getElementById('setup-client-id').value = localStorage.getItem('ch_google_client_id') || '';
+     document.getElementById('setup-client-secret').value = '';
+     document.getElementById('setup-cid-error').style.display = 'none';
    }
-   document.getElementById('setup-cid-error').style.display = 'none';
    document.getElementById('google-setup-modal').style.display = 'block';
- }
-
- function clearSavedClientId() {
-   localStorage.removeItem('ch_google_client_id');
-   localStorage.removeItem('ch_ga_token');
-   localStorage.removeItem('ch_ga_token_exp');
-   document.getElementById('setup-current-id-row').style.display = 'none';
-   document.getElementById('setup-client-id').value = '';
-   document.getElementById('setup-client-id').focus();
- }
-
- function validateClientId() {
-   var cid = document.getElementById('setup-client-id').value.trim();
-   var errEl = document.getElementById('setup-cid-error');
-   var btn = document.getElementById('setup-save-btn');
-   if (!cid) { errEl.style.display = 'none'; btn.disabled = false; return true; }
-   if (!cid.endsWith('.apps.googleusercontent.com')) {
-     errEl.textContent = '✕ This doesn\'t look like a valid Client ID. It must end in .apps.googleusercontent.com';
-     errEl.style.display = 'block';
-     btn.disabled = true; return false;
-   }
-   errEl.style.display = 'none'; btn.disabled = false; return true;
  }
 
  function closeGoogleSetup() { document.getElementById('google-setup-modal').style.display = 'none'; }
 
- function saveGoogleSetup() {
+ function resetGoogleCredentials() {
+   if (!confirm('This will disconnect Google. You will need to re-enter credentials and reconnect. Continue?')) return;
+   ['ch_google_client_id','ch_google_client_secret','ch_ga_refresh_token','ch_ga_token','ch_ga_token_exp','ch_ga4_property_id','ch_ga4_cache'].forEach(function(k){ localStorage.removeItem(k); });
+   _gaToken = null; _gaTokenExp = 0;
+   closeGoogleSetup();
+   gbarShow('setup');
+   loadAnalytics();
+ }
+
+ function validateSetupForm() {
    var cid = document.getElementById('setup-client-id').value.trim();
-   if (!cid) {
-     // If input is empty but there's already a saved ID, just reconnect with that
-     cid = localStorage.getItem('ch_google_client_id') || '';
+   var sec = document.getElementById('setup-client-secret').value.trim();
+   var errEl = document.getElementById('setup-cid-error');
+   var btn = document.getElementById('setup-save-btn');
+   if (cid && !cid.endsWith('.apps.googleusercontent.com')) {
+     errEl.textContent = '✕ Client ID must end in .apps.googleusercontent.com';
+     errEl.style.display = 'block'; btn.disabled = true; return false;
    }
-   if (!cid) { alert('Please enter your Google OAuth Client ID.'); return; }
-   if (!validateClientId() && document.getElementById('setup-client-id').value.trim()) return;
+   errEl.style.display = 'none'; btn.disabled = false; return true;
+ }
+
+ function saveGoogleSetup() {
+   if (!validateSetupForm()) return;
+   var cid = document.getElementById('setup-client-id').value.trim();
+   var sec = document.getElementById('setup-client-secret').value.trim();
+   if (!cid || !sec) { alert('Please enter both your Client ID and Client Secret.'); return; }
    localStorage.setItem('ch_google_client_id', cid);
+   localStorage.setItem('ch_google_client_secret', sec);
    closeGoogleSetup();
    connectGoogle();
  }
@@ -1483,101 +1483,100 @@
  // ===================== GOOGLE OAUTH + DATA =====================
  var _gaToken = null;
  var _gaTokenExp = 0;
- var _GA4_PROPERTY_ID = '503602227'; // Cielo House GA4 Property ID
- var _gaProperties = [];
- // Pre-set property ID so user never needs to enter it manually
+ var _gaRefreshTimer = null;
+ var _GA4_PROPERTY_ID = '503602227';
  if (!localStorage.getItem('ch_ga4_property_id')) localStorage.setItem('ch_ga4_property_id', _GA4_PROPERTY_ID);
 
  function gbarShow(state) {
    ['gbar-setup','gbar-connected','gbar-loading','gbar-error'].forEach(function(id) {
-     var el = document.getElementById(id);
-     if (el) el.style.display = 'none';
+     var el = document.getElementById(id); if (el) el.style.display = 'none';
    });
-   var target = document.getElementById('gbar-' + state);
-   if (target) target.style.display = 'flex';
+   var t = document.getElementById('gbar-' + state); if (t) t.style.display = 'flex';
  }
-
- var _silentRefreshTimer = null;
 
  function _getScopes() {
-   return [
-     'https://www.googleapis.com/auth/analytics.readonly',
-     'https://www.googleapis.com/auth/webmasters.readonly',
-     'https://www.googleapis.com/auth/generativelanguage'
-   ].join(' ');
+   return 'https://www.googleapis.com/auth/analytics.readonly https://www.googleapis.com/auth/webmasters.readonly https://www.googleapis.com/auth/generativelanguage';
  }
 
- function _storeToken(resp) {
-   _gaToken = resp.access_token;
-   _gaTokenExp = Date.now() + (resp.expires_in * 1000);
-   localStorage.setItem('ch_ga_token', _gaToken);
-   localStorage.setItem('ch_ga_token_exp', String(_gaTokenExp));
- }
-
- // Schedules a silent token refresh 5 min before expiry
- function scheduleTokenRefresh(expiresInMs) {
-   if (_silentRefreshTimer) clearTimeout(_silentRefreshTimer);
-   var delay = Math.max(expiresInMs - 5 * 60 * 1000, 60 * 1000); // refresh 5 min early, min 1 min
-   _silentRefreshTimer = setTimeout(function() { silentRefreshToken(); }, delay);
- }
-
- // Silently refreshes the token — no popup, no interruption
- function silentRefreshToken(onSuccess, onFail) {
+ // ── PERMANENT REFRESH: uses stored refresh_token via fetch — zero popups ──
+ async function refreshAccessToken() {
+   var rt  = localStorage.getItem('ch_ga_refresh_token');
    var cid = localStorage.getItem('ch_google_client_id');
-   if (!cid) { if (onFail) onFail(); return; }
-   if (typeof google === 'undefined' || !google.accounts) {
-     setTimeout(function(){ silentRefreshToken(onSuccess, onFail); }, 800); return;
-   }
+   var sec = localStorage.getItem('ch_google_client_secret');
+   if (!rt || !cid || !sec) return null;
    try {
-     var client = google.accounts.oauth2.initTokenClient({
-       client_id: cid,
-       scope: _getScopes(),
-       prompt: '',  // silent — no popup, uses existing Google session
-       callback: function(resp) {
-         if (resp.error || !resp.access_token) {
-           // Silent refresh failed (e.g. session expired) — only then show reconnect
-           if (onFail) onFail();
-           else { document.getElementById('gbar-error-msg').innerHTML = 'Session expired — please reconnect.'; gbarShow('error'); }
-           return;
-         }
-         _storeToken(resp);
-         scheduleTokenRefresh(resp.expires_in * 1000);
-         if (onSuccess) onSuccess();
-         else {
-           // Background refresh — update label silently, no full re-sync
-           var lbl = document.getElementById('gbar-sync-label');
-           if (lbl) lbl.textContent = 'Token refreshed at ' + new Date().toLocaleTimeString('en-AU', {hour:'2-digit',minute:'2-digit'});
-         }
+     var r = await fetch('https://oauth2.googleapis.com/token', {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+       body: new URLSearchParams({ grant_type:'refresh_token', refresh_token:rt, client_id:cid, client_secret:sec })
+     });
+     var d = await r.json();
+     if (!d.access_token) return null;
+     _gaToken = d.access_token;
+     _gaTokenExp = Date.now() + ((d.expires_in || 3600) * 1000);
+     localStorage.setItem('ch_ga_token', _gaToken);
+     localStorage.setItem('ch_ga_token_exp', String(_gaTokenExp));
+     scheduleTokenRefresh((d.expires_in || 3600) * 1000);
+     return _gaToken;
+   } catch(e) { return null; }
+ }
+
+ function scheduleTokenRefresh(expiresInMs) {
+   if (_gaRefreshTimer) clearTimeout(_gaRefreshTimer);
+   var delay = Math.max(expiresInMs - 5 * 60 * 1000, 60 * 1000);
+   _gaRefreshTimer = setTimeout(function() {
+     refreshAccessToken().then(function(tok) {
+       if (tok) {
+         var lbl = document.getElementById('gbar-sync-label');
+         if (lbl) lbl.textContent = 'Auto-refreshed ' + new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
        }
      });
-     client.requestAccessToken();
-   } catch(e) {
-     if (onFail) onFail();
-   }
+   }, delay);
  }
 
+ // ── First-time connect (shows popup ONCE to get auth code + refresh token) ──
  function connectGoogle() {
    var cid = localStorage.getItem('ch_google_client_id');
-   if (!cid) { showGoogleSetup(); return; }
-   if (typeof google === 'undefined' || !google.accounts) {
-     setTimeout(connectGoogle, 800); return;
-   }
+   var sec = localStorage.getItem('ch_google_client_secret');
+   if (!cid || !sec) { showGoogleSetup(); return; }
+   if (typeof google === 'undefined' || !google.accounts) { setTimeout(connectGoogle, 800); return; }
    gbarShow('loading');
    try {
-     var client = google.accounts.oauth2.initTokenClient({
+     var codeClient = google.accounts.oauth2.initCodeClient({
        client_id: cid,
        scope: _getScopes(),
-       callback: function(resp) {
-         if (resp.error || !resp.access_token) {
-           document.getElementById('gbar-error-msg').innerHTML = 'Google sign-in failed: ' + (resp.error || 'unknown error');
+       ux_mode: 'popup',
+       callback: async function(resp) {
+         if (resp.error || !resp.code) {
+           document.getElementById('gbar-error-msg').innerHTML = 'Sign-in failed: ' + (resp.error || 'no code returned');
            gbarShow('error'); return;
          }
-         _storeToken(resp);
-         scheduleTokenRefresh(resp.expires_in * 1000);
-         syncGoogleData(false);
+         // Exchange auth code for access + refresh tokens
+         try {
+           var r = await fetch('https://oauth2.googleapis.com/token', {
+             method: 'POST',
+             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+             body: new URLSearchParams({ code: resp.code, client_id: cid, client_secret: sec, redirect_uri: 'postmessage', grant_type: 'authorization_code' })
+           });
+           var d = await r.json();
+           if (!d.access_token) {
+             document.getElementById('gbar-error-msg').innerHTML = 'Token exchange failed: ' + (d.error_description || d.error || JSON.stringify(d));
+             gbarShow('error'); return;
+           }
+           _gaToken = d.access_token;
+           _gaTokenExp = Date.now() + ((d.expires_in || 3600) * 1000);
+           localStorage.setItem('ch_ga_token', _gaToken);
+           localStorage.setItem('ch_ga_token_exp', String(_gaTokenExp));
+           if (d.refresh_token) localStorage.setItem('ch_ga_refresh_token', d.refresh_token);
+           scheduleTokenRefresh((d.expires_in || 3600) * 1000);
+           syncGoogleData(false);
+         } catch(e) {
+           document.getElementById('gbar-error-msg').innerHTML = 'Error: ' + e.message;
+           gbarShow('error');
+         }
        }
      });
-     client.requestAccessToken();
+     codeClient.requestCode();
    } catch(e) {
      document.getElementById('gbar-error-msg').innerHTML = 'Error: ' + e.message;
      gbarShow('error');
@@ -1586,26 +1585,24 @@
 
  function disconnectGoogle() {
    _gaToken = null; _gaTokenExp = 0;
-   localStorage.removeItem('ch_ga_token');
-   localStorage.removeItem('ch_ga_token_exp');
-   localStorage.removeItem('ch_ga4_property_id');
-   localStorage.removeItem('ch_ga4_cache');
-   gbarShow('setup');
-   loadAnalytics();
+   ['ch_ga_token','ch_ga_token_exp','ch_ga_refresh_token','ch_ga4_property_id','ch_ga4_cache'].forEach(function(k){ localStorage.removeItem(k); });
+   gbarShow('setup'); loadAnalytics();
  }
 
  async function syncGoogleData(manual) {
+   // If token expired or missing, refresh silently from stored refresh_token (no popup)
    var token = _gaToken || localStorage.getItem('ch_ga_token');
-   var exp = _gaTokenExp || parseInt(localStorage.getItem('ch_ga_token_exp') || '0');
-   // Token missing or expired — try silent refresh first, fall back to full reconnect
+   var exp   = _gaTokenExp || parseInt(localStorage.getItem('ch_ga_token_exp') || '0');
    if (!token || Date.now() > exp - 60000) {
-     silentRefreshToken(
-       function() { syncGoogleData(manual); },   // on success: retry sync
-       function() { connectGoogle(); }            // on fail: show connect popup
-     );
-     return;
+     token = await refreshAccessToken();
+     if (!token) {
+       // No refresh token stored — need first-time connect
+       if (!localStorage.getItem('ch_ga_refresh_token')) { connectGoogle(); }
+       else { document.getElementById('gbar-error-msg').innerHTML = 'Could not refresh token. Check your internet connection.'; gbarShow('error'); }
+       return;
+     }
    }
-   _gaToken = token; _gaTokenExp = exp;
+   _gaToken = token; _gaTokenExp = parseInt(localStorage.getItem('ch_ga_token_exp') || '0');
    gbarShow('loading');
    var propId = localStorage.getItem('ch_ga4_property_id') || _GA4_PROPERTY_ID;
    localStorage.setItem('ch_ga4_property_id', propId);
@@ -2096,30 +2093,38 @@
 
  // AI checks auto-run after Google connects (inside syncGoogleData → runFreeAiChecks)
 
- // Init: auto-sync immediately if token is valid
+ // Init: on every page load — refresh token silently and sync
  (function initGoogleBar() {
-   var token = localStorage.getItem('ch_ga_token');
-   var exp = parseInt(localStorage.getItem('ch_ga_token_exp') || '0');
-   // Show API enablement notice if not dismissed
    if (!localStorage.getItem('api_notice_ok')) {
      var notice = document.getElementById('api-enable-notice');
      if (notice) notice.style.display = 'block';
    }
-   if (token) {
+   var hasRefreshToken = !!localStorage.getItem('ch_ga_refresh_token');
+   var token = localStorage.getItem('ch_ga_token');
+   var exp   = parseInt(localStorage.getItem('ch_ga_token_exp') || '0');
+   if (hasRefreshToken) {
+     // We have a permanent refresh token — always connected
      gbarShow('connected');
-     if (Date.now() < exp - 60000) {
-       // Token still valid — sync immediately and schedule next refresh
-       document.getElementById('gbar-sync-label').textContent = 'Syncing…';
+     document.getElementById('gbar-sync-label').textContent = 'Syncing…';
+     if (token && Date.now() < exp - 60000) {
+       // Access token still valid — use it directly
+       _gaToken = token; _gaTokenExp = exp;
        scheduleTokenRefresh(exp - Date.now());
        syncGoogleData(false);
      } else {
-       // Token expired — silent refresh first (no popup)
-       document.getElementById('gbar-sync-label').textContent = 'Refreshing token…';
-       silentRefreshToken(
-         function() { syncGoogleData(false); },
-         function() { gbarShow('setup'); }
-       );
+       // Access token expired — refresh silently via fetch (no popup, no user action)
+       document.getElementById('gbar-sync-label').textContent = 'Refreshing…';
+       refreshAccessToken().then(function(tok) {
+         if (tok) { syncGoogleData(false); }
+         else { document.getElementById('gbar-error-msg').innerHTML = 'Auto-refresh failed — check internet connection.'; gbarShow('error'); }
+       });
      }
+   } else if (token && Date.now() < exp - 60000) {
+     // Legacy: has access token but no refresh token yet — use it and prompt upgrade
+     gbarShow('connected');
+     _gaToken = token; _gaTokenExp = exp;
+     document.getElementById('gbar-sync-label').textContent = 'Syncing…';
+     syncGoogleData(false);
    } else {
      gbarShow('setup');
    }
