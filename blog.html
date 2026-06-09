@@ -158,12 +158,24 @@
  (async function () {
    const U = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
    const K = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
-   const esc = s => (s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+   const esc = s => (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
    const postUrl = slug => 'blog/post.html?slug=' + encodeURIComponent(slug);
+
+   // ── TIER 3: Static fallback — always shown if Supabase + localStorage both empty ──
+   const STATIC_POSTS = [
+     { slug:'why-invest-in-sponsorship-activations', title:'Why Companies Should Invest in Sponsorship Activations', excerpt:'Sponsorship without activation is just a logo on a fence. Here\'s why smart brands invest in live activations to turn their sponsorship spend into real brand equity.', category:'Sponsorship', image:'images/our-work/boost-mobile-gold-coast-500.jpg', author:'Britt Niven' },
+     { slug:'elevating-brands-through-live-experiences', title:'Cielo House: Elevating Brands Through Unforgettable Live Experiences', excerpt:'How a strategic-first approach to live events turns moments into meaningful brand equity and why the best activations are built backwards from the audience.', category:'Brand Experience', image:'images/our-work/chiko-bathurst-1000.jpg', author:'Cielo House Team' },
+     { slug:'corporate-hospitality-guide', title:'How to Organise Corporate Hospitality at Major Australian Events', excerpt:'Everything you need to know about planning a premium corporate hospitality program at major Australian sporting and cultural events.', category:'Hospitality', image:'images/our-work/coates-formula-1-australian-grand-prix.jpg', author:'Britt Niven' },
+     { slug:'promotional-models-brand-ambassadors', title:'Promotional Models vs Brand Ambassadors: What\'s the Difference?', excerpt:'Understanding the distinction between promotional models and brand ambassadors and how to select the right talent for your brand at events.', category:'Talent', image:'images/our-work/boost-mobile-gold-coast-500.jpg', author:'Britt Niven' },
+     { slug:'content-creation-at-events', title:'Why On-Site Content Creation Is the Secret Weapon of Great Activations', excerpt:'The activation ends but your content lives on. Here\'s how smart brands are maximising the digital value of every live event moment.', category:'Content', image:'images/our-work/chiko-bathurst-1000.jpg', author:'Britt Niven' },
+     { slug:'supercars-gold-coast-500-guide', title:'The Brand Marketer\'s Guide to the Supercars Gold Coast 500', excerpt:'One of Australia\'s biggest street racing events is a prime opportunity for brand activation. Here\'s how to make the most of your presence at the Gold Coast 500.', category:'Events Guide', image:'images/our-work/boost-mobile-gold-coast-500.jpg', author:'Britt Niven' },
+     { slug:'vip-experiences-australia', title:'What Makes a Truly Unforgettable VIP Experience in Australia?', excerpt:'Money-can\'t-buy access is just the beginning. Five elements that turn a good VIP experience into an extraordinary one.', category:'VIP Experiences', image:'images/our-work/coates-formula-1-australian-grand-prix.jpg', author:'Britt Niven' },
+   ];
 
    const grid = document.getElementById('blog-grid');
    const emptyMsg = document.getElementById('blog-empty');
 
+   // ── TIER 1: Supabase ──
    let posts = [];
    try {
      const r = await fetch(
@@ -171,37 +183,28 @@
        { headers: { apikey: K, Authorization: 'Bearer ' + K } }
      );
      const data = await r.json();
-     if (Array.isArray(data)) posts = data;
-   } catch (e) {}
+     if (Array.isArray(data) && data.length) posts = data;
+   } catch(e) {}
 
-   // Fallback: if Supabase returns nothing, read from dashboard localStorage
+   // ── TIER 2: localStorage (dashboard user's browser only) ──
    if (!posts.length) {
      try {
        const local = JSON.parse(localStorage.getItem('ch_blog_posts') || '[]');
-       posts = local
+       const mapped = local
          .filter(p => p.status === 'Published')
-         .sort((a, b) => new Date(b.date || b.created_at || 0) - new Date(a.date || a.created_at || 0))
-         .map(p => ({
-           slug: p.slug || p.title.toLowerCase().replace(/[^a-z0-9]+/g,'-'),
-           title: p.title,
-           excerpt: p.excerpt || '',
-           category: p.category || 'Insights',
-           image: p.image || null,
-           author: p.author || 'Britt Niven',
-           date: p.date || null
-         }));
+         .sort((a,b) => new Date(b.date||0) - new Date(a.date||0))
+         .map(p => ({ slug: p.slug||(p.title||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'), title:p.title, excerpt:p.excerpt||'', category:p.category||'Insights', image:p.image||null, author:p.author||'Britt Niven', date:p.date||null }));
+       if (mapped.length) posts = mapped;
      } catch(e) {}
    }
+
+   // ── TIER 3: Static fallback ──
+   if (!posts.length) posts = STATIC_POSTS;
 
    // Clear skeletons
    grid.innerHTML = '';
 
-   if (!Array.isArray(posts) || !posts.length) {
-     emptyMsg.style.display = 'block';
-     return;
-   }
-
-   // Featured — most recent post
+   // ── Render featured (most recent) ──
    const feat = posts[0];
    const featSection = document.getElementById('featured-section');
    const featArticle = document.getElementById('featured-article');
@@ -209,48 +212,30 @@
    featArticle.innerHTML =
      `<div data-animate="fade-left" style="border-radius:var(--radius-lg);overflow:hidden;aspect-ratio:16/10;">`
      + (feat.image ? `<img src="${esc(feat.image)}" alt="${esc(feat.title)}" style="width:100%;height:100%;object-fit:cover;" loading="lazy"/>` : `<div style="width:100%;height:100%;background:var(--color-off-white);"></div>`)
-     + `</div>`
-     + `<div data-animate="fade-right">`
+     + `</div><div data-animate="fade-right">`
      + `<span class="eyebrow">Featured</span>`
-     + `<span style="font-size:0.75rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-gold);display:block;margin-bottom:0.75rem;">${esc(feat.category || 'Insights')}</span>`
+     + `<span style="font-size:.75rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--color-gold);display:block;margin-bottom:.75rem;">${esc(feat.category||'Insights')}</span>`
      + `<h2 style="font-family:var(--font-display);font-size:clamp(1.75rem,3vw,2.75rem);margin-bottom:1rem;line-height:1.2;"><a href="${postUrl(feat.slug)}" style="color:var(--color-midnight);">${esc(feat.title)}</a></h2>`
      + (feat.excerpt ? `<p style="color:var(--color-text-light);line-height:1.75;margin-bottom:1.5rem;">${esc(feat.excerpt)}</p>` : '')
      + `<div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">`
-     + `<span style="font-size:0.8rem;color:var(--color-mid-grey);">By ${esc(feat.author || 'Britt Niven')}</span>`
+     + `<span style="font-size:.8rem;color:var(--color-mid-grey);">By ${esc(feat.author||'Britt Niven')}</span>`
      + `<a href="${postUrl(feat.slug)}" class="link-arrow">Read article <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>`
      + `</div></div>`;
 
-   // Grid — remaining posts (skip index 0 which is featured)
+   // ── Render grid (all except featured) ──
    posts.slice(1).forEach((p, i) => {
      const art = document.createElement('article');
      art.className = 'blog-card';
-     art.setAttribute('data-animate', '');
-     if (i % 3 !== 0) art.setAttribute('data-animate-delay', String(i % 3));
+     art.setAttribute('data-animate','');
+     if (i%3 !== 0) art.setAttribute('data-animate-delay', String(i%3));
      art.innerHTML = `<a href="${postUrl(p.slug)}">`
        + (p.image ? `<div class="blog-card__img-wrap"><img src="${esc(p.image)}" alt="${esc(p.title)}" class="blog-card__img" loading="lazy"/></div>` : '')
-       + `<span class="blog-card__tag">${esc(p.category || 'Insights')}</span>`
+       + `<span class="blog-card__tag">${esc(p.category||'Insights')}</span>`
        + `<h3 class="blog-card__title">${esc(p.title)}</h3>`
        + (p.excerpt ? `<p class="blog-card__excerpt">${esc(p.excerpt)}</p>` : '')
-       + `<span class="blog-card__meta">${esc(p.author || 'Britt Niven')}</span>`
-       + `</a>`;
+       + `<span class="blog-card__meta">${esc(p.author||'Britt Niven')}</span></a>`;
      grid.appendChild(art);
    });
-
-   // If only 1 post total, show it in grid too (no featured duplication)
-   if (posts.length === 1) {
-     const art = document.createElement('article');
-     art.className = 'blog-card';
-     art.setAttribute('data-animate', '');
-     const p = posts[0];
-     art.innerHTML = `<a href="${postUrl(p.slug)}">`
-       + (p.image ? `<div class="blog-card__img-wrap"><img src="${esc(p.image)}" alt="${esc(p.title)}" class="blog-card__img" loading="lazy"/></div>` : '')
-       + `<span class="blog-card__tag">${esc(p.category || 'Insights')}</span>`
-       + `<h3 class="blog-card__title">${esc(p.title)}</h3>`
-       + (p.excerpt ? `<p class="blog-card__excerpt">${esc(p.excerpt)}</p>` : '')
-       + `<span class="blog-card__meta">${esc(p.author || 'Britt Niven')}</span>`
-       + `</a>`;
-     grid.appendChild(art);
-   }
  })();
  </script>
  <script src="js/main.js" defer></script>
