@@ -153,10 +153,23 @@
  .blog-tab.active { background:#fff;color:#2B317B;box-shadow:0 1px 4px rgba(0,0,0,0.08); }
  .blog-tab-count { background:#eef1fb;color:#2B317B;border-radius:20px;padding:0.05rem 0.45rem;font-size:0.7rem; }
  /* Blog post rows */
- .blog-row { display:flex;align-items:center;gap:1rem;padding:0.9rem 1rem;background:#fafbff;border:1px solid #eef0f8;border-radius:8px;margin-bottom:0.6rem; }
+ .blog-row { display:flex;align-items:center;gap:1rem;padding:0.9rem 1rem;background:#fafbff;border:1px solid #eef0f8;border-radius:8px;margin-bottom:0.6rem;transition:background 0.15s,border-color 0.15s; }
+ .blog-row.selected { background:#eef2ff;border-color:#668DC6; }
  .blog-thumb { width:64px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0; }
  .blog-thumb-ph { width:64px;height:48px;border-radius:6px;flex-shrink:0;background:linear-gradient(135deg,#2B317B,#668DC6);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.4);font-size:0.65rem;text-align:center; }
  .blog-info { flex:1;min-width:0; }
+ /* Checkbox */
+ .post-check { width:17px;height:17px;flex-shrink:0;cursor:pointer;accent-color:#2B317B; }
+ /* Bulk action bar */
+ #bulk-bar { display:none;align-items:center;gap:0.75rem;background:#2B317B;color:#fff;border-radius:8px;padding:0.6rem 1rem;margin-bottom:0.85rem;flex-wrap:wrap; }
+ #bulk-bar.active { display:flex; }
+ #bulk-bar .bulk-count { font-size:0.82rem;font-weight:600;flex:1; }
+ #bulk-bar button { font-size:0.78rem;padding:0.38rem 0.85rem;border-radius:6px;border:1.5px solid rgba(255,255,255,0.35);background:rgba(255,255,255,0.12);color:#fff;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;transition:background 0.15s; }
+ #bulk-bar button:hover { background:rgba(255,255,255,0.25); }
+ #bulk-bar button.bulk-del { background:rgba(231,76,60,0.75);border-color:rgba(231,76,60,0.5); }
+ #bulk-bar button.bulk-del:hover { background:rgba(231,76,60,1); }
+ /* Select-all row */
+ #select-all-row { display:flex;align-items:center;gap:0.6rem;padding:0.4rem 1rem;margin-bottom:0.4rem;font-size:0.8rem;color:#666; }
  .blog-title-row { font-weight:600;font-size:0.88rem;color:#2B317B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
  .blog-meta { font-size:0.74rem;color:#aaa;margin-top:0.2rem;display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap; }
  .status-badge { display:inline-block;padding:0.12rem 0.55rem;border-radius:20px;font-size:0.68rem;font-weight:600; }
@@ -578,6 +591,19 @@
         <button class="blog-tab" data-status="Draft">Drafts <span class="blog-tab-count" id="btc-draft"></span></button>
       </div>
       <input class="form-input" id="blog-search" placeholder="Search posts..." style="max-width:220px;padding:0.5rem 0.85rem;font-size:0.82rem;" oninput="renderPosts()" />
+    </div>
+    <!-- Bulk action bar -->
+    <div id="bulk-bar">
+      <span class="bulk-count" id="bulk-count-label">0 selected</span>
+      <button onclick="bulkPublish()">&#9679; Publish</button>
+      <button onclick="bulkDraft()">&#9675; Set Draft</button>
+      <button class="bulk-del" onclick="bulkDelete()">&#128465; Delete</button>
+      <button onclick="bulkDeselect()" style="margin-left:auto;background:none;border:none;color:rgba(255,255,255,0.7);font-size:1rem;cursor:pointer;" title="Clear selection">&#215;</button>
+    </div>
+    <!-- Select-all row -->
+    <div id="select-all-row" style="display:none;">
+      <input type="checkbox" id="select-all-chk" class="post-check" onchange="toggleSelectAll(this.checked)" />
+      <label for="select-all-chk" style="cursor:pointer;user-select:none;">Select all <span id="select-all-label"></span></label>
     </div>
     <div id="post-list"><div class="empty">No posts yet.</div></div>
   </div>
@@ -1357,6 +1383,72 @@
    if (perf.topViews) document.getElementById('bp-top-views').value = perf.topViews;
  })();
 
+ // Track selected post indices
+ var _selectedPosts = new Set();
+
+ function updateBulkBar() {
+   var bar = document.getElementById('bulk-bar');
+   var count = _selectedPosts.size;
+   document.getElementById('bulk-count-label').textContent = count + ' post' + (count !== 1 ? 's' : '') + ' selected';
+   if (count > 0) bar.classList.add('active'); else bar.classList.remove('active');
+   // Sync select-all checkbox state
+   var allChk = document.getElementById('select-all-chk');
+   if (!allChk) return;
+   var allRows = document.querySelectorAll('#post-list .post-check');
+   if (allRows.length === 0) { allChk.checked = false; allChk.indeterminate = false; return; }
+   if (count === 0) { allChk.checked = false; allChk.indeterminate = false; }
+   else if (count === allRows.length) { allChk.checked = true; allChk.indeterminate = false; }
+   else { allChk.checked = false; allChk.indeterminate = true; }
+ }
+
+ function toggleSelectAll(checked) {
+   var allRows = document.querySelectorAll('#post-list .post-check');
+   allRows.forEach(function(chk) {
+     chk.checked = checked;
+     var row = chk.closest('.blog-row');
+     var idx = parseInt(chk.dataset.idx);
+     if (checked) { _selectedPosts.add(idx); row.classList.add('selected'); }
+     else { _selectedPosts.delete(idx); row.classList.remove('selected'); }
+   });
+   updateBulkBar();
+ }
+
+ function bulkDeselect() {
+   _selectedPosts.clear();
+   document.querySelectorAll('#post-list .post-check').forEach(function(chk){ chk.checked = false; chk.closest('.blog-row').classList.remove('selected'); });
+   updateBulkBar();
+ }
+
+ function bulkPublish() {
+   if (!_selectedPosts.size) return;
+   var posts = getPosts();
+   _selectedPosts.forEach(function(i){ if (posts[i]) { posts[i].status = 'Published'; posts[i].scheduledAt = null; } });
+   savePosts(posts);
+   _selectedPosts.clear();
+   renderPosts();
+ }
+
+ function bulkDraft() {
+   if (!_selectedPosts.size) return;
+   var posts = getPosts();
+   _selectedPosts.forEach(function(i){ if (posts[i]) posts[i].status = 'Draft'; });
+   savePosts(posts);
+   _selectedPosts.clear();
+   renderPosts();
+ }
+
+ function bulkDelete() {
+   if (!_selectedPosts.size) return;
+   var count = _selectedPosts.size;
+   if (!confirm('Delete ' + count + ' post' + (count !== 1 ? 's' : '') + '? This cannot be undone.')) return;
+   var posts = getPosts();
+   var indices = Array.from(_selectedPosts).sort(function(a,b){ return b - a; }); // delete from end to preserve indices
+   indices.forEach(function(i){ if (posts[i]) { sbDel(posts[i].slug); posts.splice(i, 1); } });
+   savePosts(posts);
+   _selectedPosts.clear();
+   renderPosts();
+ }
+
  function renderPosts() {
    var posts = getPosts();
    blogUpdateStats();
@@ -1368,12 +1460,21 @@
      var searchMatch = !search || (p.title||'').toLowerCase().includes(search) || (p.category||'').toLowerCase().includes(search);
      return statusMatch && searchMatch;
    });
-   if (!filtered.length) { list.innerHTML = '<div class="empty">No posts found.</div>'; return; }
+   // Show/hide select-all row
+   var selAllRow = document.getElementById('select-all-row');
+   if (filtered.length > 0) {
+     selAllRow.style.display = 'flex';
+     document.getElementById('select-all-label').textContent = '(' + filtered.length + ' post' + (filtered.length !== 1 ? 's' : '') + ')';
+   } else {
+     selAllRow.style.display = 'none';
+   }
+   if (!filtered.length) { list.innerHTML = '<div class="empty">No posts found.</div>'; _selectedPosts.clear(); updateBulkBar(); return; }
    list.innerHTML = '';
    filtered.forEach(function(post) {
      var idx = post._idx;
      var row = document.createElement('div');
-     row.className = 'blog-row';
+     row.className = 'blog-row' + (_selectedPosts.has(idx) ? ' selected' : '');
+     var isChecked = _selectedPosts.has(idx);
      var thumb = post.image
        ? '<img class="blog-thumb" src="' + esc(post.image) + '" alt="' + esc(post.title) + '" />'
        : '<div class="blog-thumb-ph">No Image</div>';
@@ -1391,7 +1492,8 @@
      var tagsHtml = (post.tags && post.tags.length)
        ? post.tags.slice(0,3).map(function(t){ return '<span style="font-size:0.65rem;background:#eef1fb;color:#2B317B;border-radius:10px;padding:0.08rem 0.4rem;">' + esc(t) + '</span>'; }).join('')
        : '';
-     row.innerHTML = thumb
+     row.innerHTML = '<input type="checkbox" class="post-check" data-idx="' + idx + '"' + (isChecked ? ' checked' : '') + ' />'
+       + thumb
        + '<div class="blog-info">'
        +   '<div class="blog-title-row">' + esc(post.title) + '</div>'
        +   '<div class="blog-meta">' + badge + '<span>' + esc(post.category||'') + '</span><span>' + esc(post.date||'') + '</span>' + schedMeta + seoBadge + '</div>'
@@ -1405,11 +1507,21 @@
        + '</div>';
      list.appendChild(row);
    });
+   // Checkbox change handler
+   list.querySelectorAll('.post-check').forEach(function(chk) {
+     chk.addEventListener('change', function() {
+       var idx = parseInt(this.dataset.idx);
+       var row = this.closest('.blog-row');
+       if (this.checked) { _selectedPosts.add(idx); row.classList.add('selected'); }
+       else { _selectedPosts.delete(idx); row.classList.remove('selected'); }
+       updateBulkBar();
+     });
+   });
    list.querySelectorAll('[data-del]').forEach(function(btn) {
      btn.addEventListener('click', function() {
        var i = parseInt(this.getAttribute('data-del'));
        var p = getPosts();
-       if (confirm('Delete "' + p[i].title + '"?')) { sbDel(p[i].slug); p.splice(i,1); savePosts(p); renderPosts(); }
+       if (confirm('Delete "' + p[i].title + '"?')) { sbDel(p[i].slug); p.splice(i,1); savePosts(p); _selectedPosts.delete(i); renderPosts(); }
      });
    });
    list.querySelectorAll('[data-edit]').forEach(function(btn) {
@@ -1455,6 +1567,7 @@
        blogOpenPreview(parseInt(this.getAttribute('data-preview')));
      });
    });
+   updateBulkBar();
  }
 
  function blogSave() {
