@@ -225,6 +225,27 @@
  @media (max-width: 900px) { .metrics { grid-template-columns: 1fr 1fr; } .two-col, .search-grid, .ai-grid, .form-row-3 { grid-template-columns: 1fr; } }
  @media (max-width: 680px) { .sidebar { width: 52px; } .sidebar__logo, .sidebar__label { display: none; } .nav-btn { padding: 0.75rem; font-size: 0; } .main { padding: 1.5rem 1rem; } .form-row { grid-template-columns: 1fr; } }
  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+ @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
+ .session-card { border:1px solid #eef0f8; border-radius:10px; overflow:hidden; background:#fafbff; }
+ .session-card.is-live { border-color:#a3e6c0; background:#f0fff4; }
+ .session-header { display:flex; align-items:center; gap:0.6rem; padding:0.65rem 0.9rem; cursor:pointer; user-select:none; }
+ .session-header:hover { background:rgba(0,0,0,0.025); }
+ .session-device { font-size:1rem; flex-shrink:0; }
+ .session-meta { flex:1; min-width:0; }
+ .session-id { font-size:0.78rem; font-weight:600; color:#2B317B; }
+ .session-detail { font-size:0.72rem; color:#aaa; margin-top:0.1rem; }
+ .session-stats { display:flex; gap:0.5rem; align-items:center; flex-shrink:0; flex-wrap:wrap; }
+ .session-stat-chip { font-size:0.7rem; font-weight:600; background:#eef1fb; color:#2B317B; border-radius:20px; padding:0.15rem 0.55rem; white-space:nowrap; }
+ .session-stat-chip.cta { background:#e8faf0; color:#1a7a40; }
+ .session-stat-chip.live { background:#f0fff4; color:#1a7a40; border:1px solid #a3e6c0; }
+ .session-chevron { font-size:0.7rem; color:#ccc; transition:transform 0.2s; flex-shrink:0; }
+ .session-steps { padding:0 0.9rem 0.75rem 2.5rem; display:none; }
+ .session-steps.open { display:block; }
+ .session-step { display:flex; align-items:flex-start; gap:0.55rem; padding:0.35rem 0; border-bottom:1px solid #f0f2f8; font-size:0.8rem; color:#444; }
+ .session-step:last-child { border-bottom:none; }
+ .step-icon { flex-shrink:0; font-size:0.85rem; margin-top:1px; }
+ .step-label { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+ .step-dur { font-size:0.7rem; color:#aaa; flex-shrink:0; }
  </style>
 </head>
 <body>
@@ -398,9 +419,57 @@
    <div id="insights-container"><div class="empty">Connect Google or update stats to generate insights.</div></div>
  </div>
 
+ <!-- Visitor Activity — full width -->
+ <div class="card" style="margin-bottom:1.5rem;">
+   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+     <div>
+       <div class="card-title" style="margin-bottom:0.1rem;">Visitor Activity</div>
+       <div style="font-size:0.74rem;color:#999;">Real journeys from your public site — pages visited, time spent, CTAs clicked.</div>
+     </div>
+     <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+       <div id="live-now-badge" style="display:none;align-items:center;gap:0.4rem;background:#f0fff4;border:1.5px solid #a3e6c0;border-radius:20px;padding:0.3rem 0.75rem;font-size:0.78rem;font-weight:700;color:#1a7a40;">
+         <span style="width:8px;height:8px;border-radius:50%;background:#27ae60;display:inline-block;animation:pulse-dot 1.4s infinite;"></span>
+         <span id="live-now-count">0</span> live now
+       </div>
+       <button class="btn btn-secondary btn-sm" onclick="refreshActivityLog()" style="font-size:0.74rem;">↻ Refresh</button>
+       <button class="btn btn-danger btn-sm" onclick="clearActivityLog()" style="font-size:0.74rem;">🗑 Clear</button>
+     </div>
+   </div>
+
+   <!-- Summary mini-metrics -->
+   <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:1.25rem;" id="act-summary">
+     <div style="background:#f8f9ff;border:1px solid #eef0f8;border-radius:8px;padding:0.65rem 0.85rem;text-align:center;">
+       <div style="font-size:0.68rem;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.2rem;">Total Sessions</div>
+       <div style="font-size:1.5rem;font-weight:700;color:#2B317B;font-family:'Bebas Neue',sans-serif;" id="act-total-sessions">--</div>
+     </div>
+     <div style="background:#f8f9ff;border:1px solid #eef0f8;border-radius:8px;padding:0.65rem 0.85rem;text-align:center;">
+       <div style="font-size:0.68rem;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.2rem;">Page Views</div>
+       <div style="font-size:1.5rem;font-weight:700;color:#2B317B;font-family:'Bebas Neue',sans-serif;" id="act-total-pv">--</div>
+     </div>
+     <div style="background:#f8f9ff;border:1px solid #eef0f8;border-radius:8px;padding:0.65rem 0.85rem;text-align:center;">
+       <div style="font-size:0.68rem;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.2rem;">CTA Clicks</div>
+       <div style="font-size:1.5rem;font-weight:700;color:#27ae60;font-family:'Bebas Neue',sans-serif;" id="act-total-cta">--</div>
+     </div>
+     <div style="background:#f8f9ff;border:1px solid #eef0f8;border-radius:8px;padding:0.65rem 0.85rem;text-align:center;">
+       <div style="font-size:0.68rem;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.2rem;">Avg. Time / Page</div>
+       <div style="font-size:1.5rem;font-weight:700;color:#2B317B;font-family:'Bebas Neue',sans-serif;" id="act-avg-time">--</div>
+     </div>
+   </div>
+
+   <!-- Journey feed -->
+   <div id="activity-log" style="display:flex;flex-direction:column;gap:0.5rem;">
+     <div class="empty">No visitor data yet — tracking starts after visitors accept cookies on your site.</div>
+   </div>
+ </div>
+
  <div class="two-col">
-   <div class="card" style="margin-bottom:0;"><div class="card-title">Recent Activity</div><ul class="activity-list" id="activity-log"><li class="empty">No activity recorded yet.</li></ul></div>
    <div class="card" style="margin-bottom:0;"><div class="card-title">Subscribers and Forms</div><div style="margin-bottom:1.25rem;"><div class="metric__label">Email Subscribers</div><div class="metric__value" id="m-subscribers">0</div></div><div><div class="metric__label">Contact Form Submissions</div><div class="metric__value" id="m-submissions">0</div></div></div>
+   <div class="card" style="margin-bottom:0;">
+     <div class="card-title">Top Pages (Last 30 Days)</div>
+     <div id="act-top-pages" style="display:flex;flex-direction:column;gap:0.4rem;">
+       <div class="empty" style="padding:1rem 0;">No data yet.</div>
+     </div>
+   </div>
  </div>
  </div>
 
@@ -1729,19 +1798,174 @@
    cont.innerHTML = ins.length === 0 ? '<div class="empty">Connect Google or update AI stats to generate insights.</div>' : '';
    ins.forEach(function(x) { var div = document.createElement('div'); div.className = 'insight insight-' + x.type; div.textContent = x.text; cont.appendChild(div); });
 
-   // Activity
-   var log = JSON.parse(localStorage.getItem('ch_activity_log') || '[]');
+   // Visitor Activity — rich journey view
+   renderActivityLog();
+ }
+
+ function refreshActivityLog() { renderActivityLog(); }
+
+ function clearActivityLog() {
+   if (!confirm('Clear all visitor activity data?')) return;
+   localStorage.removeItem('ch_activity_log');
+   localStorage.removeItem('ch_heartbeats');
+   renderActivityLog();
+ }
+
+ function fmtDur(secs) {
+   if (!secs || secs < 1) return '';
+   if (secs < 60) return secs + 's';
+   return Math.floor(secs / 60) + 'm ' + (secs % 60) + 's';
+ }
+
+ function fmtRelTime(iso) {
+   var d = new Date(iso), now = Date.now(), diff = Math.round((now - d.getTime()) / 1000);
+   if (diff < 60)  return 'Just now';
+   if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+   if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+   return d.toLocaleDateString('en-AU', {day:'numeric', month:'short'}) + ' ' + d.toLocaleTimeString('en-AU', {hour:'2-digit', minute:'2-digit'});
+ }
+
+ function deviceIcon(d) {
+   if (d === 'Mobile') return '📱';
+   if (d === 'Tablet') return '📲';
+   return '💻';
+ }
+
+ function renderActivityLog() {
+   var log = [];
+   try { log = JSON.parse(localStorage.getItem('ch_activity_log') || '[]'); } catch(e) {}
+   var beats = {};
+   try { beats = JSON.parse(localStorage.getItem('ch_heartbeats') || '{}'); } catch(e) {}
+
    var logEl = document.getElementById('activity-log');
-   if (!log.length) { logEl.innerHTML = '<li class="empty">No activity yet.</li>'; return; }
-   logEl.innerHTML = '';
-   log.slice(0,10).forEach(function(entry) {
-     var li = document.createElement('li'); li.className = 'activity-item';
-     var d = new Date(entry.time);
-     var ts = d.toLocaleDateString('en-AU') + ' ' + d.toLocaleTimeString('en-AU', { hour:'2-digit', minute:'2-digit' });
-     var label = entry.type === 'page_view' ? 'Page view: ' + (entry.page || '') : entry.type === 'form_submission' ? 'Form submission' : entry.type === 'subscriber' ? 'New subscriber: ' + (entry.email || '') : entry.type;
-     li.innerHTML = '<span class="activity-dot"></span><span>' + label + '</span><span class="activity-time">' + ts + '</span>';
-     logEl.appendChild(li);
+   var liveEl = document.getElementById('live-now-badge');
+   var liveCountEl = document.getElementById('live-now-count');
+
+   // Live now
+   var liveNow = Object.keys(beats).length;
+   if (liveNow > 0) {
+     liveEl.style.display = 'flex';
+     liveCountEl.textContent = liveNow;
+   } else {
+     liveEl.style.display = 'none';
+   }
+
+   if (!log.length) {
+     logEl.innerHTML = '<div class="empty">No visitor data yet — tracking starts after visitors accept cookies on your site. <br><small style="color:#bbb;">Tip: visit your own site and accept cookies to see a test entry.</small></div>';
+     ['act-total-sessions','act-total-pv','act-total-cta','act-avg-time'].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent='0'; });
+     var tp = document.getElementById('act-top-pages'); if(tp) tp.innerHTML='<div class="empty" style="padding:1rem 0;">No data yet.</div>';
+     return;
+   }
+
+   // Group entries by sessionId
+   var sessions = {}, order = [];
+   log.forEach(function(e) {
+     var sid = e.sessionId || 'unknown';
+     if (!sessions[sid]) { sessions[sid] = []; order.push(sid); }
+     sessions[sid].push(e);
    });
+
+   // Sort sessions newest first (by latest entry)
+   order.sort(function(a, b) {
+     var ta = new Date(sessions[a][sessions[a].length-1].time).getTime();
+     var tb = new Date(sessions[b][sessions[b].length-1].time).getTime();
+     return tb - ta;
+   });
+
+   // Summary stats
+   var totalPV = 0, totalCTA = 0, durTotal = 0, durCount = 0;
+   log.forEach(function(e) {
+     if (e.type === 'page_view') { totalPV++; if (e.duration) { durTotal += e.duration; durCount++; } }
+     if (e.type === 'cta_click') totalCTA++;
+   });
+   var el;
+   el = document.getElementById('act-total-sessions'); if(el) el.textContent = order.length;
+   el = document.getElementById('act-total-pv'); if(el) el.textContent = totalPV;
+   el = document.getElementById('act-total-cta'); if(el) el.textContent = totalCTA;
+   el = document.getElementById('act-avg-time'); if(el) el.textContent = durCount ? fmtDur(Math.round(durTotal / durCount)) : '--';
+
+   // Top pages
+   var pageCount = {};
+   log.filter(function(e){ return e.type==='page_view'; }).forEach(function(e){
+     var p = e.page || e.path || '?'; pageCount[p] = (pageCount[p] || 0) + 1;
+   });
+   var topPages = Object.keys(pageCount).sort(function(a,b){ return pageCount[b]-pageCount[a]; }).slice(0,5);
+   var maxPV = topPages.length ? pageCount[topPages[0]] : 1;
+   var tpEl = document.getElementById('act-top-pages');
+   if (tpEl) {
+     if (!topPages.length) { tpEl.innerHTML='<div class="empty" style="padding:1rem 0;">No data yet.</div>'; }
+     else {
+       tpEl.innerHTML = '';
+       topPages.forEach(function(p) {
+         var cnt = pageCount[p];
+         var pct = Math.round((cnt / maxPV) * 100);
+         var row = document.createElement('div');
+         row.style.cssText = 'display:flex;align-items:center;gap:0.5rem;';
+         row.innerHTML = '<div style="flex:1;min-width:0;"><div style="font-size:0.8rem;font-weight:600;color:#2B317B;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + p + '</div>'
+           + '<div style="height:4px;background:#eef0f8;border-radius:2px;margin-top:3px;"><div style="height:4px;background:#668DC6;border-radius:2px;width:' + pct + '%;"></div></div></div>'
+           + '<div style="font-size:0.78rem;font-weight:700;color:#2B317B;flex-shrink:0;">' + cnt + '</div>';
+         tpEl.appendChild(row);
+       });
+     }
+   }
+
+   // Render session cards (newest 20 sessions)
+   logEl.innerHTML = '';
+   var liveSessions = Object.keys(beats);
+   order.slice(0, 20).forEach(function(sid, idx) {
+     var entries = sessions[sid];
+     var first = entries[0], last = entries[entries.length-1];
+     var isLive = liveSessions.indexOf(sid) !== -1;
+     var pvCount = entries.filter(function(e){ return e.type==='page_view'; }).length;
+     var ctaCount = entries.filter(function(e){ return e.type==='cta_click'; }).length;
+     var durSum = entries.reduce(function(sum, e){ return sum + (e.duration || 0); }, 0);
+     var device = first.device || 'Desktop';
+     var source = first.source || 'Direct';
+
+     var card = document.createElement('div');
+     card.className = 'session-card' + (isLive ? ' is-live' : '');
+
+     var chipsHtml = '<span class="session-stat-chip">' + pvCount + ' page' + (pvCount!==1?'s':'') + '</span>';
+     if (durSum > 0) chipsHtml += '<span class="session-stat-chip">' + fmtDur(durSum) + '</span>';
+     if (ctaCount > 0) chipsHtml += '<span class="session-stat-chip cta">⚡ ' + ctaCount + ' CTA click' + (ctaCount!==1?'s':'') + '</span>';
+     if (isLive) chipsHtml += '<span class="session-stat-chip live">● Live</span>';
+     chipsHtml += '<span class="session-stat-chip" style="background:#f5f5f5;color:#888;">via ' + source + '</span>';
+
+     // Visitor label
+     var visLabel = 'Visitor #' + (idx+1);
+     // If same visitor has multiple sessions, note returning
+     var sameVis = order.filter(function(s){ return sessions[s][0].visitorId === first.visitorId; });
+     if (sameVis.length > 1 && sameVis.indexOf(sid) > 0) visLabel += ' · Returning';
+
+     card.innerHTML =
+       '<div class="session-header" onclick="toggleSession(this)">' +
+         '<span class="session-device">' + deviceIcon(device) + '</span>' +
+         '<div class="session-meta">' +
+           '<div class="session-id">' + visLabel + ' <span style="font-weight:400;color:#aaa;font-size:0.7rem;">· ' + device + '</span></div>' +
+           '<div class="session-detail">' + fmtRelTime(last.time) + (entries.length>1 ? ' · started ' + fmtRelTime(first.time) : '') + '</div>' +
+         '</div>' +
+         '<div class="session-stats">' + chipsHtml + '</div>' +
+         '<span class="session-chevron">▶</span>' +
+       '</div>' +
+       '<div class="session-steps" id="steps-' + sid.slice(0,8) + '">' +
+         entries.map(function(e) {
+           var icon = e.type === 'cta_click' ? '⚡' : '📄';
+           var label = e.type === 'cta_click' ? 'Clicked: ' + (e.label || 'CTA') : (e.page || e.path || '?');
+           var dur = e.duration ? ' · ' + fmtDur(e.duration) : '';
+           var t = new Date(e.time).toLocaleTimeString('en-AU', {hour:'2-digit', minute:'2-digit'});
+           return '<div class="session-step"><span class="step-icon">' + icon + '</span><span class="step-label" title="' + label + '">' + label + '</span><span class="step-dur">' + t + dur + '</span></div>';
+         }).join('') +
+       '</div>';
+
+     logEl.appendChild(card);
+   });
+ }
+
+ function toggleSession(header) {
+   var steps = header.nextElementSibling;
+   var chevron = header.querySelector('.session-chevron');
+   var open = steps.classList.toggle('open');
+   chevron.style.transform = open ? 'rotate(90deg)' : '';
  }
 
  function buildInsights(s) {
