@@ -1697,10 +1697,12 @@
 
    // ── Summary stats from 28d report ───────────────────────────────────────
    var totalPV = 0, totalVisitors = 0, durSum = 0, durCount = 0;
+   var INTERNAL_PAGES = /dashboard|login/i;
    var pageMap = {};
    if (pv28 && pv28.rows) {
      pv28.rows.forEach(function(row) {
        var path    = row.dimensionValues[0].value;
+       if (INTERNAL_PAGES.test(path)) return; // exclude internal pages
        var pvCount = parseInt(row.metricValues[0].value || '0');
        var users   = parseInt(row.metricValues[1].value || '0');
        var dur     = parseFloat(row.metricValues[2].value || '0');
@@ -1776,7 +1778,7 @@
        var pvCount = parseInt(row.metricValues[0].value || '0');
        var users   = parseInt(row.metricValues[1].value || '0');
        var dur     = parseFloat(row.metricValues[2].value || '0');
-       if (path === '/dashboard.html' || path.includes('dashboard')) return; // skip internal
+       if (INTERNAL_PAGES.test(path)) return; // skip internal pages
 
        var card = document.createElement('div');
        card.style.cssText = 'display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0.75rem;background:#fafbff;border:1px solid #eef0f8;border-radius:8px;margin-bottom:0.35rem;font-size:0.8rem;';
