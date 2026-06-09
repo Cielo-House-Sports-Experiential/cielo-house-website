@@ -12,6 +12,7 @@
  <link rel="preconnect" href="https://fonts.googleapis.com" />
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+ <script src="https://accounts.google.com/gsi/client" async></script>
  <style>
  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
  body { font-family: 'Poppins', sans-serif; background: #f4f6fa; }
@@ -223,6 +224,7 @@
  .rte-modal-box { background:#fff;border-radius:12px;padding:2rem;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,0.2); }
  @media (max-width: 900px) { .metrics { grid-template-columns: 1fr 1fr; } .two-col, .search-grid, .ai-grid, .form-row-3 { grid-template-columns: 1fr; } }
  @media (max-width: 680px) { .sidebar { width: 52px; } .sidebar__logo, .sidebar__label { display: none; } .nav-btn { padding: 0.75rem; font-size: 0; } .main { padding: 1.5rem 1rem; } .form-row { grid-template-columns: 1fr; } }
+ @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
  </style>
 </head>
 <body>
@@ -253,62 +255,117 @@
 
  <!-- ANALYTICS -->
  <div class="panel active" id="panel-analytics">
- <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem;">
- <h1 class="page-title" style="margin-bottom:0;">Analytics</h1>
- <button class="btn btn-primary" onclick="openModal()" style="font-size:0.78rem;padding:0.5rem 1.1rem;">+ Update Stats</button>
+ <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem;flex-wrap:wrap;gap:0.5rem;">
+   <h1 class="page-title" style="margin-bottom:0;">Analytics</h1>
+   <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+     <button class="btn btn-secondary btn-sm" onclick="openModal()" style="font-size:0.78rem;">✎ Update AI Stats</button>
+     <button class="btn btn-secondary btn-sm" onclick="showGoogleSetup()" id="google-setup-btn" style="font-size:0.78rem;">⚙ Google Setup</button>
+   </div>
  </div>
- <p class="page-sub" id="analytics-sub">Live tracking is active — view real-time data in Google Analytics 4 or manually update stats below.</p>
- <!-- GA4 Quick Links -->
- <div style="display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;" id="ga4-links">
-   <a href="https://analytics.google.com/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:0.45rem;background:#fff;border:1.5px solid #e0e4ef;border-radius:8px;padding:0.5rem 1rem;font-size:0.8rem;font-weight:600;color:#2B317B;text-decoration:none;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
-     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 4-8"/></svg>
-     Open Google Analytics 4
-   </a>
-   <a href="https://search.google.com/search-console" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:0.45rem;background:#fff;border:1.5px solid #e0e4ef;border-radius:8px;padding:0.5rem 1rem;font-size:0.8rem;font-weight:600;color:#2B317B;text-decoration:none;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
-     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-     Google Search Console
-   </a>
-   <span id="ga4-status-badge" style="display:inline-flex;align-items:center;gap:0.4rem;background:#fff7e6;border:1.5px solid #f5a623;border-radius:8px;padding:0.5rem 1rem;font-size:0.78rem;font-weight:600;color:#b07000;">
-     ⚠ GA4 setup needed — see instructions below
-   </span>
+ <p class="page-sub" id="analytics-sub">Connect your Google account below to pull live data automatically.</p>
+
+ <!-- Google Connect Bar -->
+ <div id="gbar" style="border-radius:10px;padding:0.85rem 1.1rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.85rem;flex-wrap:wrap;font-size:0.82rem;font-weight:600;">
+   <!-- State: needs setup -->
+   <div id="gbar-setup" style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;width:100%;background:#f0f4ff;border:1.5px solid #c7d0f7;border-radius:10px;padding:0.85rem 1.1rem;">
+     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+     <span style="color:#2B317B;flex:1;">Connect your Google account to pull live Sessions, Visitors, Clicks and Search Console data automatically.</span>
+     <button class="btn btn-primary" onclick="connectGoogle()" style="font-size:0.8rem;padding:0.5rem 1.1rem;">Connect Google Account</button>
+   </div>
+   <!-- State: connected -->
+   <div id="gbar-connected" style="display:none;align-items:center;gap:0.75rem;flex-wrap:wrap;width:100%;background:#f0fff4;border:1.5px solid #a3e6c0;border-radius:10px;padding:0.75rem 1.1rem;">
+     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><circle cx="12" cy="12" r="10" fill="#27ae60"/><path d="M8 12l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+     <span style="color:#1a7a40;flex:1;">Google Connected — <span id="gbar-sync-label" style="font-weight:400;">syncing…</span></span>
+     <button onclick="syncGoogleData(true)" style="background:none;border:1.5px solid #27ae60;color:#1a7a40;border-radius:6px;padding:0.35rem 0.85rem;cursor:pointer;font-size:0.78rem;font-weight:600;font-family:'Poppins',sans-serif;">↻ Sync Now</button>
+     <button onclick="disconnectGoogle()" style="background:none;border:none;color:#999;cursor:pointer;font-size:0.78rem;font-weight:500;font-family:'Poppins',sans-serif;">Disconnect</button>
+   </div>
+   <!-- State: loading -->
+   <div id="gbar-loading" style="display:none;align-items:center;gap:0.75rem;width:100%;background:#fafbff;border:1.5px solid #e0e4ef;border-radius:10px;padding:0.75rem 1.1rem;color:#666;">
+     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#668DC6" stroke-width="2" style="animation:spin 1s linear infinite;flex-shrink:0;"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0"/></svg>
+     Fetching live data from Google…
+   </div>
+   <!-- State: error -->
+   <div id="gbar-error" style="display:none;align-items:center;gap:0.75rem;width:100%;background:#fff8f8;border:1.5px solid #f5c6c6;border-radius:10px;padding:0.75rem 1.1rem;color:#c0392b;font-size:0.8rem;">
+     <span style="flex:1;" id="gbar-error-msg">Could not fetch Google data.</span>
+     <button onclick="connectGoogle()" style="background:none;border:1.5px solid #e74c3c;color:#c0392b;border-radius:6px;padding:0.35rem 0.85rem;cursor:pointer;font-size:0.78rem;font-weight:600;font-family:'Poppins',sans-serif;">Reconnect</button>
+   </div>
  </div>
- <div id="ga4-setup-notice" style="background:#f0f4ff;border:1.5px solid #c7d0f7;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:0.82rem;color:#2B317B;line-height:1.7;">
-   <strong>📊 One-time setup to activate live analytics:</strong><br>
-   1. Go to <a href="https://analytics.google.com/" target="_blank" style="color:#2B317B;font-weight:600;">analytics.google.com</a> → Create account → Property: <strong>Cielo House</strong> → get your <strong>Measurement ID</strong> (looks like <code>G-AB12CD34EF</code>)<br>
-   2. Share the Measurement ID and we'll activate it in under 2 minutes — tracking will go live for all visitors immediately.
-   <button onclick="document.getElementById('ga4-setup-notice').style.display='none';localStorage.setItem('ga4_notice_dismissed','1');" style="float:right;background:none;border:none;cursor:pointer;color:#2B317B;font-size:1.1rem;margin-top:-0.2rem;" title="Dismiss">✕</button>
+
+ <!-- Property selector (shown after auth if multiple) -->
+ <div id="ga4-prop-picker" style="display:none;margin-bottom:1.25rem;background:#fff;border:1.5px solid #e0e4ef;border-radius:10px;padding:0.85rem 1.1rem;">
+   <div style="font-size:0.82rem;font-weight:600;color:#2B317B;margin-bottom:0.5rem;">Select your GA4 Property</div>
+   <div style="display:flex;gap:0.5rem;align-items:center;">
+     <select class="form-select" id="ga4-prop-select" style="flex:1;"></select>
+     <button class="btn btn-primary" onclick="confirmProperty()" style="font-size:0.8rem;padding:0.5rem 1rem;">Use This Property</button>
+   </div>
  </div>
+
+ <!-- Metrics -->
  <div class="metrics">
- <div class="metric"><div class="metric__label">Site Sessions</div><div class="metric__row"><div class="metric__value" id="m-sessions">--</div><span id="m-sessions-trend"></span></div><div class="metric__sub">Last 30 days</div></div>
- <div class="metric"><div class="metric__label">Unique Visitors</div><div class="metric__row"><div class="metric__value" id="m-visitors">--</div><span id="m-visitors-trend"></span></div><div class="metric__sub">Last 30 days</div></div>
- <div class="metric"><div class="metric__label">Clicks to Contact</div><div class="metric__row"><div class="metric__value" id="m-clicks">--</div></div><div class="metric__sub">Last 30 days</div></div>
- <div class="metric"><div class="metric__label">Form Submissions</div><div class="metric__row"><div class="metric__value" id="m-forms">--</div></div><div class="metric__sub">Last 30 days</div></div>
+   <div class="metric">
+     <div class="metric__label">Site Sessions</div>
+     <div class="metric__row"><div class="metric__value" id="m-sessions">--</div><span id="m-sessions-trend"></span></div>
+     <div class="metric__sub">Last 30 days · GA4</div>
+   </div>
+   <div class="metric">
+     <div class="metric__label">Unique Visitors</div>
+     <div class="metric__row"><div class="metric__value" id="m-visitors">--</div><span id="m-visitors-trend"></span></div>
+     <div class="metric__sub">Last 30 days · GA4</div>
+   </div>
+   <div class="metric">
+     <div class="metric__label">Briefing Calls Clicked</div>
+     <div class="metric__row"><div class="metric__value" id="m-clicks">--</div></div>
+     <div class="metric__sub">Last 30 days · GA4 Events</div>
+   </div>
+   <div class="metric">
+     <div class="metric__label">Page Views</div>
+     <div class="metric__row"><div class="metric__value" id="m-forms">--</div></div>
+     <div class="metric__sub">Last 30 days · GA4</div>
+   </div>
  </div>
+
+ <!-- Search Console -->
  <div class="card">
- <div style="font-weight:600;font-size:0.95rem;color:#222;margin-bottom:0.3rem;">Search Performance on Google</div>
- <div style="font-size:0.75rem;color:#999;margin-bottom:1.25rem;" id="google-period">Enter data from Google Search Console</div>
- <div class="search-grid">
- <div class="search-card"><div class="search-keyword" id="gq1-kw">--</div><div class="search-stats"><div><span>Impressions</span><strong id="gq1-imp">--</strong></div><div><span>Clicks</span><strong id="gq1-clk">--</strong></div><div><span>Position</span><strong id="gq1-pos">--</strong></div></div></div>
- <div class="search-card"><div class="search-keyword" id="gq2-kw">--</div><div class="search-stats"><div><span>Impressions</span><strong id="gq2-imp">--</strong></div><div><span>Clicks</span><strong id="gq2-clk">--</strong></div><div><span>Position</span><strong id="gq2-pos">--</strong></div></div></div>
- <div class="search-card"><div class="search-keyword" id="gq3-kw">--</div><div class="search-stats"><div><span>Impressions</span><strong id="gq3-imp">--</strong></div><div><span>Clicks</span><strong id="gq3-clk">--</strong></div><div><span>Position</span><strong id="gq3-pos">--</strong></div></div></div>
+   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.3rem;">
+     <div style="font-weight:600;font-size:0.95rem;color:#222;">Search Performance on Google</div>
+     <a href="https://search.google.com/search-console" target="_blank" rel="noopener" style="font-size:0.75rem;color:#668DC6;text-decoration:none;font-weight:600;">Open GSC ↗</a>
+   </div>
+   <div style="font-size:0.75rem;color:#999;margin-bottom:1.25rem;" id="google-period">Connect Google to load search data automatically</div>
+   <div class="search-grid">
+     <div class="search-card"><div class="search-keyword" id="gq1-kw">--</div><div class="search-stats"><div><span>Impressions</span><strong id="gq1-imp">--</strong></div><div><span>Clicks</span><strong id="gq1-clk">--</strong></div><div><span>Position</span><strong id="gq1-pos">--</strong></div></div></div>
+     <div class="search-card"><div class="search-keyword" id="gq2-kw">--</div><div class="search-stats"><div><span>Impressions</span><strong id="gq2-imp">--</strong></div><div><span>Clicks</span><strong id="gq2-clk">--</strong></div><div><span>Position</span><strong id="gq2-pos">--</strong></div></div></div>
+     <div class="search-card"><div class="search-keyword" id="gq3-kw">--</div><div class="search-stats"><div><span>Impressions</span><strong id="gq3-imp">--</strong></div><div><span>Clicks</span><strong id="gq3-clk">--</strong></div><div><span>Position</span><strong id="gq3-pos">--</strong></div></div></div>
+   </div>
  </div>
- </div>
+
+ <!-- AI Platforms -->
  <div class="card">
- <div style="font-weight:600;font-size:0.95rem;color:#222;margin-bottom:0.3rem;">Performance on AI Platforms</div>
- <div style="font-size:0.75rem;color:#999;margin-bottom:1.25rem;" id="ai-updated">Enter visibility data from your AI analytics</div>
- <div class="ai-grid">
- <div class="ai-card"><div class="ai-platform">ChatGPT</div><div class="ai-score" id="ai-cgpt-score">--</div><div class="ai-score-label">Visibility score</div><div class="ai-queries">User queries: <strong id="ai-cgpt-q">--</strong> <span id="ai-cgpt-trend"></span></div></div>
- <div class="ai-card"><div class="ai-platform">Perplexity</div><div class="ai-score" id="ai-plex-score">--</div><div class="ai-score-label">Visibility score</div><div class="ai-queries">User queries: <strong id="ai-plex-q">--</strong> <span id="ai-plex-trend"></span></div></div>
- <div class="ai-card"><div class="ai-platform">Gemini</div><div class="ai-score" id="ai-gem-score">--</div><div class="ai-score-label">Visibility score</div><div class="ai-queries">User queries: <strong id="ai-gem-q">--</strong> <span id="ai-gem-trend"></span></div></div>
+   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.3rem;">
+     <div style="font-weight:600;font-size:0.95rem;color:#222;">Performance on AI Platforms</div>
+     <button class="btn btn-secondary btn-sm" onclick="openModal()" style="font-size:0.74rem;">✎ Update</button>
+   </div>
+   <div style="font-size:0.75rem;color:#999;margin-bottom:0.6rem;" id="ai-updated">No public API exists for AI visibility — update manually below or test each platform.</div>
+   <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.1rem;">
+     <a href="https://chatgpt.com/?q=Cielo+House+sports+activation" target="_blank" rel="noopener" style="font-size:0.73rem;font-weight:600;color:#2B317B;background:#eef1fb;border-radius:6px;padding:0.28rem 0.7rem;text-decoration:none;">Test ChatGPT ↗</a>
+     <a href="https://www.perplexity.ai/?q=Cielo+House+sports+activation+Australia" target="_blank" rel="noopener" style="font-size:0.73rem;font-weight:600;color:#2B317B;background:#eef1fb;border-radius:6px;padding:0.28rem 0.7rem;text-decoration:none;">Test Perplexity ↗</a>
+     <a href="https://gemini.google.com/app?q=Cielo+House+sports+activation" target="_blank" rel="noopener" style="font-size:0.73rem;font-weight:600;color:#2B317B;background:#eef1fb;border-radius:6px;padding:0.28rem 0.7rem;text-decoration:none;">Test Gemini ↗</a>
+   </div>
+   <div class="ai-grid">
+     <div class="ai-card"><div class="ai-platform">ChatGPT</div><div class="ai-score" id="ai-cgpt-score">--</div><div class="ai-score-label">Visibility score</div><div class="ai-queries">User queries: <strong id="ai-cgpt-q">--</strong> <span id="ai-cgpt-trend"></span></div></div>
+     <div class="ai-card"><div class="ai-platform">Perplexity</div><div class="ai-score" id="ai-plex-score">--</div><div class="ai-score-label">Visibility score</div><div class="ai-queries">User queries: <strong id="ai-plex-q">--</strong> <span id="ai-plex-trend"></span></div></div>
+     <div class="ai-card"><div class="ai-platform">Gemini</div><div class="ai-score" id="ai-gem-score">--</div><div class="ai-score-label">Visibility score</div><div class="ai-queries">User queries: <strong id="ai-gem-q">--</strong> <span id="ai-gem-trend"></span></div></div>
+   </div>
  </div>
- </div>
+
+ <!-- Insights -->
  <div class="card">
- <div class="card-title">Daily Insights</div>
- <div id="insights-container"><div class="empty">Update your stats above to generate insights.</div></div>
+   <div class="card-title">Daily Insights</div>
+   <div id="insights-container"><div class="empty">Connect Google or update stats to generate insights.</div></div>
  </div>
+
  <div class="two-col">
- <div class="card" style="margin-bottom:0;"><div class="card-title">Recent Activity</div><ul class="activity-list" id="activity-log"><li class="empty">No activity recorded yet.</li></ul></div>
- <div class="card" style="margin-bottom:0;"><div class="card-title">Subscribers and Forms</div><div style="margin-bottom:1.25rem;"><div class="metric__label">Email Subscribers</div><div class="metric__value" id="m-subscribers">0</div></div><div><div class="metric__label">Contact Form Submissions</div><div class="metric__value" id="m-submissions">0</div></div></div>
+   <div class="card" style="margin-bottom:0;"><div class="card-title">Recent Activity</div><ul class="activity-list" id="activity-log"><li class="empty">No activity recorded yet.</li></ul></div>
+   <div class="card" style="margin-bottom:0;"><div class="card-title">Subscribers and Forms</div><div style="margin-bottom:1.25rem;"><div class="metric__label">Email Subscribers</div><div class="metric__value" id="m-subscribers">0</div></div><div><div class="metric__label">Contact Form Submissions</div><div class="metric__value" id="m-submissions">0</div></div></div>
  </div>
  </div>
 
@@ -912,40 +969,54 @@
   </div>
 
   <!-- Stats Modal -->
+ <!-- AI Stats modal (manual entry) -->
  <div class="modal-overlay" id="stats-modal" onclick="if(event.target===this)closeModal()">
  <div class="modal-box">
  <button class="modal-close" onclick="closeModal()">&#215;</button>
- <div class="modal-title">Update Analytics Stats</div>
- <p class="modal-sub">Enter data from Wix, Google Search Console and AI platforms. Saved locally in your browser.</p>
+ <div class="modal-title">Update AI Platform Stats</div>
+ <p class="modal-sub">AI platforms (ChatGPT, Perplexity, Gemini) have no public API — test each one manually and enter your visibility scores below.</p>
+ <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.25rem;">
+   <a href="https://chatgpt.com/?q=Cielo+House+sports+activation" target="_blank" rel="noopener" style="font-size:0.73rem;font-weight:600;color:#2B317B;background:#eef1fb;border-radius:6px;padding:0.3rem 0.8rem;text-decoration:none;">Test ChatGPT ↗</a>
+   <a href="https://www.perplexity.ai/?q=Cielo+House+sports+activation+Australia" target="_blank" rel="noopener" style="font-size:0.73rem;font-weight:600;color:#2B317B;background:#eef1fb;border-radius:6px;padding:0.3rem 0.8rem;text-decoration:none;">Test Perplexity ↗</a>
+   <a href="https://gemini.google.com/app?q=Cielo+House+sports+activation" target="_blank" rel="noopener" style="font-size:0.73rem;font-weight:600;color:#2B317B;background:#eef1fb;border-radius:6px;padding:0.3rem 0.8rem;text-decoration:none;">Test Gemini ↗</a>
+ </div>
  <form class="form" id="stats-form">
- <div class="modal-section">Site Metrics Last 30 Days</div>
- <div class="form-row">
- <div class="form-group"><label class="form-label">Site Sessions</label><input class="form-input" id="st-sessions" type="number" placeholder="e.g. 174" /></div>
- <div class="form-group"><label class="form-label">Sessions % Change</label><input class="form-input" id="st-sessions-pct" type="number" placeholder="e.g. -9 or 12" /></div>
- </div>
- <div class="form-row">
- <div class="form-group"><label class="form-label">Unique Visitors</label><input class="form-input" id="st-visitors" type="number" placeholder="e.g. 119" /></div>
- <div class="form-group"><label class="form-label">Visitors % Change</label><input class="form-input" id="st-visitors-pct" type="number" placeholder="e.g. 1" /></div>
- </div>
- <div class="form-row">
- <div class="form-group"><label class="form-label">Clicks to Contact</label><input class="form-input" id="st-clicks" type="number" placeholder="e.g. 5" /></div>
- <div class="form-group"><label class="form-label">Form Submissions</label><input class="form-input" id="st-forms" type="number" placeholder="e.g. 1" /></div>
- </div>
- <div class="modal-section">Google Search Console</div>
- <div class="form-group"><label class="form-label">Period</label><input class="form-input" id="st-google-period" placeholder="e.g. May 1 May 29 (29 days)" /></div>
- <div class="form-row-3">
- <div><div class="form-label" style="margin-bottom:0.4rem;">Query 1</div><input class="form-input" id="gq1-q" placeholder="Keyword" style="margin-bottom:0.35rem;" /><div style="display:flex;gap:0.3rem;"><input class="form-input" id="gq1-i" type="number" placeholder="Imp." /><input class="form-input" id="gq1-c" type="number" placeholder="Clicks" /><input class="form-input" id="gq1-p" type="number" step="0.1" placeholder="Pos." /></div></div>
- <div><div class="form-label" style="margin-bottom:0.4rem;">Query 2</div><input class="form-input" id="gq2-q" placeholder="Keyword" style="margin-bottom:0.35rem;" /><div style="display:flex;gap:0.3rem;"><input class="form-input" id="gq2-i" type="number" placeholder="Imp." /><input class="form-input" id="gq2-c" type="number" placeholder="Clicks" /><input class="form-input" id="gq2-p" type="number" step="0.1" placeholder="Pos." /></div></div>
- <div><div class="form-label" style="margin-bottom:0.4rem;">Query 3</div><input class="form-input" id="gq3-q" placeholder="Keyword" style="margin-bottom:0.35rem;" /><div style="display:flex;gap:0.3rem;"><input class="form-input" id="gq3-i" type="number" placeholder="Imp." /><input class="form-input" id="gq3-c" type="number" placeholder="Clicks" /><input class="form-input" id="gq3-p" type="number" step="0.1" placeholder="Pos." /></div></div>
- </div>
- <div class="modal-section">AI Platform Visibility</div>
  <div class="form-row-3">
  <div><div class="form-label" style="margin-bottom:0.4rem;">ChatGPT</div><input class="form-input" id="ai-cgpt-score" type="number" placeholder="Visibility %" style="margin-bottom:0.35rem;" /><input class="form-input" id="ai-cgpt-queries" type="number" placeholder="User queries" style="margin-bottom:0.35rem;" /><input class="form-input" id="ai-cgpt-pct" type="number" placeholder="% Change" /></div>
  <div><div class="form-label" style="margin-bottom:0.4rem;">Perplexity</div><input class="form-input" id="ai-plex-score" type="number" placeholder="Visibility %" style="margin-bottom:0.35rem;" /><input class="form-input" id="ai-plex-queries" type="number" placeholder="User queries" style="margin-bottom:0.35rem;" /><input class="form-input" id="ai-plex-pct" type="number" placeholder="% Change" /></div>
  <div><div class="form-label" style="margin-bottom:0.4rem;">Gemini</div><input class="form-input" id="ai-gem-score" type="number" placeholder="Visibility %" style="margin-bottom:0.35rem;" /><input class="form-input" id="ai-gem-queries" type="number" placeholder="User queries" style="margin-bottom:0.35rem;" /><input class="form-input" id="ai-gem-pct" type="number" placeholder="% Change" /></div>
  </div>
- <button type="submit" class="btn btn-primary btn-full" style="margin-top:1.5rem;">Save Stats</button>
+ <button type="submit" class="btn btn-primary btn-full" style="margin-top:1.5rem;">Save AI Stats</button>
  </form>
+ </div>
+ </div>
+
+ <!-- Google Setup modal -->
+ <div class="modal-overlay" id="google-setup-modal" onclick="if(event.target===this)closeGoogleSetup()">
+ <div class="modal-box" style="max-width:540px;">
+ <button class="modal-close" onclick="closeGoogleSetup()">&#215;</button>
+ <div class="modal-title">Connect Google Analytics</div>
+ <p class="modal-sub">One-time setup. Follow these steps to get your OAuth Client ID — it takes about 5 minutes.</p>
+ <div style="background:#f0f4ff;border-radius:8px;padding:1rem 1.1rem;margin-bottom:1.25rem;font-size:0.81rem;line-height:1.8;color:#2B317B;">
+   <strong>Step 1</strong> — Go to <a href="https://console.cloud.google.com/" target="_blank" rel="noopener" style="color:#2B317B;font-weight:700;">Google Cloud Console ↗</a><br>
+   <strong>Step 2</strong> — Create a new project (name it "Cielo House Dashboard")<br>
+   <strong>Step 3</strong> — Go to <strong>APIs & Services → Library</strong> → Enable:<br>
+   &nbsp;&nbsp;• <em>Google Analytics Data API</em><br>
+   &nbsp;&nbsp;• <em>Google Search Console API</em><br>
+   <strong>Step 4</strong> — Go to <strong>APIs & Services → Credentials → Create Credentials → OAuth 2.0 Client ID</strong><br>
+   &nbsp;&nbsp;• Application type: <strong>Web application</strong><br>
+   &nbsp;&nbsp;• Authorized JavaScript origins: <code>https://www.cielohouse.com.au</code><br>
+   <strong>Step 5</strong> — Copy the <strong>Client ID</strong> and paste below
+ </div>
+ <div class="form-group" style="margin-bottom:1rem;">
+   <label class="form-label">Google OAuth Client ID</label>
+   <input class="form-input" id="setup-client-id" placeholder="xxxxxxxxxxxx-xxxxxxxx.apps.googleusercontent.com" />
+ </div>
+ <div style="font-size:0.78rem;color:#999;margin-bottom:1.25rem;">Your GA4 Property will be detected automatically after you connect.</div>
+ <div style="display:flex;gap:0.75rem;">
+   <button class="btn btn-primary" onclick="saveGoogleSetup()" style="flex:1;">Save &amp; Connect Google</button>
+   <button class="btn btn-secondary btn-sm" onclick="closeGoogleSetup()">Cancel</button>
+ </div>
  </div>
  </div>
 
@@ -986,95 +1057,354 @@
  return d.toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
  }
 
- // Modal
+ // ===================== AI STATS MODAL =====================
  function openModal() {
- var s = JSON.parse(localStorage.getItem('ch_stats') || '{}');
- var map = { 'st-sessions': s.sessions, 'st-sessions-pct': s.sessionsPct, 'st-visitors': s.visitors, 'st-visitors-pct': s.visitorsPct, 'st-clicks': s.clicks, 'st-forms': s.forms, 'st-google-period': s.googlePeriod };
- Object.keys(map).forEach(function(id) { var el = document.getElementById(id); if (el && map[id] != null) el.value = map[id]; });
- for (var i = 1; i <= 3; i++) {
- var q = (s['gq' + i] || {});
- var keys = { q: 'query', i: 'imp', c: 'clicks', p: 'pos' };
- Object.keys(keys).forEach(function(f) { var el = document.getElementById('gq' + i + '-' + f); if (el && q[keys[f]] != null) el.value = q[keys[f]]; });
- }
- var ai = s.ai || {};
- ['cgpt','plex','gem'].forEach(function(k) {
- var d = ai[k] || {};
- ['score','queries','pct'].forEach(function(f) { var el = document.getElementById('ai-' + k + '-' + f); if (el && d[f] != null) el.value = d[f]; });
- });
- document.getElementById('stats-modal').style.display = 'block';
+   var s = JSON.parse(localStorage.getItem('ch_stats') || '{}');
+   var ai = s.ai || {};
+   ['cgpt','plex','gem'].forEach(function(k) {
+     var d = ai[k] || {};
+     ['score','queries','pct'].forEach(function(f) { var el = document.getElementById('ai-' + k + '-' + f); if (el && d[f] != null) el.value = d[f]; });
+   });
+   document.getElementById('stats-modal').style.display = 'block';
  }
  function closeModal() { document.getElementById('stats-modal').style.display = 'none'; }
 
  document.getElementById('stats-form').addEventListener('submit', function(e) {
- e.preventDefault();
- var s = {
- sessions: document.getElementById('st-sessions').value,
- sessionsPct: document.getElementById('st-sessions-pct').value,
- visitors: document.getElementById('st-visitors').value,
- visitorsPct: document.getElementById('st-visitors-pct').value,
- clicks: document.getElementById('st-clicks').value,
- forms: document.getElementById('st-forms').value,
- googlePeriod: document.getElementById('st-google-period').value,
- updatedAt: new Date().toISOString(),
- ai: {}
- };
- for (var i = 1; i <= 3; i++) {
- s['gq' + i] = { query: document.getElementById('gq' + i + '-q').value, imp: document.getElementById('gq' + i + '-i').value, clicks: document.getElementById('gq' + i + '-c').value, pos: document.getElementById('gq' + i + '-p').value };
- }
- ['cgpt','plex','gem'].forEach(function(k) {
- s.ai[k] = { score: document.getElementById('ai-' + k + '-score').value, queries: document.getElementById('ai-' + k + '-queries').value, pct: document.getElementById('ai-' + k + '-pct').value };
- });
- localStorage.setItem('ch_stats', JSON.stringify(s));
- closeModal();
- loadAnalytics();
+   e.preventDefault();
+   var s = JSON.parse(localStorage.getItem('ch_stats') || '{}');
+   s.aiUpdatedAt = new Date().toISOString();
+   s.ai = s.ai || {};
+   ['cgpt','plex','gem'].forEach(function(k) {
+     s.ai[k] = { score: document.getElementById('ai-' + k + '-score').value, queries: document.getElementById('ai-' + k + '-queries').value, pct: document.getElementById('ai-' + k + '-pct').value };
+   });
+   localStorage.setItem('ch_stats', JSON.stringify(s));
+   closeModal();
+   loadAnalytics();
  });
 
- // Analytics
- function loadAnalytics() {
- var subs = JSON.parse(localStorage.getItem('ch_subscribers') || '[]');
- document.getElementById('m-subscribers').textContent = subs.length;
- document.getElementById('m-submissions').textContent = localStorage.getItem('ch_form_submissions') || '0';
- var s = JSON.parse(localStorage.getItem('ch_stats') || '{}');
- document.getElementById('m-sessions').textContent = s.sessions || '--';
- document.getElementById('m-sessions-trend').innerHTML = trend(s.sessionsPct);
- document.getElementById('m-visitors').textContent = s.visitors || '--';
- document.getElementById('m-visitors-trend').innerHTML = trend(s.visitorsPct);
- document.getElementById('m-clicks').textContent = (s.clicks !== undefined && s.clicks !== '') ? s.clicks : '--';
- document.getElementById('m-forms').textContent = (s.forms !== undefined && s.forms !== '') ? s.forms : '--';
- if (s.updatedAt) { var d = new Date(s.updatedAt); document.getElementById('analytics-sub').textContent = 'Live tracking active · Stats manually updated: ' + d.toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' }); }
- if (s.googlePeriod) document.getElementById('google-period').textContent = 'Stats for ' + s.googlePeriod;
- for (var i = 1; i <= 3; i++) {
- var q = s['gq' + i] || {};
- document.getElementById('gq' + i + '-kw').textContent = q.query || '--';
- document.getElementById('gq' + i + '-imp').textContent = q.imp || '--';
- document.getElementById('gq' + i + '-clk').textContent = q.clicks || '--';
- document.getElementById('gq' + i + '-pos').textContent = q.pos || '--';
+ // ===================== GOOGLE SETUP MODAL =====================
+ function showGoogleSetup() {
+   var existing = localStorage.getItem('ch_google_client_id') || '';
+   document.getElementById('setup-client-id').value = existing;
+   document.getElementById('google-setup-modal').style.display = 'block';
  }
- var ai = s.ai || {};
- ['cgpt','plex','gem'].forEach(function(k) {
- var d = ai[k] || {};
- document.getElementById('ai-' + k + '-score').textContent = d.score ? d.score + '%' : '--';
- document.getElementById('ai-' + k + '-q').textContent = d.queries || '--';
- document.getElementById('ai-' + k + '-trend').innerHTML = trend(d.pct);
- });
- // Insights
- var ins = buildInsights(s);
- var cont = document.getElementById('insights-container');
- cont.innerHTML = ins.length === 0 ? '<div class="empty">Update your stats above to generate insights.</div>' : '';
- ins.forEach(function(x) { var div = document.createElement('div'); div.className = 'insight insight-' + x.type; div.textContent = x.text; cont.appendChild(div); });
- // Activity
- var log = JSON.parse(localStorage.getItem('ch_activity_log') || '[]');
- var logEl = document.getElementById('activity-log');
- if (!log.length) { logEl.innerHTML = '<li class="empty">No activity yet.</li>'; return; }
- logEl.innerHTML = '';
- log.slice(0,10).forEach(function(entry) {
- var li = document.createElement('li'); li.className = 'activity-item';
- var d = new Date(entry.time);
- var ts = d.toLocaleDateString('en-AU') + ' ' + d.toLocaleTimeString('en-AU', { hour:'2-digit', minute:'2-digit' });
- var label = entry.type === 'page_view' ? 'Page view: ' + (entry.page || '') : entry.type === 'form_submission' ? 'Form submission' : entry.type === 'subscriber' ? 'New subscriber: ' + (entry.email || '') : entry.type;
- li.innerHTML = '<span class="activity-dot"></span><span>' + label + '</span><span class="activity-time">' + ts + '</span>';
- logEl.appendChild(li);
- });
+ function closeGoogleSetup() { document.getElementById('google-setup-modal').style.display = 'none'; }
+
+ function saveGoogleSetup() {
+   var cid = document.getElementById('setup-client-id').value.trim();
+   if (!cid) { alert('Please enter your Google OAuth Client ID.'); return; }
+   localStorage.setItem('ch_google_client_id', cid);
+   closeGoogleSetup();
+   connectGoogle();
+ }
+
+ // ===================== GOOGLE OAUTH + DATA =====================
+ var _gaToken = null;
+ var _gaTokenExp = 0;
+ var _gaPropertyId = localStorage.getItem('ch_ga4_property_id') || '';
+ var _gaProperties = [];
+
+ function gbarShow(state) {
+   ['gbar-setup','gbar-connected','gbar-loading','gbar-error'].forEach(function(id) {
+     var el = document.getElementById(id);
+     if (el) el.style.display = 'none';
+   });
+   var target = document.getElementById('gbar-' + state);
+   if (target) target.style.display = 'flex';
+ }
+
+ function connectGoogle() {
+   var cid = localStorage.getItem('ch_google_client_id');
+   if (!cid) { showGoogleSetup(); return; }
+   if (typeof google === 'undefined' || !google.accounts) {
+     // GSI not loaded yet, wait and retry
+     setTimeout(connectGoogle, 800); return;
+   }
+   gbarShow('loading');
+   try {
+     var client = google.accounts.oauth2.initTokenClient({
+       client_id: cid,
+       scope: [
+         'https://www.googleapis.com/auth/analytics.readonly',
+         'https://www.googleapis.com/auth/webmasters.readonly'
+       ].join(' '),
+       callback: function(resp) {
+         if (resp.error || !resp.access_token) {
+           document.getElementById('gbar-error-msg').textContent = 'Google sign-in failed: ' + (resp.error || 'unknown error');
+           gbarShow('error'); return;
+         }
+         _gaToken = resp.access_token;
+         _gaTokenExp = Date.now() + (resp.expires_in * 1000);
+         localStorage.setItem('ch_ga_token', _gaToken);
+         localStorage.setItem('ch_ga_token_exp', _gaTokenExp);
+         syncGoogleData(false);
+       }
+     });
+     client.requestAccessToken();
+   } catch(e) {
+     document.getElementById('gbar-error-msg').textContent = 'Error: ' + e.message;
+     gbarShow('error');
+   }
+ }
+
+ function disconnectGoogle() {
+   _gaToken = null; _gaTokenExp = 0;
+   localStorage.removeItem('ch_ga_token');
+   localStorage.removeItem('ch_ga_token_exp');
+   localStorage.removeItem('ch_ga4_property_id');
+   localStorage.removeItem('ch_ga4_cache');
+   gbarShow('setup');
+   loadAnalytics();
+ }
+
+ async function syncGoogleData(manual) {
+   var token = _gaToken || localStorage.getItem('ch_ga_token');
+   var exp = _gaTokenExp || parseInt(localStorage.getItem('ch_ga_token_exp') || '0');
+   if (!token || Date.now() > exp - 60000) {
+     // Token expired or missing — re-auth
+     connectGoogle(); return;
+   }
+   _gaToken = token; _gaTokenExp = exp;
+   gbarShow('loading');
+   try {
+     var propId = localStorage.getItem('ch_ga4_property_id');
+     // Step 1: if no property ID, fetch account summaries to let user pick
+     if (!propId) {
+       var props = await fetchGA4Properties(token);
+       if (!props.length) throw new Error('No GA4 properties found for this Google account.');
+       if (props.length === 1) {
+         propId = props[0].id;
+         localStorage.setItem('ch_ga4_property_id', propId);
+       } else {
+         _gaProperties = props;
+         showPropertyPicker(props);
+         gbarShow('connected');
+         document.getElementById('gbar-sync-label').textContent = 'Select your GA4 property below';
+         return;
+       }
+     }
+     // Step 2: fetch GA4 + GSC data in parallel
+     var [ga4Main, ga4Events, gscData] = await Promise.all([
+       fetchGA4Report(token, propId),
+       fetchGA4Events(token, propId),
+       fetchGSC(token)
+     ]);
+     // Step 3: parse + cache
+     var parsed = parseGA4(ga4Main, ga4Events, gscData);
+     parsed.syncedAt = new Date().toISOString();
+     // Merge into ch_stats (preserve AI data)
+     var s = JSON.parse(localStorage.getItem('ch_stats') || '{}');
+     Object.assign(s, parsed);
+     localStorage.setItem('ch_stats', JSON.stringify(s));
+     localStorage.setItem('ch_ga4_cache', JSON.stringify(parsed));
+     gbarShow('connected');
+     var d = new Date(parsed.syncedAt);
+     document.getElementById('gbar-sync-label').textContent = 'Last synced ' + d.toLocaleTimeString('en-AU', { hour:'2-digit', minute:'2-digit' });
+     document.getElementById('ga4-prop-picker').style.display = 'none';
+     loadAnalytics();
+   } catch(e) {
+     document.getElementById('gbar-error-msg').textContent = e.message || 'Failed to fetch Google data.';
+     gbarShow('error');
+   }
+ }
+
+ async function fetchGA4Properties(token) {
+   var r = await fetch('https://analyticsadmin.googleapis.com/v1beta/accountSummaries', {
+     headers: { 'Authorization': 'Bearer ' + token }
+   });
+   var data = await r.json();
+   if (data.error) throw new Error(data.error.message);
+   var props = [];
+   (data.accountSummaries || []).forEach(function(acc) {
+     (acc.propertySummaries || []).forEach(function(p) {
+       props.push({ id: p.property.replace('properties/', ''), name: p.displayName, account: acc.displayName });
+     });
+   });
+   return props;
+ }
+
+ function showPropertyPicker(props) {
+   var sel = document.getElementById('ga4-prop-select');
+   sel.innerHTML = '';
+   props.forEach(function(p) {
+     var opt = document.createElement('option');
+     opt.value = p.id;
+     opt.textContent = p.name + ' (ID: ' + p.id + ')';
+     sel.appendChild(opt);
+   });
+   document.getElementById('ga4-prop-picker').style.display = 'block';
+ }
+
+ function confirmProperty() {
+   var propId = document.getElementById('ga4-prop-select').value;
+   if (!propId) return;
+   localStorage.setItem('ch_ga4_property_id', propId);
+   document.getElementById('ga4-prop-picker').style.display = 'none';
+   syncGoogleData(false);
+ }
+
+ async function fetchGA4Report(token, propId) {
+   var today = new Date().toISOString().split('T')[0];
+   var r = await fetch('https://analyticsdata.googleapis.com/v1beta/properties/' + propId + ':runReport', {
+     method: 'POST',
+     headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+     body: JSON.stringify({
+       dateRanges: [
+         { startDate: '30daysAgo', endDate: 'today', name: 'current' },
+         { startDate: '60daysAgo', endDate: '31daysAgo', name: 'previous' }
+       ],
+       metrics: [
+         { name: 'sessions' },
+         { name: 'activeUsers' },
+         { name: 'screenPageViews' }
+       ]
+     })
+   });
+   var data = await r.json();
+   if (data.error) throw new Error('GA4: ' + data.error.message);
+   return data;
+ }
+
+ async function fetchGA4Events(token, propId) {
+   var r = await fetch('https://analyticsdata.googleapis.com/v1beta/properties/' + propId + ':runReport', {
+     method: 'POST',
+     headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+     body: JSON.stringify({
+       dateRanges: [{ startDate: '30daysAgo', endDate: 'today' }],
+       dimensions: [{ name: 'eventName' }],
+       metrics: [{ name: 'eventCount' }],
+       dimensionFilter: { filter: { fieldName: 'eventName', stringFilter: { value: 'schedule_call', matchType: 'EXACT' } } }
+     })
+   });
+   var data = await r.json();
+   if (data.error) return null;
+   return data;
+ }
+
+ async function fetchGSC(token) {
+   var end = new Date(); end.setDate(end.getDate() - 3); // GSC has ~3 day lag
+   var start = new Date(end); start.setDate(start.getDate() - 28);
+   var fmt = function(d) { return d.toISOString().split('T')[0]; };
+   var r = await fetch('https://www.googleapis.com/webmasters/v3/sites/' + encodeURIComponent('sc-domain:cielohouse.com.au') + '/searchAnalytics/query', {
+     method: 'POST',
+     headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+     body: JSON.stringify({ startDate: fmt(start), endDate: fmt(end), dimensions: ['query'], rowLimit: 5 })
+   });
+   if (!r.ok) {
+     // Try with full URL if domain property fails
+     var r2 = await fetch('https://www.googleapis.com/webmasters/v3/sites/' + encodeURIComponent('https://www.cielohouse.com.au/') + '/searchAnalytics/query', {
+       method: 'POST',
+       headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+       body: JSON.stringify({ startDate: fmt(start), endDate: fmt(end), dimensions: ['query'], rowLimit: 5 })
+     });
+     if (!r2.ok) return null;
+     return r2.json();
+   }
+   return r.json();
+ }
+
+ function parseGA4(ga4Main, ga4Events, gscData) {
+   var out = {};
+   // GA4 main metrics — rows[0]=current 30d, rows[1]=previous 30d
+   if (ga4Main && ga4Main.rows && ga4Main.rows.length >= 1) {
+     var cur = ga4Main.rows[0].metricValues;
+     out.sessions = parseInt(cur[0].value) || 0;
+     out.visitors = parseInt(cur[1].value) || 0;
+     out.pageviews = parseInt(cur[2].value) || 0;
+     if (ga4Main.rows.length >= 2) {
+       var prev = ga4Main.rows[1].metricValues;
+       var prevSess = parseInt(prev[0].value) || 1;
+       var prevVis = parseInt(prev[1].value) || 1;
+       out.sessionsPct = Math.round(((out.sessions - prevSess) / prevSess) * 100);
+       out.visitorsPct = Math.round(((out.visitors - prevVis) / prevVis) * 100);
+     }
+   }
+   // Schedule call events
+   if (ga4Events && ga4Events.rows && ga4Events.rows.length) {
+     out.clicks = parseInt(ga4Events.rows[0].metricValues[0].value) || 0;
+   }
+   // GSC search queries
+   if (gscData && gscData.rows) {
+     var period = new Date().toLocaleDateString('en-AU', { month:'short', year:'numeric' });
+     out.googlePeriod = 'Last 28 days · ' + period;
+     gscData.rows.slice(0,3).forEach(function(row, i) {
+       out['gq' + (i+1)] = {
+         query: row.keys[0],
+         imp: Math.round(row.impressions),
+         clicks: Math.round(row.clicks),
+         pos: row.position.toFixed(1)
+       };
+     });
+   }
+   out.updatedAt = new Date().toISOString();
+   return out;
+ }
+
+ // ===================== ANALYTICS DISPLAY =====================
+ function loadAnalytics() {
+   var subs = JSON.parse(localStorage.getItem('ch_subscribers') || '[]');
+   document.getElementById('m-subscribers').textContent = subs.length;
+   document.getElementById('m-submissions').textContent = localStorage.getItem('ch_form_submissions') || '0';
+
+   var s = JSON.parse(localStorage.getItem('ch_stats') || '{}');
+   var googleConnected = !!localStorage.getItem('ch_ga_token') && Date.now() < parseInt(localStorage.getItem('ch_ga_token_exp') || '0');
+
+   // Metrics
+   document.getElementById('m-sessions').textContent = s.sessions != null ? s.sessions.toLocaleString() : '--';
+   document.getElementById('m-sessions-trend').innerHTML = trend(s.sessionsPct);
+   document.getElementById('m-visitors').textContent = s.visitors != null ? s.visitors.toLocaleString() : '--';
+   document.getElementById('m-visitors-trend').innerHTML = trend(s.visitorsPct);
+   document.getElementById('m-clicks').textContent = s.clicks != null ? s.clicks : '--';
+   document.getElementById('m-forms').textContent = s.pageviews != null ? s.pageviews.toLocaleString() : '--';
+
+   // Sub-text
+   if (s.syncedAt) {
+     var d = new Date(s.syncedAt);
+     document.getElementById('analytics-sub').textContent = '✓ Live data from Google Analytics · Last synced ' + d.toLocaleTimeString('en-AU', { hour:'2-digit', minute:'2-digit' }) + ' on ' + d.toLocaleDateString('en-AU', { day:'numeric', month:'short' });
+   }
+
+   // GSC
+   if (s.googlePeriod) document.getElementById('google-period').textContent = s.googlePeriod;
+   for (var i = 1; i <= 3; i++) {
+     var q = s['gq' + i] || {};
+     document.getElementById('gq' + i + '-kw').textContent = q.query || '--';
+     document.getElementById('gq' + i + '-imp').textContent = q.imp != null ? q.imp.toLocaleString() : '--';
+     document.getElementById('gq' + i + '-clk').textContent = q.clicks != null ? q.clicks : '--';
+     document.getElementById('gq' + i + '-pos').textContent = q.pos || '--';
+   }
+
+   // AI
+   var ai = s.ai || {};
+   ['cgpt','plex','gem'].forEach(function(k) {
+     var d = ai[k] || {};
+     document.getElementById('ai-' + k + '-score').textContent = d.score ? d.score + '%' : '--';
+     document.getElementById('ai-' + k + '-q').textContent = d.queries || '--';
+     document.getElementById('ai-' + k + '-trend').innerHTML = trend(d.pct);
+   });
+   if (s.aiUpdatedAt) {
+     var ad = new Date(s.aiUpdatedAt);
+     document.getElementById('ai-updated').textContent = 'Manually updated ' + ad.toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' }) + ' · No public API for AI visibility';
+   }
+
+   // Insights (combine GA4 + AI data)
+   var ins = buildInsights(s);
+   var cont = document.getElementById('insights-container');
+   cont.innerHTML = ins.length === 0 ? '<div class="empty">Connect Google or update AI stats to generate insights.</div>' : '';
+   ins.forEach(function(x) { var div = document.createElement('div'); div.className = 'insight insight-' + x.type; div.textContent = x.text; cont.appendChild(div); });
+
+   // Activity
+   var log = JSON.parse(localStorage.getItem('ch_activity_log') || '[]');
+   var logEl = document.getElementById('activity-log');
+   if (!log.length) { logEl.innerHTML = '<li class="empty">No activity yet.</li>'; return; }
+   logEl.innerHTML = '';
+   log.slice(0,10).forEach(function(entry) {
+     var li = document.createElement('li'); li.className = 'activity-item';
+     var d = new Date(entry.time);
+     var ts = d.toLocaleDateString('en-AU') + ' ' + d.toLocaleTimeString('en-AU', { hour:'2-digit', minute:'2-digit' });
+     var label = entry.type === 'page_view' ? 'Page view: ' + (entry.page || '') : entry.type === 'form_submission' ? 'Form submission' : entry.type === 'subscriber' ? 'New subscriber: ' + (entry.email || '') : entry.type;
+     li.innerHTML = '<span class="activity-dot"></span><span>' + label + '</span><span class="activity-time">' + ts + '</span>';
+     logEl.appendChild(li);
+   });
  }
 
  function buildInsights(s) {
@@ -1092,14 +1422,28 @@
 
  loadAnalytics();
 
- // GA4 setup notice dismissal
- (function() {
-   if (localStorage.getItem('ga4_notice_dismissed') === '1') {
-     var el = document.getElementById('ga4-setup-notice');
-     if (el) el.style.display = 'none';
+ // Init Google bar state + auto-connect if token exists
+ (function initGoogleBar() {
+   var token = localStorage.getItem('ch_ga_token');
+   var exp = parseInt(localStorage.getItem('ch_ga_token_exp') || '0');
+   var clientId = localStorage.getItem('ch_google_client_id');
+   if (token && Date.now() < exp - 60000) {
+     // Token still valid — show connected state
+     gbarShow('connected');
+     var cached = localStorage.getItem('ch_ga4_cache');
+     if (cached) {
+       var c = JSON.parse(cached);
+       var d = new Date(c.syncedAt);
+       document.getElementById('gbar-sync-label').textContent = 'Last synced ' + d.toLocaleTimeString('en-AU', { hour:'2-digit', minute:'2-digit' });
+     } else {
+       document.getElementById('gbar-sync-label').textContent = 'connected — click Sync Now';
+     }
+   } else if (clientId) {
+     // Have client ID but token expired — show setup with reconnect prompt
+     gbarShow('setup');
+   } else {
+     gbarShow('setup');
    }
-   // If updatedAt is set in stats, they've been manually updating — keep showing GA4 links
-   // Once user shares GA4 ID we'll remove the warning badge and update the status
  })();
 
  // Blog posts seed from live website data if never set
