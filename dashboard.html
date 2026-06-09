@@ -2046,10 +2046,17 @@
      out.pageviews = parseInt(cur[2].value) || 0;
      if (ga4Main.rows.length >= 2) {
        var prev = ga4Main.rows[1].metricValues;
-       var prevSess = parseInt(prev[0].value) || 1;
-       var prevVis  = parseInt(prev[1].value) || 1;
-       out.sessionsPct = Math.round(((out.sessions - prevSess) / prevSess) * 100);
-       out.visitorsPct = Math.round(((out.visitors - prevVis)  / prevVis)  * 100);
+       var prevSess = parseInt(prev[0].value) || 0;
+       var prevVis  = parseInt(prev[1].value) || 0;
+       // Only show % if previous period had enough data to be meaningful
+       if (prevSess >= 10) {
+         var rawSPct = Math.round(((out.sessions - prevSess) / prevSess) * 100);
+         out.sessionsPct = Math.max(-999, Math.min(999, rawSPct));
+       }
+       if (prevVis >= 10) {
+         var rawVPct = Math.round(((out.visitors - prevVis) / prevVis) * 100);
+         out.visitorsPct = Math.max(-999, Math.min(999, rawVPct));
+       }
      }
    }
    // Schedule call events
