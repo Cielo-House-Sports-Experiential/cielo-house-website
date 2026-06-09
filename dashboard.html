@@ -1168,20 +1168,28 @@
    gbarShow('loading');
    try {
      var propId = localStorage.getItem('ch_ga4_property_id');
-     // Step 1: if no property ID, fetch account summaries to let user pick
+     // Step 1: if no property ID, try Admin API; fall back to manual entry
      if (!propId) {
-       var props = await fetchGA4Properties(token);
-       if (!props.length) throw new Error('No GA4 properties found for this Google account.');
-       if (props.length === 1) {
-         propId = props[0].id;
-         localStorage.setItem('ch_ga4_property_id', propId);
-       } else {
-         _gaProperties = props;
-         showPropertyPicker(props);
+       try {
+         var props = await fetchGA4Properties(token);
+         if (props.length === 1) {
+           propId = props[0].id;
+           localStorage.setItem('ch_ga4_property_id', propId);
+         } else if (props.length > 1) {
+           _gaProperties = props;
+           showPropertyPicker(props);
+           gbarShow('connected');
+           document.getElementById('gbar-sync-label').textContent = 'Select your GA4 property below';
+           return;
+         }
+       } catch(adminErr) {
+         // Admin API not enabled or failed — ask user to enter Property ID manually
+         showPropertyIdInput();
          gbarShow('connected');
-         document.getElementById('gbar-sync-label').textContent = 'Select your GA4 property below';
+         document.getElementById('gbar-sync-label').textContent = 'Enter your GA4 Property ID below';
          return;
        }
+       if (!propId) { showPropertyIdInput(); gbarShow('connected'); document.getElementById('gbar-sync-label').textContent = 'Enter your GA4 Property ID below'; return; }
      }
      // Step 2: fetch GA4 + GSC data in parallel
      var [ga4Main, ga4Events, gscData] = await Promise.all([
@@ -1224,20 +1232,44 @@
  }
 
  function showPropertyPicker(props) {
+   var picker = document.getElementById('ga4-prop-picker');
+   picker.innerHTML = '<div style="font-size:0.82rem;font-weight:600;color:#2B317B;margin-bottom:0.5rem;">Select your GA4 Property</div>'
+     + '<div style="display:flex;gap:0.5rem;align-items:center;">'
+     + '<select class="form-select" id="ga4-prop-select" style="flex:1;"></select>'
+     + '<button class="btn btn-primary" onclick="confirmProperty()" style="font-size:0.8rem;padding:0.5rem 1rem;">Use This</button>'
+     + '</div>';
    var sel = document.getElementById('ga4-prop-select');
-   sel.innerHTML = '';
    props.forEach(function(p) {
      var opt = document.createElement('option');
      opt.value = p.id;
      opt.textContent = p.name + ' (ID: ' + p.id + ')';
      sel.appendChild(opt);
    });
-   document.getElementById('ga4-prop-picker').style.display = 'block';
+   picker.style.display = 'block';
+ }
+
+ function showPropertyIdInput() {
+   var picker = document.getElementById('ga4-prop-picker');
+   picker.innerHTML = '<div style="font-size:0.82rem;font-weight:600;color:#2B317B;margin-bottom:0.4rem;">Enter your GA4 Property ID</div>'
+     + '<div style="font-size:0.77rem;color:#888;margin-bottom:0.6rem;">Find it in <a href="https://analytics.google.com/" target="_blank" style="color:#2B317B;">GA4</a> → Admin → Property Settings → Property ID (a number like <code>381234567</code>)</div>'
+     + '<div style="display:flex;gap:0.5rem;align-items:center;">'
+     + '<input class="form-input" id="ga4-manual-prop" placeholder="e.g. 381234567" style="flex:1;" />'
+     + '<button class="btn btn-primary" onclick="confirmManualProperty()" style="font-size:0.8rem;padding:0.5rem 1rem;">Connect</button>'
+     + '</div>';
+   picker.style.display = 'block';
  }
 
  function confirmProperty() {
    var propId = document.getElementById('ga4-prop-select').value;
    if (!propId) return;
+   localStorage.setItem('ch_ga4_property_id', propId);
+   document.getElementById('ga4-prop-picker').style.display = 'none';
+   syncGoogleData(false);
+ }
+
+ function confirmManualProperty() {
+   var propId = (document.getElementById('ga4-manual-prop').value || '').trim().replace(/\D/g,'');
+   if (!propId) { alert('Please enter a valid Property ID (numbers only).'); return; }
    localStorage.setItem('ch_ga4_property_id', propId);
    document.getElementById('ga4-prop-picker').style.display = 'none';
    syncGoogleData(false);
