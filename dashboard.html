@@ -1302,10 +1302,12 @@
  ];
 
  async function askGemini(token, question) {
+   var apiKey = localStorage.getItem('ch_key_gemini');
+   if (!apiKey) throw new Error('No Gemini API key — add one via Add ChatGPT/Perplexity button');
    var prompt = 'Answer this question as you normally would: "' + question + '"\n\nAfter your answer, on a new line write exactly: MENTIONS_CIELO_HOUSE: YES or MENTIONS_CIELO_HOUSE: NO';
-   var r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent', {
+   var r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + apiKey, {
      method: 'POST',
-     headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+     headers: { 'Content-Type': 'application/json' },
      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 400, temperature: 0.4 } })
    });
    var d = await r.json();
@@ -1525,7 +1527,7 @@
  }
 
  function _getScopes() {
-   return 'https://www.googleapis.com/auth/analytics.readonly https://www.googleapis.com/auth/webmasters.readonly https://www.googleapis.com/auth/generativelanguage';
+   return 'https://www.googleapis.com/auth/analytics.readonly https://www.googleapis.com/auth/webmasters.readonly';
  }
 
  // ── PERMANENT REFRESH: uses stored refresh_token via fetch — zero popups ──
@@ -4187,8 +4189,8 @@
 
  // ===================== FAQ AI REFRESH =====================
  async function faqAiRefresh() {
-   var token = _gaToken || localStorage.getItem('ch_ga_token');
-   if (!token) { alert('Connect Google first — Gemini uses your existing Google login for free.'); return; }
+   var apiKey = localStorage.getItem('ch_key_gemini');
+   if (!apiKey) { alert('Add your free Gemini API key first — click the "Add ChatGPT/Perplexity" button at the top of the Analytics page, then enter your Gemini key.'); return; }
    var btn = document.getElementById('faq-ai-btn');
    var msg = document.getElementById('faq-ai-msg');
    btn.disabled = true;
@@ -4216,9 +4218,9 @@ Respond ONLY with valid JSON array, no other text:
 ]`;
 
    try {
-     var r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent', {
+     var r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + apiKey, {
        method: 'POST',
-       headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+       headers: { 'Content-Type': 'application/json' },
        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { maxOutputTokens: 1500, temperature: 0.6 } })
      });
      var d = await r.json();
