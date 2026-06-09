@@ -343,7 +343,7 @@
    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.3rem;flex-wrap:wrap;gap:0.4rem;">
      <div style="font-weight:600;font-size:0.95rem;color:#222;">Performance on AI Platforms</div>
      <div style="display:flex;gap:0.4rem;">
-       <button class="btn btn-secondary btn-sm" onclick="runAiChecks(true)" id="ai-refresh-btn" style="font-size:0.74rem;">↻ Refresh</button>
+       <button class="btn btn-secondary btn-sm" onclick="refreshAiAll()" id="ai-refresh-btn" style="font-size:0.74rem;">↻ Refresh</button>
        <button class="btn btn-primary" onclick="openAiKeys()" style="font-size:0.74rem;padding:0.35rem 0.8rem;">⚙ API Keys</button>
      </div>
    </div>
@@ -353,9 +353,21 @@
      Checking your visibility on AI platforms…
    </div>
    <div class="ai-grid">
-     <div class="ai-card"><div class="ai-platform">ChatGPT</div><div class="ai-score" id="ai-cgpt-score">--</div><div class="ai-score-label">Visibility score</div><div class="ai-queries"><strong id="ai-cgpt-q">--</strong></div><div id="ai-cgpt-summary" style="font-size:0.68rem;color:#aaa;margin-top:0.35rem;line-height:1.4;"></div></div>
-     <div class="ai-card"><div class="ai-platform">Perplexity</div><div class="ai-score" id="ai-plex-score">--</div><div class="ai-score-label">Visibility score</div><div class="ai-queries"><strong id="ai-plex-q">--</strong></div><div id="ai-plex-summary" style="font-size:0.68rem;color:#aaa;margin-top:0.35rem;line-height:1.4;"></div></div>
-     <div class="ai-card"><div class="ai-platform">Gemini</div><div class="ai-score" id="ai-gem-score">--</div><div class="ai-score-label">Visibility score</div><div class="ai-queries"><strong id="ai-gem-q">--</strong></div><div id="ai-gem-summary" style="font-size:0.68rem;color:#aaa;margin-top:0.35rem;line-height:1.4;"></div></div>
+     <div class="ai-card"><div class="ai-platform">ChatGPT</div><div class="ai-score" id="ai-cgpt-score">--</div><div class="ai-score-label">Visibility score</div><div class="ai-queries"><strong id="ai-cgpt-q">--</strong></div><div id="ai-cgpt-summary" style="font-size:0.68rem;color:#aaa;margin-top:0.35rem;line-height:1.4;"></div><div style="font-size:0.67rem;color:#c8a04a;margin-top:0.4rem;">⚙ Needs API key</div></div>
+     <div class="ai-card"><div class="ai-platform">Perplexity</div><div class="ai-score" id="ai-plex-score">--</div><div class="ai-score-label">Visibility score</div><div class="ai-queries"><strong id="ai-plex-q">--</strong></div><div id="ai-plex-summary" style="font-size:0.68rem;color:#aaa;margin-top:0.35rem;line-height:1.4;"></div><div style="font-size:0.67rem;color:#c8a04a;margin-top:0.4rem;">⚙ Needs API key</div></div>
+     <div class="ai-card"><div class="ai-platform">Gemini ✓</div><div class="ai-score" id="ai-gem-score">--</div><div class="ai-score-label">Visibility score</div><div class="ai-queries"><strong id="ai-gem-q">--</strong></div><div id="ai-gem-summary" style="font-size:0.68rem;color:#aaa;margin-top:0.35rem;line-height:1.4;"></div><div style="font-size:0.67rem;color:#27ae60;margin-top:0.4rem;">● Auto via Google</div></div>
+   </div>
+   <!-- Reddit brand mentions — free, no key -->
+   <div style="margin-top:1rem;background:#fafbff;border:1px solid #eef0f8;border-radius:10px;padding:0.85rem 1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+     <div style="flex:1;min-width:0;">
+       <div style="font-size:0.8rem;font-weight:700;color:#ff4500;margin-bottom:0.15rem;">Reddit Mentions <span style="font-size:0.67rem;font-weight:600;color:#27ae60;background:#e8faf0;border-radius:4px;padding:0.1rem 0.4rem;margin-left:0.3rem;">● Free · Auto</span></div>
+       <div id="reddit-latest" style="font-size:0.75rem;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Connect Google to load</div>
+     </div>
+     <div style="text-align:center;flex-shrink:0;">
+       <div style="font-size:1.6rem;font-weight:700;color:#ff4500;" id="reddit-count">--</div>
+       <div style="font-size:0.7rem;color:#aaa;">posts this year</div>
+     </div>
+     <a href="https://www.reddit.com/search/?q=%22Cielo+House%22&sort=new" target="_blank" rel="noopener" style="font-size:0.73rem;font-weight:600;color:#ff4500;background:#fff1ee;border-radius:6px;padding:0.3rem 0.7rem;text-decoration:none;flex-shrink:0;">View on Reddit ↗</a>
    </div>
  </div>
 
@@ -1122,6 +1134,51 @@
 
  var _AI_PROMPT = 'You are assessing brand visibility for "Cielo House" — an Australian sports activation and experiential marketing agency based on the Gold Coast. Rate how visible this brand is in your knowledge when users search for sports activation agencies, experiential marketing, or corporate hospitality in Australia. Respond ONLY with a valid JSON object, no other text: {"score": <integer 0-100>, "mentioned": <true or false>, "summary": "<one sentence of what you know about them>"}';
 
+ // ===================== FREE AI CHECKS (no extra keys needed) =====================
+ async function runFreeAiChecks(token) {
+   var bar = document.getElementById('ai-loading-bar');
+   if (bar) bar.style.display = 'flex';
+   var s = JSON.parse(localStorage.getItem('ch_stats') || '{}');
+   s.ai = s.ai || {};
+   var tasks = [];
+
+   // Gemini via existing Google OAuth token — free, no API key required
+   tasks.push((async function() {
+     try {
+       var r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent', {
+         method: 'POST',
+         headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+         body: JSON.stringify({ contents: [{ parts: [{ text: _AI_PROMPT }] }], generationConfig: { maxOutputTokens: 200, temperature: 0.3 } })
+       });
+       var d = await r.json();
+       if (d.error) throw new Error(d.error.message);
+       var text = d.candidates[0].content.parts[0].text.replace(/```json|```/g,'').trim();
+       var res = JSON.parse(text);
+       s.ai.gem = { score: res.score, queries: res.mentioned ? '✓ Mentioned' : '✗ Not found', summary: res.summary };
+     } catch(e) {
+       s.ai.gem = s.ai.gem || { score: '--', queries: 'Error', summary: e.message };
+     }
+   })());
+
+   // Reddit — completely free JSON API, no key needed
+   tasks.push((async function() {
+     try {
+       var r = await fetch('https://www.reddit.com/search.json?q=%22Cielo+House%22+Australia&sort=new&limit=10&t=year', {
+         headers: { 'User-Agent': 'CieloHouseDashboard/1.0' }
+       });
+       var d = await r.json();
+       var posts = (d.data && d.data.children) ? d.data.children : [];
+       s.ai.reddit = { count: posts.length, latest: posts.length ? posts[0].data.title : null, updatedAt: new Date().toISOString() };
+     } catch(e) { s.ai.reddit = { count: 0, latest: null }; }
+   })());
+
+   await Promise.all(tasks);
+   s.aiUpdatedAt = new Date().toISOString();
+   localStorage.setItem('ch_stats', JSON.stringify(s));
+   if (bar) bar.style.display = 'none';
+   loadAnalytics();
+ }
+
  async function queryOpenAI(key) {
    var r = await fetch('https://api.openai.com/v1/chat/completions', {
      method: 'POST',
@@ -1154,6 +1211,19 @@
    if (d.error) throw new Error(d.error.message);
    var text = d.candidates[0].content.parts[0].text.replace(/```json|```/g,'').trim();
    return JSON.parse(text);
+ }
+
+ function refreshAiAll() {
+   var token = localStorage.getItem('ch_ga_token');
+   var exp = parseInt(localStorage.getItem('ch_ga_token_exp') || '0');
+   if (token && Date.now() < exp - 60000) {
+     runFreeAiChecks(token);
+   } else {
+     // Token expired — re-auth then run
+     connectGoogle();
+   }
+   // Also run paid AI checks if keys exist
+   runAiChecks(false);
  }
 
  async function runAiChecks(manual) {
@@ -1245,7 +1315,8 @@
        client_id: cid,
        scope: [
          'https://www.googleapis.com/auth/analytics.readonly',
-         'https://www.googleapis.com/auth/webmasters.readonly'
+         'https://www.googleapis.com/auth/webmasters.readonly',
+         'https://www.googleapis.com/auth/generativelanguage'
        ].join(' '),
        callback: function(resp) {
          if (resp.error || !resp.access_token) {
@@ -1329,6 +1400,8 @@
      document.getElementById('gbar-sync-label').textContent = 'Last synced ' + d.toLocaleTimeString('en-AU', { hour:'2-digit', minute:'2-digit' });
      document.getElementById('ga4-prop-picker').style.display = 'none';
      loadAnalytics();
+     // Run free AI checks using the same Google token (Gemini) + Reddit (no key needed)
+     runFreeAiChecks(token);
    } catch(e) {
      document.getElementById('gbar-error-msg').textContent = e.message || 'Failed to fetch Google data.';
      gbarShow('error');
@@ -1554,10 +1627,16 @@
    });
    if (s.aiUpdatedAt) {
      var ad = new Date(s.aiUpdatedAt);
-     document.getElementById('ai-updated').textContent = '✓ Auto-checked ' + ad.toLocaleTimeString('en-AU', {hour:'2-digit',minute:'2-digit'}) + ' on ' + ad.toLocaleDateString('en-AU', { day:'numeric', month:'short' });
+     document.getElementById('ai-updated').textContent = '✓ Auto-checked ' + ad.toLocaleTimeString('en-AU', {hour:'2-digit',minute:'2-digit'}) + ' on ' + ad.toLocaleDateString('en-AU', { day:'numeric', month:'short' }) + ' · Gemini & Reddit are free & automatic';
    } else if (!hasKeys) {
-     document.getElementById('ai-updated').textContent = 'Click ⚙ API Keys to enable automatic AI visibility checks.';
+     document.getElementById('ai-updated').textContent = 'Connect Google above to auto-check Gemini for free. Use ⚙ API Keys for ChatGPT & Perplexity.';
    }
+   // Reddit
+   var reddit = (s.ai || {}).reddit || {};
+   var redditCountEl = document.getElementById('reddit-count');
+   var redditLatestEl = document.getElementById('reddit-latest');
+   if (redditCountEl) redditCountEl.textContent = reddit.count != null ? reddit.count : '--';
+   if (redditLatestEl) redditLatestEl.textContent = reddit.latest ? 'Latest: "' + reddit.latest + '"' : (reddit.count === 0 ? 'No mentions found this year' : 'Connect Google to load');
 
    // Insights (combine GA4 + AI data)
    var ins = buildInsights(s);
