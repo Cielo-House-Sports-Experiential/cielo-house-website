@@ -1472,7 +1472,7 @@
    document.getElementById('setup-steps-state').style.display = hasRefresh ? 'none' : 'block';
    if (!hasRefresh) {
      document.getElementById('setup-client-id').value = localStorage.getItem('ch_google_client_id') || '';
-     document.getElementById('setup-client-secret').value = '';
+     document.getElementById('setup-client-secret').value = localStorage.getItem('ch_google_client_secret') || '';
      document.getElementById('setup-cid-error').style.display = 'none';
    }
    document.getElementById('google-setup-modal').style.display = 'block';
@@ -1505,6 +1505,8 @@
    if (!validateSetupForm()) return;
    var cid = document.getElementById('setup-client-id').value.trim();
    var sec = document.getElementById('setup-client-secret').value.trim();
+   // Fall back to previously saved secret if field is blank
+   if (!sec) sec = localStorage.getItem('ch_google_client_secret') || '';
    if (!cid || !sec) { alert('Please enter both your Client ID and Client Secret.'); return; }
    localStorage.setItem('ch_google_client_id', cid);
    localStorage.setItem('ch_google_client_secret', sec);
