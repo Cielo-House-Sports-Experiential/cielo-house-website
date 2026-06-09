@@ -1622,10 +1622,203 @@
      document.getElementById('gbar-sync-label').textContent = 'Last synced ' + new Date().toLocaleTimeString('en-AU', {hour:'2-digit',minute:'2-digit'});
      document.getElementById('ga4-prop-picker').style.display = 'none';
      loadAnalytics();
+     loadGA4RealtimeActivity(token, propId);
      runFreeAiChecks(token);
    } catch(e) {
      showApiError('Google', e);
    }
+ }
+
+ // ── GA4 Realtime: active users + page views last 30 min ──────────────────
+ async function fetchGA4Realtime(token, propId) {
+   var r = await fetch('https://analyticsdata.googleapis.com/v1beta/properties/' + propId + ':runRealtimeReport', {
+     method: 'POST',
+     headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+     body: JSON.stringify({
+       dimensions: [{ name: 'unifiedScreenName' }, { name: 'deviceCategory' }, { name: 'firstUserMedium' }],
+       metrics: [{ name: 'activeUsers' }, { name: 'screenPageViews' }],
+       minuteRanges: [{ name: 'last30min', startMinutesAgo: 29, endMinutesAgo: 0 }]
+     })
+   });
+   var d = await r.json();
+   if (d.error) throw new Error('Realtime: ' + d.error.message);
+   return d;
+ }
+
+ async function fetchGA4PageViews28d(token, propId) {
+   var r = await fetch('https://analyticsdata.googleapis.com/v1beta/properties/' + propId + ':runReport', {
+     method: 'POST',
+     headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+     body: JSON.stringify({
+       dateRanges: [{ startDate: '28daysAgo', endDate: 'today' }],
+       dimensions: [{ name: 'pagePath' }, { name: 'pageTitle' }, { name: 'deviceCategory' }, { name: 'sessionMedium' }],
+       metrics: [{ name: 'screenPageViews' }, { name: 'activeUsers' }, { name: 'averageSessionDuration' }],
+       orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }],
+       limit: 50
+     })
+   });
+   var d = await r.json();
+   if (d.error) throw new Error('PageViews: ' + d.error.message);
+   return d;
+ }
+
+ async function loadGA4RealtimeActivity(token, propId) {
+   try {
+     var [rt, pv28] = await Promise.all([
+       fetchGA4Realtime(token, propId).catch(function(){ return null; }),
+       fetchGA4PageViews28d(token, propId).catch(function(){ return null; })
+     ]);
+     renderGA4Activity(rt, pv28);
+   } catch(e) { /* non-fatal */ }
+ }
+
+ function renderGA4Activity(rt, pv28) {
+   var logEl = document.getElementById('activity-log');
+   var liveEl = document.getElementById('live-now-badge');
+   var liveCountEl = document.getElementById('live-now-count');
+
+   // ── Live now (realtime) ──────────────────────────────────────────────────
+   var liveTotal = 0, liveRows = [];
+   if (rt && rt.rows) {
+     rt.rows.forEach(function(row) {
+       var users = parseInt((row.metricValues[0] || {}).value || '0');
+       liveTotal += users;
+       if (users > 0) liveRows.push({
+         page:   row.dimensionValues[0].value,
+         device: row.dimensionValues[1].value,
+         medium: row.dimensionValues[2].value,
+         users:  users
+       });
+     });
+   }
+   if (liveEl) { liveEl.style.display = liveTotal > 0 ? 'flex' : 'none'; }
+   if (liveCountEl) liveCountEl.textContent = liveTotal;
+
+   // ── Summary stats from 28d report ───────────────────────────────────────
+   var totalPV = 0, totalVisitors = 0, durSum = 0, durCount = 0;
+   var pageMap = {};
+   if (pv28 && pv28.rows) {
+     pv28.rows.forEach(function(row) {
+       var path    = row.dimensionValues[0].value;
+       var pvCount = parseInt(row.metricValues[0].value || '0');
+       var users   = parseInt(row.metricValues[1].value || '0');
+       var dur     = parseFloat(row.metricValues[2].value || '0');
+       totalPV += pvCount;
+       totalVisitors += users;
+       if (dur > 0) { durSum += dur; durCount++; }
+       var label = pageLabel(path);
+       if (!pageMap[label]) pageMap[label] = 0;
+       pageMap[label] += pvCount;
+     });
+   }
+   var el;
+   el = document.getElementById('act-total-sessions');  if(el) el.textContent = totalVisitors > 0 ? totalVisitors.toLocaleString() : '--';
+   el = document.getElementById('act-total-pv');        if(el) el.textContent = totalPV > 0 ? totalPV.toLocaleString() : '--';
+   el = document.getElementById('act-avg-time');        if(el) el.textContent = durCount ? fmtDur(Math.round(durSum / durCount)) : '--';
+   // CTA clicks come from GA4 events (already in ch_stats)
+   var stats = JSON.parse(localStorage.getItem('ch_stats') || '{}');
+   el = document.getElementById('act-total-cta'); if(el) el.textContent = stats.clicks != null ? stats.clicks : '--';
+
+   // ── Top pages bar chart ──────────────────────────────────────────────────
+   var tpEl = document.getElementById('act-top-pages');
+   if (tpEl) {
+     var pages = Object.keys(pageMap).sort(function(a,b){ return pageMap[b]-pageMap[a]; }).slice(0,6);
+     if (!pages.length) { tpEl.innerHTML = '<div class="empty" style="padding:1rem 0;">Connect Google to see top pages.</div>'; }
+     else {
+       var maxV = pageMap[pages[0]] || 1;
+       tpEl.innerHTML = '';
+       pages.forEach(function(p) {
+         var cnt = pageMap[p], pct = Math.round((cnt/maxV)*100);
+         var row = document.createElement('div');
+         row.style.cssText = 'display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem;';
+         row.innerHTML = '<div style="flex:1;min-width:0;">'
+           + '<div style="font-size:0.8rem;font-weight:600;color:#2B317B;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + p + '</div>'
+           + '<div style="height:4px;background:#eef0f8;border-radius:2px;margin-top:3px;"><div style="height:4px;background:#668DC6;border-radius:2px;width:' + pct + '%;transition:width 0.4s;"></div></div>'
+           + '</div><div style="font-size:0.78rem;font-weight:700;color:#2B317B;flex-shrink:0;">' + cnt + '</div>';
+         tpEl.appendChild(row);
+       });
+     }
+   }
+
+   // ── Activity feed: live visitors first, then recent page views ───────────
+   if (!logEl) return;
+   logEl.innerHTML = '';
+
+   // Live visitors block
+   if (liveRows.length > 0) {
+     var liveCard = document.createElement('div');
+     liveCard.style.cssText = 'background:#f0fff4;border:1.5px solid #a3e6c0;border-radius:10px;padding:0.75rem 1rem;margin-bottom:0.25rem;';
+     var liveHtml = '<div style="font-size:0.78rem;font-weight:700;color:#1a7a40;margin-bottom:0.5rem;">🟢 Live right now — ' + liveTotal + ' active visitor' + (liveTotal!==1?'s':'') + '</div>';
+     liveRows.forEach(function(r) {
+       liveHtml += '<div style="display:flex;align-items:center;gap:0.5rem;padding:0.3rem 0;border-top:1px solid #d4f5e2;font-size:0.8rem;color:#333;">'
+         + '<span>' + deviceIcon(r.device) + '</span>'
+         + '<span style="flex:1;font-weight:600;color:#2B317B;">' + pageLabel(r.page) + '</span>'
+         + '<span style="font-size:0.72rem;color:#888;">' + sourceName(r.medium) + '</span>'
+         + (r.users > 1 ? '<span style="font-size:0.72rem;font-weight:700;color:#27ae60;">' + r.users + ' users</span>' : '')
+         + '</div>';
+     });
+     liveCard.innerHTML = liveHtml;
+     logEl.appendChild(liveCard);
+   }
+
+   // Recent page views (last 28 days rows grouped as activity feed)
+   if (pv28 && pv28.rows && pv28.rows.length) {
+     var header = document.createElement('div');
+     header.style.cssText = 'font-size:0.72rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#aaa;margin:0.85rem 0 0.5rem;';
+     header.textContent = 'Top Pages — Last 28 Days';
+     logEl.appendChild(header);
+
+     pv28.rows.slice(0, 20).forEach(function(row) {
+       var path    = row.dimensionValues[0].value;
+       var device  = row.dimensionValues[2].value;
+       var medium  = row.dimensionValues[3].value;
+       var pvCount = parseInt(row.metricValues[0].value || '0');
+       var users   = parseInt(row.metricValues[1].value || '0');
+       var dur     = parseFloat(row.metricValues[2].value || '0');
+       if (path === '/dashboard.html' || path.includes('dashboard')) return; // skip internal
+
+       var card = document.createElement('div');
+       card.style.cssText = 'display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0.75rem;background:#fafbff;border:1px solid #eef0f8;border-radius:8px;margin-bottom:0.35rem;font-size:0.8rem;';
+       card.innerHTML = '<span style="font-size:1rem;">' + deviceIcon(device) + '</span>'
+         + '<span style="flex:1;font-weight:600;color:#2B317B;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + pageLabel(path) + '</span>'
+         + '<span style="font-size:0.72rem;color:#888;flex-shrink:0;">' + sourceName(medium) + '</span>'
+         + '<span style="font-size:0.72rem;font-weight:700;background:#eef1fb;color:#2B317B;border-radius:20px;padding:0.1rem 0.5rem;flex-shrink:0;">' + pvCount + ' views</span>'
+         + (users > 0 ? '<span style="font-size:0.72rem;color:#aaa;flex-shrink:0;">' + users + ' users</span>' : '')
+         + (dur > 0 ? '<span style="font-size:0.72rem;color:#aaa;flex-shrink:0;">' + fmtDur(Math.round(dur)) + '</span>' : '');
+       logEl.appendChild(card);
+     });
+   } else if (liveRows.length === 0) {
+     logEl.innerHTML = '<div class="empty">Connect Google above — data loads automatically from your entire website via GA4.</div>';
+   }
+ }
+
+ function pageLabel(path) {
+   if (!path || path === '(not set)') return 'Unknown page';
+   var map = {
+     '/': 'Home', '/home.html': 'Home', '/index.html': 'Home',
+     '/about.html': 'About', '/services.html': 'Services',
+     '/work.html': 'Work / Portfolio', '/blog.html': 'Blog / Insights',
+     '/contact.html': 'Contact',
+     '/services/experiential-activations.html': 'Experiential Activations',
+     '/services/corporate-hospitality.html': 'Corporate Hospitality',
+     '/services/brand-activations.html': 'Brand Activations',
+     '/services/premium-experiences.html': 'Premium Experiences',
+     '/services/content-creation.html': 'Content Creation'
+   };
+   if (map[path]) return map[path];
+   if (/\/blog\//i.test(path)) return 'Blog: ' + path.split('/').pop().replace(/\.html$/,'').replace(/-/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});
+   if (/\/services\//i.test(path)) return 'Service: ' + path.split('/').pop().replace(/\.html$/,'').replace(/-/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});
+   return path;
+ }
+
+ function sourceName(medium) {
+   if (!medium || medium === '(none)' || medium === '(not set)') return 'Direct';
+   if (/organic/i.test(medium)) return '🔍 Google';
+   if (/social/i.test(medium)) return '📱 Social';
+   if (/email/i.test(medium)) return '✉ Email';
+   if (/referral/i.test(medium)) return '🔗 Referral';
+   if (/cpc|paid/i.test(medium)) return '💰 Paid';
+   return medium;
  }
 
  function showApiError(api, e) {
@@ -1910,10 +2103,16 @@
    renderActivityLog();
  }
 
- function refreshActivityLog() { renderActivityLog(); }
+ function refreshActivityLog() {
+   // Re-fetch from GA4 if connected, else fall back to localStorage
+   var token = _gaToken || localStorage.getItem('ch_ga_token');
+   var propId = localStorage.getItem('ch_ga4_property_id') || _GA4_PROPERTY_ID;
+   if (token) { loadGA4RealtimeActivity(token, propId); }
+   else { renderActivityLog(); }
+ }
 
  function clearActivityLog() {
-   if (!confirm('Clear all visitor activity data?')) return;
+   if (!confirm('Clear local tracking data?')) return;
    localStorage.removeItem('ch_activity_log');
    localStorage.removeItem('ch_heartbeats');
    renderActivityLog();
@@ -1959,9 +2158,9 @@
    }
 
    if (!log.length) {
-     logEl.innerHTML = '<div class="empty">No visitor data yet — tracking starts after visitors accept cookies on your site. <br><small style="color:#bbb;">Tip: visit your own site and accept cookies to see a test entry.</small></div>';
-     ['act-total-sessions','act-total-pv','act-total-cta','act-avg-time'].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent='0'; });
-     var tp = document.getElementById('act-top-pages'); if(tp) tp.innerHTML='<div class="empty" style="padding:1rem 0;">No data yet.</div>';
+     logEl.innerHTML = '<div class="empty">Connect Google above — visitor data loads automatically from your entire website via Google Analytics.</div>';
+     ['act-total-sessions','act-total-pv','act-total-cta','act-avg-time'].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent='--'; });
+     var tp = document.getElementById('act-top-pages'); if(tp) tp.innerHTML='<div class="empty" style="padding:1rem 0;">Connect Google to see top pages.</div>';
      return;
    }
 
