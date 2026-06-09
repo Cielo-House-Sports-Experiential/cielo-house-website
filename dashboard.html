@@ -244,7 +244,27 @@
  <h1 class="page-title" style="margin-bottom:0;">Analytics</h1>
  <button class="btn btn-primary" onclick="openModal()" style="font-size:0.78rem;padding:0.5rem 1.1rem;">+ Update Stats</button>
  </div>
- <p class="page-sub" id="analytics-sub">Enter your latest stats from Wix, Google Search Console and AI platforms.</p>
+ <p class="page-sub" id="analytics-sub">Live tracking is active — view real-time data in Google Analytics 4 or manually update stats below.</p>
+ <!-- GA4 Quick Links -->
+ <div style="display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;" id="ga4-links">
+   <a href="https://analytics.google.com/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:0.45rem;background:#fff;border:1.5px solid #e0e4ef;border-radius:8px;padding:0.5rem 1rem;font-size:0.8rem;font-weight:600;color:#2B317B;text-decoration:none;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 4-8"/></svg>
+     Open Google Analytics 4
+   </a>
+   <a href="https://search.google.com/search-console" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:0.45rem;background:#fff;border:1.5px solid #e0e4ef;border-radius:8px;padding:0.5rem 1rem;font-size:0.8rem;font-weight:600;color:#2B317B;text-decoration:none;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+     Google Search Console
+   </a>
+   <span id="ga4-status-badge" style="display:inline-flex;align-items:center;gap:0.4rem;background:#fff7e6;border:1.5px solid #f5a623;border-radius:8px;padding:0.5rem 1rem;font-size:0.78rem;font-weight:600;color:#b07000;">
+     ⚠ GA4 setup needed — see instructions below
+   </span>
+ </div>
+ <div id="ga4-setup-notice" style="background:#f0f4ff;border:1.5px solid #c7d0f7;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:0.82rem;color:#2B317B;line-height:1.7;">
+   <strong>📊 One-time setup to activate live analytics:</strong><br>
+   1. Go to <a href="https://analytics.google.com/" target="_blank" style="color:#2B317B;font-weight:600;">analytics.google.com</a> → Create account → Property: <strong>Cielo House</strong> → get your <strong>Measurement ID</strong> (looks like <code>G-AB12CD34EF</code>)<br>
+   2. Share the Measurement ID and we'll activate it in under 2 minutes — tracking will go live for all visitors immediately.
+   <button onclick="document.getElementById('ga4-setup-notice').style.display='none';localStorage.setItem('ga4_notice_dismissed','1');" style="float:right;background:none;border:none;cursor:pointer;color:#2B317B;font-size:1.1rem;margin-top:-0.2rem;" title="Dismiss">✕</button>
+ </div>
  <div class="metrics">
  <div class="metric"><div class="metric__label">Site Sessions</div><div class="metric__row"><div class="metric__value" id="m-sessions">--</div><span id="m-sessions-trend"></span></div><div class="metric__sub">Last 30 days</div></div>
  <div class="metric"><div class="metric__label">Unique Visitors</div><div class="metric__row"><div class="metric__value" id="m-visitors">--</div><span id="m-visitors-trend"></span></div><div class="metric__sub">Last 30 days</div></div>
@@ -995,7 +1015,7 @@
  document.getElementById('m-visitors-trend').innerHTML = trend(s.visitorsPct);
  document.getElementById('m-clicks').textContent = (s.clicks !== undefined && s.clicks !== '') ? s.clicks : '--';
  document.getElementById('m-forms').textContent = (s.forms !== undefined && s.forms !== '') ? s.forms : '--';
- if (s.updatedAt) { var d = new Date(s.updatedAt); document.getElementById('analytics-sub').textContent = 'Last updated: ' + d.toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' }); }
+ if (s.updatedAt) { var d = new Date(s.updatedAt); document.getElementById('analytics-sub').textContent = 'Live tracking active · Stats manually updated: ' + d.toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' }); }
  if (s.googlePeriod) document.getElementById('google-period').textContent = 'Stats for ' + s.googlePeriod;
  for (var i = 1; i <= 3; i++) {
  var q = s['gq' + i] || {};
@@ -1045,6 +1065,16 @@
  }
 
  loadAnalytics();
+
+ // GA4 setup notice dismissal
+ (function() {
+   if (localStorage.getItem('ga4_notice_dismissed') === '1') {
+     var el = document.getElementById('ga4-setup-notice');
+     if (el) el.style.display = 'none';
+   }
+   // If updatedAt is set in stats, they've been manually updating — keep showing GA4 links
+   // Once user shares GA4 ID we'll remove the warning badge and update the status
+ })();
 
  // Blog posts seed from live website data if never set
  (function seedBlogPosts() {

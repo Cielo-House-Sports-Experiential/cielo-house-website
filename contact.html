@@ -62,6 +62,14 @@
    }
  }
  </script>
+  <!-- Google Analytics 4 — replace G-XXXXXXXXXX with your Measurement ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag("js", new Date());
+    gtag("config", "G-XXXXXXXXXX");
+  </script>
 </head>
 <body>
 
@@ -84,7 +92,7 @@
  <li><a href="blog.html" class="nav__link">Insights</a></li>
  <li><a href="contact.html" class="nav__link">Contact</a></li>
  </ul>
- <div class="nav__cta"><a href="https://bookings.cloud.microsoft/bookwithme/user/09c4fcda6e43449fbb5fa48dacc5b8df%40cielohouse.com.au/meetingtype/SBPjwa8KpUm0AltusmmcvA2?anonymous&ismsaljsauthenabled" target="_blank" rel="noopener noreferrer" class="btn btn--primary">Schedule a Briefing Call</a></div>
+ <div class="nav__cta"><a href="https://bookings.cloud.microsoft/bookwithme/user/09c4fcda6e43449fbb5fa48dacc5b8df%40cielohouse.com.au/meetingtype/SBPjwa8KpUm0AltusmmcvA2?anonymous&ismsaljsauthenabled" onclick="if(typeof gtag!=='undefined')gtag('event','schedule_call',{event_category:'CTA',event_label:document.title});" target="_blank" rel="noopener noreferrer" class="btn btn--primary">Schedule a Briefing Call</a></div>
  <button class="nav__hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
  </div>
  </nav>
@@ -96,7 +104,7 @@
  <a href="blog.html" class="nav__mobile-link">Insights</a>
  <a href="contact.html" class="nav__mobile-link">Contact</a>
  </nav>
- <a href="https://bookings.cloud.microsoft/bookwithme/user/09c4fcda6e43449fbb5fa48dacc5b8df%40cielohouse.com.au/meetingtype/SBPjwa8KpUm0AltusmmcvA2?anonymous&ismsaljsauthenabled" target="_blank" rel="noopener noreferrer" class="btn btn--primary btn--lg" style="margin-top:2.5rem;">Schedule a Briefing Call</a>
+ <a href="https://bookings.cloud.microsoft/bookwithme/user/09c4fcda6e43449fbb5fa48dacc5b8df%40cielohouse.com.au/meetingtype/SBPjwa8KpUm0AltusmmcvA2?anonymous&ismsaljsauthenabled" onclick="if(typeof gtag!=='undefined')gtag('event','schedule_call',{event_category:'CTA',event_label:document.title});" target="_blank" rel="noopener noreferrer" class="btn btn--primary btn--lg" style="margin-top:2.5rem;">Schedule a Briefing Call</a>
  </div>
 
  <main>
@@ -125,7 +133,7 @@
     <h2 style="font-family:'Bebas Neue',sans-serif; font-size:clamp(2.5rem,5vw,4rem); color:#2B317B; letter-spacing:0.04em; line-height:1; margin-bottom:1.25rem;">Book a Free Discovery Call</h2>
     <p style="font-size:1rem; color:rgba(43,49,123,0.65); line-height:1.75; max-width:520px; margin:0 auto 2.5rem;">Choose a time that works for you. The first conversation is a brief discussion, not a sales call. You will leave knowing whether Cielo House is the right fit and exactly what delivery will take.</p>
     <a
-     href="https://bookings.cloud.microsoft/bookwithme/user/09c4fcda6e43449fbb5fa48dacc5b8df%40cielohouse.com.au/meetingtype/SBPjwa8KpUm0AltusmmcvA2?anonymous&ismsaljsauthenabled"
+     href="https://bookings.cloud.microsoft/bookwithme/user/09c4fcda6e43449fbb5fa48dacc5b8df%40cielohouse.com.au/meetingtype/SBPjwa8KpUm0AltusmmcvA2?anonymous&ismsaljsauthenabled" onclick="if(typeof gtag!=='undefined')gtag('event','schedule_call',{event_category:'CTA',event_label:document.title});"
      target="_blank"
      rel="noopener noreferrer"
      style="display:inline-flex; align-items:center; gap:0.65rem; background:#2B317B; color:#ffffff; font-family:'Poppins',sans-serif; font-size:0.82rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; text-decoration:none; padding:1.1rem 2.25rem; border-radius:6px; box-shadow:0 8px 32px rgba(43,49,123,0.28); transition:background 0.2s, transform 0.2s, box-shadow 0.2s;"

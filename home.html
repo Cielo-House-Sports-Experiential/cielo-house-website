@@ -41,6 +41,14 @@
  "sameAs": ["https://www.instagram.com/cielohouse_/", "https://www.linkedin.com/company/cielohouse"]
  }
  </script>
+  <!-- Google Analytics 4 — replace G-XXXXXXXXXX with your Measurement ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag("js", new Date());
+    gtag("config", "G-XXXXXXXXXX");
+  </script>
 </head>
 <body>
 
@@ -64,7 +72,7 @@
  <li><a href="blog.html" class="nav__link">Insights</a></li>
  <li><a href="contact.html" class="nav__link">Contact</a></li>
  </ul>
- <div class="nav__cta"><a href="https://bookings.cloud.microsoft/bookwithme/user/09c4fcda6e43449fbb5fa48dacc5b8df%40cielohouse.com.au/meetingtype/SBPjwa8KpUm0AltusmmcvA2?anonymous&ismsaljsauthenabled" target="_blank" rel="noopener noreferrer" class="btn btn--primary">Schedule a Briefing Call</a></div>
+ <div class="nav__cta"><a href="https://bookings.cloud.microsoft/bookwithme/user/09c4fcda6e43449fbb5fa48dacc5b8df%40cielohouse.com.au/meetingtype/SBPjwa8KpUm0AltusmmcvA2?anonymous&ismsaljsauthenabled" onclick="if(typeof gtag!=='undefined')gtag('event','schedule_call',{event_category:'CTA',event_label:document.title});" target="_blank" rel="noopener noreferrer" class="btn btn--primary">Schedule a Briefing Call</a></div>
  <button class="nav__hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
  </div>
  </nav>
@@ -76,7 +84,7 @@
  <a href="blog.html" class="nav__mobile-link">Insights</a>
  <a href="contact.html" class="nav__mobile-link">Contact</a>
  </nav>
- <a href="https://bookings.cloud.microsoft/bookwithme/user/09c4fcda6e43449fbb5fa48dacc5b8df%40cielohouse.com.au/meetingtype/SBPjwa8KpUm0AltusmmcvA2?anonymous&ismsaljsauthenabled" target="_blank" rel="noopener noreferrer" class="btn btn--primary btn--lg" style="margin-top:2.5rem;">Schedule a Briefing Call</a>
+ <a href="https://bookings.cloud.microsoft/bookwithme/user/09c4fcda6e43449fbb5fa48dacc5b8df%40cielohouse.com.au/meetingtype/SBPjwa8KpUm0AltusmmcvA2?anonymous&ismsaljsauthenabled" onclick="if(typeof gtag!=='undefined')gtag('event','schedule_call',{event_category:'CTA',event_label:document.title});" target="_blank" rel="noopener noreferrer" class="btn btn--primary btn--lg" style="margin-top:2.5rem;">Schedule a Briefing Call</a>
  </div>
 
  <main>
@@ -139,7 +147,7 @@
  <h2 class="cta-section__title" data-animate>Ready to Activate Your Brand<br>at the <em style="font-style:italic">Next Big Sport Event?</em></h2>
  <p class="cta-section__text" data-animate data-animate-delay="1">Cielo House works with brands committed to sport. The process starts with a brief bring the event, the budget bracket, and the outcome you are after.</p>
  <div class="cta-section__btns" data-animate data-animate-delay="2">
- <a href="https://bookings.cloud.microsoft/bookwithme/user/09c4fcda6e43449fbb5fa48dacc5b8df%40cielohouse.com.au/meetingtype/SBPjwa8KpUm0AltusmmcvA2?anonymous&ismsaljsauthenabled" target="_blank" rel="noopener noreferrer" class="btn btn--primary btn--lg">Schedule a Briefing Call <svg class="btn__arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+ <a href="https://bookings.cloud.microsoft/bookwithme/user/09c4fcda6e43449fbb5fa48dacc5b8df%40cielohouse.com.au/meetingtype/SBPjwa8KpUm0AltusmmcvA2?anonymous&ismsaljsauthenabled" onclick="if(typeof gtag!=='undefined')gtag('event','schedule_call',{event_category:'CTA',event_label:document.title});" target="_blank" rel="noopener noreferrer" class="btn btn--primary btn--lg">Schedule a Briefing Call <svg class="btn__arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
  <a href="about.html" class="btn btn--secondary btn--lg">See How We Work</a>
  </div>
  </div>
