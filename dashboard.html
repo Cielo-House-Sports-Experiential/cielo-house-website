@@ -1101,8 +1101,10 @@
  // ===================== GOOGLE OAUTH + DATA =====================
  var _gaToken = null;
  var _gaTokenExp = 0;
- var _gaPropertyId = localStorage.getItem('ch_ga4_property_id') || '';
+ var _GA4_PROPERTY_ID = '503602227'; // Cielo House GA4 Property ID
  var _gaProperties = [];
+ // Pre-set property ID so user never needs to enter it manually
+ if (!localStorage.getItem('ch_ga4_property_id')) localStorage.setItem('ch_ga4_property_id', _GA4_PROPERTY_ID);
 
  function gbarShow(state) {
    ['gbar-setup','gbar-connected','gbar-loading','gbar-error'].forEach(function(id) {
