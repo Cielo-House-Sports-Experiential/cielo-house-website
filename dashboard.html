@@ -1097,30 +1097,44 @@
 
  <!-- Google Setup modal -->
  <div class="modal-overlay" id="google-setup-modal" onclick="if(event.target===this)closeGoogleSetup()">
- <div class="modal-box" style="max-width:540px;">
- <button class="modal-close" onclick="closeGoogleSetup()">&#215;</button>
- <div class="modal-title">Connect Google Analytics</div>
- <p class="modal-sub">One-time setup. Follow these steps to get your OAuth Client ID — it takes about 5 minutes.</p>
- <div style="background:#f0f4ff;border-radius:8px;padding:1rem 1.1rem;margin-bottom:1.25rem;font-size:0.81rem;line-height:1.8;color:#2B317B;">
-   <strong>Step 1</strong> — Go to <a href="https://console.cloud.google.com/" target="_blank" rel="noopener" style="color:#2B317B;font-weight:700;">Google Cloud Console ↗</a><br>
-   <strong>Step 2</strong> — Create a new project (name it "Cielo House Dashboard")<br>
-   <strong>Step 3</strong> — Go to <strong>APIs & Services → Library</strong> → Enable:<br>
-   &nbsp;&nbsp;• <em>Google Analytics Data API</em><br>
-   &nbsp;&nbsp;• <em>Google Search Console API</em><br>
-   <strong>Step 4</strong> — Go to <strong>APIs & Services → Credentials → Create Credentials → OAuth 2.0 Client ID</strong><br>
-   &nbsp;&nbsp;• Application type: <strong>Web application</strong><br>
-   &nbsp;&nbsp;• Authorized JavaScript origins: <code>https://www.cielohouse.com.au</code><br>
-   <strong>Step 5</strong> — Copy the <strong>Client ID</strong> and paste below
- </div>
- <div class="form-group" style="margin-bottom:1rem;">
-   <label class="form-label">Google OAuth Client ID</label>
-   <input class="form-input" id="setup-client-id" placeholder="xxxxxxxxxxxx-xxxxxxxx.apps.googleusercontent.com" />
- </div>
- <div style="font-size:0.78rem;color:#999;margin-bottom:1.25rem;">Your GA4 Property will be detected automatically after you connect.</div>
- <div style="display:flex;gap:0.75rem;">
-   <button class="btn btn-primary" onclick="saveGoogleSetup()" style="flex:1;">Save &amp; Connect Google</button>
-   <button class="btn btn-secondary btn-sm" onclick="closeGoogleSetup()">Cancel</button>
- </div>
+ <div class="modal-box" style="max-width:580px;">
+   <button class="modal-close" onclick="closeGoogleSetup()">&#215;</button>
+   <div class="modal-title">Connect Google Analytics</div>
+   <p class="modal-sub">One-time setup — takes about 5 minutes in Google Cloud Console.</p>
+
+   <!-- Current saved ID (debug) -->
+   <div id="setup-current-id-row" style="display:none;background:#fff7e6;border:1.5px solid #f5a623;border-radius:8px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.8rem;color:#7a5000;">
+     <strong>⚠ Currently saved Client ID:</strong><br>
+     <code id="setup-current-id-val" style="font-size:0.75rem;word-break:break-all;color:#555;"></code><br>
+     <span style="font-size:0.72rem;color:#999;margin-top:0.25rem;display:block;">If this looks wrong, clear it and re-enter the correct one below.</span>
+     <button onclick="clearSavedClientId()" style="margin-top:0.5rem;background:#e74c3c;color:#fff;border:none;border-radius:5px;padding:0.3rem 0.75rem;font-size:0.75rem;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;">✕ Clear &amp; Re-enter</button>
+   </div>
+
+   <!-- Steps -->
+   <div style="background:#f0f4ff;border-radius:8px;padding:1rem 1.1rem;margin-bottom:1.25rem;font-size:0.81rem;line-height:2;color:#2B317B;">
+     <strong>Step 1</strong> — Open <a href="https://console.cloud.google.com/apis/credentials?project=79629460838" target="_blank" rel="noopener" style="color:#2B317B;font-weight:700;">Google Cloud Credentials ↗</a> (your existing project)<br>
+     <strong>Step 2</strong> — Click your <strong>OAuth 2.0 Client ID</strong> to open it<br>
+     <strong>Step 3</strong> — Under <strong>Authorized JavaScript origins</strong> make sure BOTH are listed:<br>
+     &nbsp;&nbsp;• <code style="background:#e8eeff;padding:0 4px;border-radius:3px;">https://www.cielohouse.com.au</code><br>
+     &nbsp;&nbsp;• <code style="background:#e8eeff;padding:0 4px;border-radius:3px;">https://cielohouse.com.au</code><br>
+     <strong>Step 4</strong> — Click <strong>Save</strong>, then copy the <strong>Client ID</strong> (ends in <code>.apps.googleusercontent.com</code>)<br>
+     <strong>Step 5</strong> — Paste it below and click Connect
+   </div>
+
+   <!-- Input -->
+   <div class="form-group" style="margin-bottom:0.5rem;">
+     <label class="form-label">Google OAuth Client ID</label>
+     <input class="form-input" id="setup-client-id" placeholder="123456789-abcdefg.apps.googleusercontent.com" oninput="validateClientId()" />
+   </div>
+   <div id="setup-cid-error" style="display:none;font-size:0.75rem;color:#c0392b;margin-bottom:0.75rem;"></div>
+   <div style="font-size:0.75rem;color:#999;margin-bottom:1.25rem;">
+     ⚠ The Client ID must end in <strong>.apps.googleusercontent.com</strong> — do not paste the Client Secret or Project ID.
+   </div>
+
+   <div style="display:flex;gap:0.75rem;">
+     <button class="btn btn-primary" id="setup-save-btn" onclick="saveGoogleSetup()" style="flex:1;">Save &amp; Connect Google</button>
+     <button class="btn btn-secondary btn-sm" onclick="closeGoogleSetup()">Cancel</button>
+   </div>
  </div>
  </div>
 
@@ -1415,14 +1429,52 @@
  // ===================== GOOGLE SETUP MODAL =====================
  function showGoogleSetup() {
    var existing = localStorage.getItem('ch_google_client_id') || '';
-   document.getElementById('setup-client-id').value = existing;
+   var row = document.getElementById('setup-current-id-row');
+   var val = document.getElementById('setup-current-id-val');
+   if (existing) {
+     val.textContent = existing;
+     row.style.display = 'block';
+     document.getElementById('setup-client-id').value = '';
+   } else {
+     row.style.display = 'none';
+     document.getElementById('setup-client-id').value = '';
+   }
+   document.getElementById('setup-cid-error').style.display = 'none';
    document.getElementById('google-setup-modal').style.display = 'block';
  }
+
+ function clearSavedClientId() {
+   localStorage.removeItem('ch_google_client_id');
+   localStorage.removeItem('ch_ga_token');
+   localStorage.removeItem('ch_ga_token_exp');
+   document.getElementById('setup-current-id-row').style.display = 'none';
+   document.getElementById('setup-client-id').value = '';
+   document.getElementById('setup-client-id').focus();
+ }
+
+ function validateClientId() {
+   var cid = document.getElementById('setup-client-id').value.trim();
+   var errEl = document.getElementById('setup-cid-error');
+   var btn = document.getElementById('setup-save-btn');
+   if (!cid) { errEl.style.display = 'none'; btn.disabled = false; return true; }
+   if (!cid.endsWith('.apps.googleusercontent.com')) {
+     errEl.textContent = '✕ This doesn\'t look like a valid Client ID. It must end in .apps.googleusercontent.com';
+     errEl.style.display = 'block';
+     btn.disabled = true; return false;
+   }
+   errEl.style.display = 'none'; btn.disabled = false; return true;
+ }
+
  function closeGoogleSetup() { document.getElementById('google-setup-modal').style.display = 'none'; }
 
  function saveGoogleSetup() {
    var cid = document.getElementById('setup-client-id').value.trim();
+   if (!cid) {
+     // If input is empty but there's already a saved ID, just reconnect with that
+     cid = localStorage.getItem('ch_google_client_id') || '';
+   }
    if (!cid) { alert('Please enter your Google OAuth Client ID.'); return; }
+   if (!validateClientId() && document.getElementById('setup-client-id').value.trim()) return;
    localStorage.setItem('ch_google_client_id', cid);
    closeGoogleSetup();
    connectGoogle();
