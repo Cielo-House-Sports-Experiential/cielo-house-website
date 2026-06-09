@@ -1445,31 +1445,83 @@
    if (target) target.style.display = 'flex';
  }
 
+ var _silentRefreshTimer = null;
+
+ function _getScopes() {
+   return [
+     'https://www.googleapis.com/auth/analytics.readonly',
+     'https://www.googleapis.com/auth/webmasters.readonly',
+     'https://www.googleapis.com/auth/generativelanguage'
+   ].join(' ');
+ }
+
+ function _storeToken(resp) {
+   _gaToken = resp.access_token;
+   _gaTokenExp = Date.now() + (resp.expires_in * 1000);
+   localStorage.setItem('ch_ga_token', _gaToken);
+   localStorage.setItem('ch_ga_token_exp', String(_gaTokenExp));
+ }
+
+ // Schedules a silent token refresh 5 min before expiry
+ function scheduleTokenRefresh(expiresInMs) {
+   if (_silentRefreshTimer) clearTimeout(_silentRefreshTimer);
+   var delay = Math.max(expiresInMs - 5 * 60 * 1000, 60 * 1000); // refresh 5 min early, min 1 min
+   _silentRefreshTimer = setTimeout(function() { silentRefreshToken(); }, delay);
+ }
+
+ // Silently refreshes the token — no popup, no interruption
+ function silentRefreshToken(onSuccess, onFail) {
+   var cid = localStorage.getItem('ch_google_client_id');
+   if (!cid) { if (onFail) onFail(); return; }
+   if (typeof google === 'undefined' || !google.accounts) {
+     setTimeout(function(){ silentRefreshToken(onSuccess, onFail); }, 800); return;
+   }
+   try {
+     var client = google.accounts.oauth2.initTokenClient({
+       client_id: cid,
+       scope: _getScopes(),
+       prompt: '',  // silent — no popup, uses existing Google session
+       callback: function(resp) {
+         if (resp.error || !resp.access_token) {
+           // Silent refresh failed (e.g. session expired) — only then show reconnect
+           if (onFail) onFail();
+           else { document.getElementById('gbar-error-msg').innerHTML = 'Session expired — please reconnect.'; gbarShow('error'); }
+           return;
+         }
+         _storeToken(resp);
+         scheduleTokenRefresh(resp.expires_in * 1000);
+         if (onSuccess) onSuccess();
+         else {
+           // Background refresh — update label silently, no full re-sync
+           var lbl = document.getElementById('gbar-sync-label');
+           if (lbl) lbl.textContent = 'Token refreshed at ' + new Date().toLocaleTimeString('en-AU', {hour:'2-digit',minute:'2-digit'});
+         }
+       }
+     });
+     client.requestAccessToken();
+   } catch(e) {
+     if (onFail) onFail();
+   }
+ }
+
  function connectGoogle() {
    var cid = localStorage.getItem('ch_google_client_id');
    if (!cid) { showGoogleSetup(); return; }
    if (typeof google === 'undefined' || !google.accounts) {
-     // GSI not loaded yet, wait and retry
      setTimeout(connectGoogle, 800); return;
    }
    gbarShow('loading');
    try {
      var client = google.accounts.oauth2.initTokenClient({
        client_id: cid,
-       scope: [
-         'https://www.googleapis.com/auth/analytics.readonly',
-         'https://www.googleapis.com/auth/webmasters.readonly',
-         'https://www.googleapis.com/auth/generativelanguage'
-       ].join(' '),
+       scope: _getScopes(),
        callback: function(resp) {
          if (resp.error || !resp.access_token) {
            document.getElementById('gbar-error-msg').innerHTML = 'Google sign-in failed: ' + (resp.error || 'unknown error');
            gbarShow('error'); return;
          }
-         _gaToken = resp.access_token;
-         _gaTokenExp = Date.now() + (resp.expires_in * 1000);
-         localStorage.setItem('ch_ga_token', _gaToken);
-         localStorage.setItem('ch_ga_token_exp', _gaTokenExp);
+         _storeToken(resp);
+         scheduleTokenRefresh(resp.expires_in * 1000);
          syncGoogleData(false);
        }
      });
@@ -1493,7 +1545,14 @@
  async function syncGoogleData(manual) {
    var token = _gaToken || localStorage.getItem('ch_ga_token');
    var exp = _gaTokenExp || parseInt(localStorage.getItem('ch_ga_token_exp') || '0');
-   if (!token || Date.now() > exp - 60000) { connectGoogle(); return; }
+   // Token missing or expired — try silent refresh first, fall back to full reconnect
+   if (!token || Date.now() > exp - 60000) {
+     silentRefreshToken(
+       function() { syncGoogleData(manual); },   // on success: retry sync
+       function() { connectGoogle(); }            // on fail: show connect popup
+     );
+     return;
+   }
    _gaToken = token; _gaTokenExp = exp;
    gbarShow('loading');
    var propId = localStorage.getItem('ch_ga4_property_id') || _GA4_PROPERTY_ID;
@@ -1994,10 +2053,21 @@
      var notice = document.getElementById('api-enable-notice');
      if (notice) notice.style.display = 'block';
    }
-   if (token && Date.now() < exp - 60000) {
+   if (token) {
      gbarShow('connected');
-     document.getElementById('gbar-sync-label').textContent = 'Syncing…';
-     syncGoogleData(false);
+     if (Date.now() < exp - 60000) {
+       // Token still valid — sync immediately and schedule next refresh
+       document.getElementById('gbar-sync-label').textContent = 'Syncing…';
+       scheduleTokenRefresh(exp - Date.now());
+       syncGoogleData(false);
+     } else {
+       // Token expired — silent refresh first (no popup)
+       document.getElementById('gbar-sync-label').textContent = 'Refreshing token…';
+       silentRefreshToken(
+         function() { syncGoogleData(false); },
+         function() { gbarShow('setup'); }
+       );
+     }
    } else {
      gbarShow('setup');
    }
@@ -2007,11 +2077,7 @@
  document.querySelectorAll('.nav-btn[data-panel]').forEach(function(btn) {
    btn.addEventListener('click', function() {
      if (btn.getAttribute('data-panel') === 'analytics') {
-       var token = localStorage.getItem('ch_ga_token');
-       var exp = parseInt(localStorage.getItem('ch_ga_token_exp') || '0');
-       if (token && Date.now() < exp - 60000) {
-         syncGoogleData(false);
-       }
+       syncGoogleData(false); // syncGoogleData handles token check + silent refresh internally
      }
    });
  });
