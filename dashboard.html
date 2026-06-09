@@ -1178,7 +1178,13 @@
        </div>
      </div>
      <div id="setup-cid-error" style="display:none;font-size:0.75rem;color:#c0392b;margin-bottom:0.75rem;"></div>
-     <div style="font-size:0.74rem;color:#aaa;margin-bottom:1.25rem;">Both are stored only in your browser. Never shared with anyone.</div>
+     <div style="background:#fff7e6;border:1.5px solid #f5a623;border-radius:8px;padding:0.65rem 0.9rem;margin-bottom:1rem;font-size:0.78rem;color:#7a5000;line-height:1.7;">
+       <strong>Important — do this once or tokens will expire every 7 days:</strong><br>
+       Go to <a href="https://console.cloud.google.com/apis/credentials/consent?project=79629460838" target="_blank" style="color:#7a5000;font-weight:700;">OAuth consent screen</a>
+       → set <strong>Publishing status</strong> to <strong>Production</strong> → Save.<br>
+       This makes the connection permanent. No verification required for internal use.
+     </div>
+     <div style="font-size:0.74rem;color:#aaa;margin-bottom:1.25rem;">Credentials stored only in your browser. Never shared.</div>
 
      <div style="display:flex;gap:0.75rem;">
        <button class="btn btn-primary" id="setup-save-btn" onclick="saveGoogleSetup()" style="flex:1;">Connect Google Forever →</button>
@@ -1535,7 +1541,21 @@
        body: new URLSearchParams({ grant_type:'refresh_token', refresh_token:rt, client_id:cid, client_secret:sec })
      });
      var d = await r.json();
-     if (!d.access_token) return null;
+     if (!d.access_token) {
+       // invalid_grant = refresh token was revoked or app is in Testing mode (7-day expiry)
+       if (d.error === 'invalid_grant') {
+         localStorage.removeItem('ch_ga_refresh_token');
+         localStorage.removeItem('ch_ga_token');
+         localStorage.removeItem('ch_ga_token_exp');
+         document.getElementById('gbar-error-msg').innerHTML =
+           'Session expired — click <strong>Reconnect</strong> to sign in once more. '
+           + '<small style="display:block;margin-top:0.3rem;color:#999;">If this keeps happening, go to '
+           + '<a href="https://console.cloud.google.com/apis/credentials/consent?project=79629460838" target="_blank" style="color:#c0392b;">OAuth consent screen</a>'
+           + ' and set Publishing status to <strong>Production</strong>.</small>';
+         gbarShow('error');
+       }
+       return null;
+     }
      _gaToken = d.access_token;
      _gaTokenExp = Date.now() + ((d.expires_in || 3600) * 1000);
      localStorage.setItem('ch_ga_token', _gaToken);
@@ -1558,7 +1578,7 @@
    }, delay);
  }
 
- // ── First-time connect (shows popup ONCE to get auth code + refresh token) ──
+ // ── First-time connect — popup ONCE, stores permanent refresh token ──
  function connectGoogle() {
    var cid = localStorage.getItem('ch_google_client_id');
    var sec = localStorage.getItem('ch_google_client_secret');
@@ -1570,12 +1590,13 @@
        client_id: cid,
        scope: _getScopes(),
        ux_mode: 'popup',
+       access_type: 'offline',   // ← REQUIRED: tells Google to issue a refresh token
+       prompt: 'consent',        // ← REQUIRED: forces Google to return refresh_token even if previously authorized
        callback: async function(resp) {
          if (resp.error || !resp.code) {
-           document.getElementById('gbar-error-msg').innerHTML = 'Sign-in failed: ' + (resp.error || 'no code returned');
+           document.getElementById('gbar-error-msg').innerHTML = 'Sign-in cancelled or failed: ' + (resp.error || 'no code returned');
            gbarShow('error'); return;
          }
-         // Exchange auth code for access + refresh tokens
          try {
            var r = await fetch('https://oauth2.googleapis.com/token', {
              method: 'POST',
@@ -1591,7 +1612,13 @@
            _gaTokenExp = Date.now() + ((d.expires_in || 3600) * 1000);
            localStorage.setItem('ch_ga_token', _gaToken);
            localStorage.setItem('ch_ga_token_exp', String(_gaTokenExp));
-           if (d.refresh_token) localStorage.setItem('ch_ga_refresh_token', d.refresh_token);
+           if (d.refresh_token) {
+             localStorage.setItem('ch_ga_refresh_token', d.refresh_token);
+           } else {
+             // Should not happen with access_type=offline + prompt=consent
+             document.getElementById('gbar-error-msg').innerHTML = 'Connected but no refresh token received. Make sure your OAuth app is Published (not Testing) in Google Cloud Console OAuth consent screen, then reconnect.';
+             gbarShow('error'); return;
+           }
            scheduleTokenRefresh((d.expires_in || 3600) * 1000);
            syncGoogleData(false);
          } catch(e) {
