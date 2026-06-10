@@ -291,7 +291,7 @@
    <div id="gbar-setup" style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;width:100%;background:#f0f4ff;border:1.5px solid #c7d0f7;border-radius:10px;padding:0.85rem 1.1rem;">
      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
      <span style="color:#2B317B;flex:1;">Connect your Google account to pull live Sessions, Visitors, Clicks and Search Console data automatically.</span>
-     <button class="btn btn-primary" onclick="connectGoogle()" style="font-size:0.8rem;padding:0.5rem 1.1rem;">Connect Google Account</button>
+     <button class="btn btn-primary" onclick="localStorage.getItem('ch_google_client_id') ? connectGoogle() : showGoogleSetup()" style="font-size:0.8rem;padding:0.5rem 1.1rem;">Connect Google Account</button>
    </div>
    <!-- State: connected -->
    <div id="gbar-connected" style="display:none;align-items:center;gap:0.75rem;flex-wrap:wrap;width:100%;background:#f0fff4;border:1.5px solid #a3e6c0;border-radius:10px;padding:0.75rem 1.1rem;">
@@ -1546,18 +1546,15 @@
      });
      var d = await r.json();
      if (!d.access_token) {
-       // invalid_grant = refresh token was revoked or app is in Testing mode (7-day expiry)
-       if (d.error === 'invalid_grant') {
-         localStorage.removeItem('ch_ga_refresh_token');
-         localStorage.removeItem('ch_ga_token');
-         localStorage.removeItem('ch_ga_token_exp');
-         document.getElementById('gbar-error-msg').innerHTML =
-           'Session expired — click <strong>Reconnect</strong> to sign in once more. '
-           + '<small style="display:block;margin-top:0.3rem;color:#999;">If this keeps happening, go to '
-           + '<a href="https://console.cloud.google.com/apis/credentials/consent?project=79629460838" target="_blank" style="color:#c0392b;">OAuth consent screen</a>'
-           + ' and set Publishing status to <strong>Production</strong>.</small>';
-         gbarShow('error');
-       }
+       // Don't delete the refresh token — just show reconnect button
+       // invalid_grant means token expired (Testing mode = 7-day expiry) or revoked
+       var errMsg = d.error === 'invalid_grant'
+         ? 'Google session expired — click <strong>Reconnect</strong> to restore. '
+           + '<small style="display:block;margin-top:0.25rem;opacity:0.7;">To avoid this permanently, '
+           + '<a href="https://console.cloud.google.com/apis/credentials/consent?project=79629460838" target="_blank" style="color:#c0392b;text-decoration:underline;">publish your OAuth app</a> (set status to Production).</small>'
+         : 'Could not refresh Google token (' + (d.error || 'unknown') + ') — click Reconnect.';
+       document.getElementById('gbar-error-msg').innerHTML = errMsg;
+       gbarShow('error');
        return null;
      }
      _gaToken = d.access_token;
@@ -2395,7 +2392,17 @@
      document.getElementById('gbar-sync-label').textContent = 'Syncing…';
      syncGoogleData(false);
    } else {
-     gbarShow('setup');
+     // If credentials are already saved, skip setup modal — go straight to Google popup
+     var hasCreds = localStorage.getItem('ch_google_client_id') && localStorage.getItem('ch_google_client_secret');
+     if (hasCreds) {
+       // Credentials saved but no refresh token — auto-trigger reconnect silently
+       gbarShow('loading');
+       document.getElementById('gbar-sync-label') && (document.getElementById('gbar-sync-label').textContent = 'Reconnecting…');
+       // Small delay so GSI script has time to load
+       setTimeout(connectGoogle, 1200);
+     } else {
+       gbarShow('setup');
+     }
    }
  })();
 
