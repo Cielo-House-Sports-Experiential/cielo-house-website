@@ -107,27 +107,6 @@
   </div>
  </section>
 
- <!-- FEATURED ARTICLE -->
- <section class="section section--lg" aria-label="Featured article" id="featured-section">
- <div class="container">
- <article id="featured-article" class="featured-article">
-  <div class="featured-article__img">
-   <img src="images/our-work/boost-mobile-gold-coast-500.jpg" alt="Why companies should invest in sponsorship activations" loading="lazy"/>
-  </div>
-  <div>
-   <span class="eyebrow">Featured</span>
-   <span style="font-size:.75rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--color-gold);display:block;margin-bottom:.75rem;">Sponsorship</span>
-   <h2 style="font-family:var(--font-display);font-size:clamp(1.75rem,3vw,2.75rem);margin-bottom:1rem;line-height:1.2;"><a href="blog/post.html?slug=why-invest-in-sponsorship-activations" style="color:var(--color-midnight);">Why Companies Should Invest in Sponsorship Activations</a></h2>
-   <p style="color:var(--color-text-light);line-height:1.75;margin-bottom:1.5rem;">Sponsorship without activation is just a logo on a fence. Here's why smart brands invest in live activations to turn their sponsorship spend into real brand equity.</p>
-   <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
-    <span style="font-size:.8rem;color:var(--color-mid-grey);">By Britt Niven</span>
-    <a href="blog/post.html?slug=why-invest-in-sponsorship-activations" class="link-arrow">Read article <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>
-   </div>
-  </div>
- </article>
- </div>
- </section>
-
  <!-- ARTICLE GRID -->
  <section class="section section--off-white" aria-label="All articles">
  <div class="container">
@@ -286,24 +265,8 @@
    // Live data available — replace hardcoded cards
    grid.innerHTML = '';
 
-   // ── Replace featured with live data (most recent post) ──
-   const feat = posts[0];
-   const featArticle = document.getElementById('featured-article');
-   featArticle.innerHTML =
-     `<div class="featured-article__img">`
-     + (feat.image ? `<img src="${esc(feat.image)}" alt="${esc(feat.title)}" loading="lazy"/>` : `<div style="width:100%;height:100%;background:var(--color-off-white);"></div>`)
-     + `</div><div>`
-     + `<span class="eyebrow">Featured</span>`
-     + `<span style="font-size:.75rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--color-gold);display:block;margin-bottom:.75rem;">${esc(feat.category||'Insights')}</span>`
-     + `<h2 style="font-family:var(--font-display);font-size:clamp(1.75rem,3vw,2.75rem);margin-bottom:1rem;line-height:1.2;"><a href="${postUrl(feat.slug)}" style="color:var(--color-midnight);">${esc(feat.title)}</a></h2>`
-     + (feat.excerpt ? `<p style="color:var(--color-text-light);line-height:1.75;margin-bottom:1.5rem;">${esc(feat.excerpt)}</p>` : '')
-     + `<div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">`
-     + `<span style="font-size:.8rem;color:var(--color-mid-grey);">By ${esc(feat.author||'Britt Niven')}</span>`
-     + `<a href="${postUrl(feat.slug)}" class="link-arrow">Read article <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>`
-     + `</div></div>`;
-
-   // ── Render grid (all except featured) ──
-   posts.slice(1).forEach((p, i) => {
+   // ── Render all posts as equal grid cards ──
+   posts.forEach((p, i) => {
      const art = document.createElement('article');
      art.className = 'blog-card';
      // no animation delay — cards render immediately
