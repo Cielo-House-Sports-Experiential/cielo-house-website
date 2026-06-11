@@ -266,6 +266,7 @@
  <button class="nav-btn" data-panel="subscribers">Subscribers</button>
  <button class="nav-btn" data-panel="events">Events Calendar</button>
  <button class="nav-btn" data-panel="blog">Blog Posts</button>
+ <button class="nav-btn" data-panel="casestudies">Case Studies</button>
  <div class="sidebar__label">Content</div>
  <button class="nav-btn" data-panel="testimonials">Testimonials</button>
  <button class="nav-btn" data-panel="faq">FAQ</button>
@@ -856,6 +857,159 @@
  </div>
 
  <!-- ===== TESTIMONIALS ===== -->
+ <!-- CASE STUDIES -->
+ <div class="panel" id="panel-casestudies">
+  <h1 class="page-title">Case Studies</h1>
+  <p class="page-sub">Manage the content and images for all 8 case study cards and pages. Changes save to this browser instantly.</p>
+
+  <div class="card" style="margin-bottom:1.5rem;padding:1.25rem 1.5rem;background:#f0f4ff;border-left:4px solid #668DC6;">
+   <p style="font-size:0.82rem;color:#2B317B;line-height:1.6;margin:0;">
+    <strong>How it works:</strong> Edit any case study below. Changes apply immediately on the live pages for anyone who has viewed this dashboard. Upload real images when ready — placeholder images are currently shown on the new case study pages.
+   </p>
+  </div>
+
+  <div id="cs-grid" style="display:grid;gap:1rem;"></div>
+ </div>
+
+ <!-- CASE STUDY EDIT MODAL -->
+ <div class="modal-overlay" id="cs-modal" onclick="if(event.target===this)closeCsModal()">
+  <div class="modal-box" style="max-width:820px;">
+   <button class="modal-close" onclick="closeCsModal()">×</button>
+   <div class="modal-title" id="cs-modal-title">Edit Case Study</div>
+   <p class="modal-sub" id="cs-modal-sub"></p>
+
+   <div class="modal-section">Card (Work Page)</div>
+   <div class="form">
+    <div class="form-row">
+     <div class="form-group">
+      <label class="form-label">Card Title</label>
+      <input class="form-input" id="cs-f-cardtitle" placeholder="e.g. Boost Mobile Gold Coast 500" />
+     </div>
+     <div class="form-group">
+      <label class="form-label">Card Tag / Category</label>
+      <input class="form-input" id="cs-f-cardtag" placeholder="e.g. Experiential Activation" />
+     </div>
+    </div>
+    <div class="form-group">
+     <label class="form-label">Card Image</label>
+     <div style="display:flex;gap:0.75rem;align-items:flex-start;flex-wrap:wrap;">
+      <img id="cs-f-cardimg-preview" src="" alt="" style="width:120px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #dde2f0;display:none;" />
+      <div style="flex:1;min-width:200px;">
+       <input class="form-input" id="cs-f-cardimg-url" placeholder="Image URL or upload below" style="margin-bottom:0.5rem;" />
+       <input type="file" id="cs-f-cardimg-file" accept="image/*" style="font-size:0.8rem;" onchange="previewCsImg(this,'cs-f-cardimg-preview','cs-f-cardimg-url')" />
+       <p style="font-size:0.72rem;color:#aaa;margin-top:0.25rem;">Upload replaces the card image on the work page</p>
+      </div>
+     </div>
+    </div>
+   </div>
+
+   <div class="modal-section">Page Hero</div>
+   <div class="form">
+    <div class="form-group">
+     <label class="form-label">Hero Image (top of case study page)</label>
+     <div style="display:flex;gap:0.75rem;align-items:flex-start;flex-wrap:wrap;">
+      <img id="cs-f-heroimg-preview" src="" alt="" style="width:160px;height:90px;object-fit:cover;border-radius:6px;border:1px solid #dde2f0;display:none;" />
+      <div style="flex:1;min-width:200px;">
+       <input class="form-input" id="cs-f-heroimg-url" placeholder="Image URL or upload below" style="margin-bottom:0.5rem;" />
+       <input type="file" id="cs-f-heroimg-file" accept="image/*" style="font-size:0.8rem;" onchange="previewCsImg(this,'cs-f-heroimg-preview','cs-f-heroimg-url')" />
+      </div>
+     </div>
+    </div>
+    <div class="form-group">
+     <label class="form-label">Page Lead (intro paragraph)</label>
+     <textarea class="form-textarea" id="cs-f-lead" rows="3" placeholder="Short intro paragraph shown at top of the case study page..."></textarea>
+    </div>
+   </div>
+
+   <div class="modal-section">Case Study Content</div>
+   <div class="form">
+    <div class="form-group">
+     <label class="form-label">The Brief</label>
+     <textarea class="form-textarea" id="cs-f-brief" rows="4" placeholder="Describe the brief..."></textarea>
+    </div>
+    <div class="form-group">
+     <label class="form-label">What Was Delivered</label>
+     <textarea class="form-textarea" id="cs-f-delivered" rows="4" placeholder="Describe what was delivered..."></textarea>
+    </div>
+    <div class="form-row">
+     <div class="form-group">
+      <label class="form-label">Client Quote</label>
+      <textarea class="form-textarea" id="cs-f-quote" rows="3" placeholder="Quote text (no quotation marks)..."></textarea>
+     </div>
+     <div class="form-group">
+      <label class="form-label">Quote Attribution</label>
+      <input class="form-input" id="cs-f-attribution" placeholder="e.g. John Smith, CEO, Boost Mobile" />
+     </div>
+    </div>
+   </div>
+
+   <div class="modal-section">Key Numbers</div>
+   <div class="form">
+    <div class="form-row-3">
+     <div class="form-group">
+      <label class="form-label">Stat 1 — Number</label>
+      <input class="form-input" id="cs-f-stat1n" placeholder="e.g. 200K+" />
+     </div>
+     <div class="form-group">
+      <label class="form-label">Stat 2 — Number</label>
+      <input class="form-input" id="cs-f-stat2n" placeholder="e.g. 6,000+" />
+     </div>
+     <div class="form-group">
+      <label class="form-label">Stat 3 — Number</label>
+      <input class="form-input" id="cs-f-stat3n" placeholder="e.g. 300+" />
+     </div>
+    </div>
+    <div class="form-row-3">
+     <div class="form-group">
+      <label class="form-label">Stat 1 — Description</label>
+      <input class="form-input" id="cs-f-stat1d" placeholder="e.g. Fans across the weekend" />
+     </div>
+     <div class="form-group">
+      <label class="form-label">Stat 2 — Description</label>
+      <input class="form-input" id="cs-f-stat2d" placeholder="e.g. Chiko rolls sold" />
+     </div>
+     <div class="form-group">
+      <label class="form-label">Stat 3 — Description</label>
+      <input class="form-input" id="cs-f-stat3d" placeholder="e.g. Merchandise given away" />
+     </div>
+    </div>
+   </div>
+
+   <div class="modal-section">Meta Details</div>
+   <div class="form">
+    <div class="form-row">
+     <div class="form-group">
+      <label class="form-label">Client</label>
+      <input class="form-input" id="cs-f-client" placeholder="e.g. Boost Mobile" />
+     </div>
+     <div class="form-group">
+      <label class="form-label">Event</label>
+      <input class="form-input" id="cs-f-event" placeholder="e.g. Gold Coast 500 Supercars" />
+     </div>
+    </div>
+    <div class="form-row">
+     <div class="form-group">
+      <label class="form-label">Location</label>
+      <input class="form-input" id="cs-f-location" placeholder="e.g. Surfers Paradise, Gold Coast QLD" />
+     </div>
+     <div class="form-group">
+      <label class="form-label">Year</label>
+      <input class="form-input" id="cs-f-year" placeholder="e.g. 2025" />
+     </div>
+    </div>
+    <div class="form-group">
+     <label class="form-label">Services Delivered</label>
+     <input class="form-input" id="cs-f-services" placeholder="e.g. Experiential Activation · Event Production · Content Creation" />
+    </div>
+   </div>
+
+   <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:2rem;flex-wrap:wrap;">
+    <button class="btn btn-secondary" onclick="resetCsOverride()" style="background:#f4f6fa;color:#555;border:1.5px solid #dde2f0;">Reset to Default</button>
+    <button class="btn btn-primary" onclick="saveCsOverride()">Save Changes</button>
+   </div>
+  </div>
+ </div>
+
  <div class="panel" id="panel-testimonials">
    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem;flex-wrap:wrap;gap:1rem;">
      <h1 class="page-title" style="margin-bottom:0;">Testimonials</h1>
@@ -4412,6 +4566,228 @@ Respond ONLY with valid JSON array, no other text:
      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg> Refresh with AI';
    }
  }
+ // ── CASE STUDIES ──────────────────────────────────────────────
+ var CS_KEY = 'ch_cs_overrides';
+ var CS_CARD_IMGS_KEY = 'ch_cs_card_imgs';
+
+ var caseStudies = [
+  { slug:'boost-mobile-gold-coast-500',        title:'Boost Mobile Gold Coast 500',                    tag:'Experiential Activation',  client:'Boost Mobile',  event:'Gold Coast 500 Supercars',          year:'2025', page:'work/boost-mobile-gold-coast-500.html' },
+  { slug:'coates-vip-hospitality',             title:'Coates F1 Australian Grand Prix',                tag:'Premium Hospitality',      client:'Coates',        event:'F1 Australian Grand Prix',          year:'2026', page:'work/coates-vip-hospitality.html' },
+  { slug:'chiko-bathurst-supercars-2025',      title:'Chiko at the Bathurst 1000',                     tag:'Experiential Activation',  client:'Chiko',         event:'Bathurst 1000 Supercars',           year:'2025', page:'work/chiko-bathurst-supercars-2025.html' },
+  { slug:'coates-bathurst-supercars-2025',     title:'Coates Bathurst 1000',                           tag:'Premium Hospitality',      client:'Coates',        event:'Bathurst 1000 Supercars',           year:'2025', page:'work/coates-bathurst-supercars-2025.html' },
+  { slug:'chiko-bathurst-competition-2025',    title:'Chiko Bathurst National Competition',            tag:'Consumer Promotion',       client:'Chiko',         event:'Bathurst 1000 National Competition', year:'2025', page:'work/chiko-bathurst-competition-2025.html' },
+  { slug:'boost-mobile-gold-coast-content-2025', title:'Boost Mobile Gold Coast 500 — Broadcast Content', tag:'Content Production',   client:'Boost Mobile',  event:'Gold Coast 500 Supercars',          year:'2025', page:'work/boost-mobile-gold-coast-content-2025.html' },
+  { slug:'boost-mobile-wsl-gold-coast-2026',  title:'Boost Mobile WSL Gold Coast Pro',                tag:'Experiential Activation',  client:'Boost Mobile',  event:'WSL Gold Coast Pro',                year:'2026', page:'work/boost-mobile-wsl-gold-coast-2026.html' },
+  { slug:'mophie-wsl-gold-coast-2026',         title:'Mophie WSL Gold Coast Pro',                      tag:'Experiential Activation',  client:'Mophie',        event:'WSL Bonsoy Gold Coast Pro',         year:'2026', page:'work/mophie-wsl-gold-coast-2026.html' }
+ ];
+
+ var csCurrentSlug = null;
+
+ function getCsOverrides() {
+  try { return JSON.parse(localStorage.getItem(CS_KEY) || '{}'); } catch(e) { return {}; }
+ }
+ function getCsCardImgs() {
+  try { return JSON.parse(localStorage.getItem(CS_CARD_IMGS_KEY) || '{}'); } catch(e) { return {}; }
+ }
+
+ function renderCsGrid() {
+  var overrides = getCsOverrides();
+  var cardImgs  = getCsCardImgs();
+  var grid = document.getElementById('cs-grid');
+  if (!grid) return;
+  grid.innerHTML = caseStudies.map(function(cs) {
+   var ov = overrides[cs.slug] || {};
+   var cardImg = ov.cardImageData || cardImgs[cs.slug] || ov.heroImage || '';
+   var hasImg = !!cardImg;
+   var isEdited = Object.keys(ov).length > 0;
+   return '<div style="background:#fff;border-radius:10px;box-shadow:0 1px 8px rgba(0,0,0,.07);display:flex;align-items:center;gap:1.25rem;padding:1.25rem 1.5rem;">' +
+    '<div style="width:100px;height:66px;border-radius:6px;overflow:hidden;flex-shrink:0;background:#eef0f8;display:flex;align-items:center;justify-content:center;">' +
+     (hasImg ? '<img src="'+cardImg+'" style="width:100%;height:100%;object-fit:cover;" />' : '<span style="font-size:0.7rem;color:#bbb;text-align:center;padding:0.25rem;">No image<br>uploaded</span>') +
+    '</div>' +
+    '<div style="flex:1;min-width:0;">' +
+     '<div style="font-size:0.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#668DC6;margin-bottom:.2rem;">'+cs.tag+'</div>' +
+     '<div style="font-weight:600;color:#2B317B;font-size:.925rem;line-height:1.35;margin-bottom:.25rem;">'+cs.title+'</div>' +
+     '<div style="font-size:.78rem;color:#aaa;">'+cs.client+' · '+cs.event+' · '+cs.year+'</div>' +
+    '</div>' +
+    '<div style="display:flex;gap:.5rem;flex-shrink:0;">' +
+     '<a href="'+cs.page+'" target="_blank" style="display:inline-flex;align-items:center;gap:.3rem;padding:.45rem .9rem;border-radius:6px;background:#f4f6fa;color:#555;font-size:.78rem;font-weight:600;text-decoration:none;border:1.5px solid #dde2f0;">View</a>' +
+     '<button onclick="openCsModal(\''+cs.slug+'\')" style="padding:.45rem 1rem;border-radius:6px;background:#2B317B;color:#fff;font-size:.78rem;font-weight:600;border:none;cursor:pointer;">Edit</button>' +
+     (isEdited ? '<span style="width:8px;height:8px;border-radius:50%;background:#27ae60;display:inline-block;align-self:center;" title="Has overrides"></span>' : '') +
+    '</div>' +
+   '</div>';
+  }).join('');
+ }
+
+ function openCsModal(slug) {
+  csCurrentSlug = slug;
+  var cs = caseStudies.find(function(c){ return c.slug === slug; });
+  var overrides = getCsOverrides();
+  var ov = overrides[slug] || {};
+  var cardImgs = getCsCardImgs();
+
+  document.getElementById('cs-modal-title').textContent = 'Edit: ' + cs.title;
+  document.getElementById('cs-modal-sub').textContent = cs.client + ' · ' + cs.event + ' · ' + cs.year;
+
+  // Card fields
+  document.getElementById('cs-f-cardtitle').value = ov.cardTitle || cs.title;
+  document.getElementById('cs-f-cardtag').value   = ov.cardTag   || cs.tag;
+
+  // Card image
+  var cardImgVal = ov.cardImageData || cardImgs[slug] || '';
+  document.getElementById('cs-f-cardimg-url').value = cardImgVal.startsWith('data:') ? '' : cardImgVal;
+  showCsImgPreview('cs-f-cardimg-preview', cardImgVal);
+
+  // Hero image
+  var heroVal = ov.heroImage || '';
+  document.getElementById('cs-f-heroimg-url').value = heroVal.startsWith('data:') ? '' : heroVal;
+  showCsImgPreview('cs-f-heroimg-preview', heroVal);
+
+  // Content
+  document.getElementById('cs-f-lead').value        = ov.lead        || '';
+  document.getElementById('cs-f-brief').value       = ov.brief       || '';
+  document.getElementById('cs-f-delivered').value   = ov.delivered   || '';
+  document.getElementById('cs-f-quote').value       = ov.quote       || '';
+  document.getElementById('cs-f-attribution').value = ov.attribution || '';
+
+  // Stats
+  document.getElementById('cs-f-stat1n').value = ov.stat1n || '';
+  document.getElementById('cs-f-stat1d').value = ov.stat1d || '';
+  document.getElementById('cs-f-stat2n').value = ov.stat2n || '';
+  document.getElementById('cs-f-stat2d').value = ov.stat2d || '';
+  document.getElementById('cs-f-stat3n').value = ov.stat3n || '';
+  document.getElementById('cs-f-stat3d').value = ov.stat3d || '';
+
+  // Meta
+  document.getElementById('cs-f-client').value   = ov.client   || cs.client;
+  document.getElementById('cs-f-event').value    = ov.event    || cs.event;
+  document.getElementById('cs-f-location').value = ov.location || '';
+  document.getElementById('cs-f-year').value     = ov.year     || cs.year;
+  document.getElementById('cs-f-services').value = ov.services || '';
+
+  // Clear file inputs
+  document.getElementById('cs-f-cardimg-file').value = '';
+  document.getElementById('cs-f-heroimg-file').value = '';
+
+  document.getElementById('cs-modal').style.display = 'flex';
+ }
+
+ function closeCsModal() {
+  document.getElementById('cs-modal').style.display = 'none';
+  csCurrentSlug = null;
+ }
+
+ function showCsImgPreview(previewId, src) {
+  var img = document.getElementById(previewId);
+  if (src) { img.src = src; img.style.display = 'block'; }
+  else { img.style.display = 'none'; img.src = ''; }
+ }
+
+ function previewCsImg(input, previewId, urlInputId) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+   showCsImgPreview(previewId, e.target.result);
+   document.getElementById(urlInputId).value = '';
+  };
+  reader.readAsDataURL(file);
+ }
+
+ function saveCsOverride() {
+  if (!csCurrentSlug) return;
+  var overrides = getCsOverrides();
+  var cardImgs  = getCsCardImgs();
+  var ov = overrides[csCurrentSlug] || {};
+
+  // Card image — file upload takes priority, then URL field
+  var cardFile = document.getElementById('cs-f-cardimg-file').files[0];
+  var cardImgUrl = document.getElementById('cs-f-cardimg-url').value.trim();
+
+  // Hero image
+  var heroFile = document.getElementById('cs-f-heroimg-file').files[0];
+  var heroImgUrl = document.getElementById('cs-f-heroimg-url').value.trim();
+
+  function finishSave(cardData, heroData) {
+   if (cardData) { cardImgs[csCurrentSlug] = cardData; localStorage.setItem(CS_CARD_IMGS_KEY, JSON.stringify(cardImgs)); ov.cardImageData = cardData; }
+   else if (cardImgUrl) { ov.cardImageData = cardImgUrl; }
+
+   if (heroData) { ov.heroImage = heroData; }
+   else if (heroImgUrl) { ov.heroImage = heroImgUrl; }
+
+   ov.cardTitle   = document.getElementById('cs-f-cardtitle').value.trim();
+   ov.cardTag     = document.getElementById('cs-f-cardtag').value.trim();
+   ov.lead        = document.getElementById('cs-f-lead').value.trim();
+   ov.brief       = document.getElementById('cs-f-brief').value.trim();
+   ov.delivered   = document.getElementById('cs-f-delivered').value.trim();
+   ov.quote       = document.getElementById('cs-f-quote').value.trim();
+   ov.attribution = document.getElementById('cs-f-attribution').value.trim();
+   ov.stat1n      = document.getElementById('cs-f-stat1n').value.trim();
+   ov.stat1d      = document.getElementById('cs-f-stat1d').value.trim();
+   ov.stat2n      = document.getElementById('cs-f-stat2n').value.trim();
+   ov.stat2d      = document.getElementById('cs-f-stat2d').value.trim();
+   ov.stat3n      = document.getElementById('cs-f-stat3n').value.trim();
+   ov.stat3d      = document.getElementById('cs-f-stat3d').value.trim();
+   ov.client      = document.getElementById('cs-f-client').value.trim();
+   ov.event       = document.getElementById('cs-f-event').value.trim();
+   ov.location    = document.getElementById('cs-f-location').value.trim();
+   ov.year        = document.getElementById('cs-f-year').value.trim();
+   ov.services    = document.getElementById('cs-f-services').value.trim();
+
+   overrides[csCurrentSlug] = ov;
+   localStorage.setItem(CS_KEY, JSON.stringify(overrides));
+   renderCsGrid();
+   closeCsModal();
+   showCsToast('Case study saved ✓');
+  }
+
+  // Read files if uploaded
+  if (cardFile && heroFile) {
+   var rCard = new FileReader(), rHero = new FileReader(), cardData, heroData;
+   rCard.onload = function(e) { cardData = e.target.result; if(heroData !== undefined) finishSave(cardData, heroData); };
+   rHero.onload = function(e) { heroData = e.target.result; if(cardData !== undefined) finishSave(cardData, heroData); };
+   rCard.readAsDataURL(cardFile); rHero.readAsDataURL(heroFile);
+  } else if (cardFile) {
+   var r = new FileReader();
+   r.onload = function(e) { finishSave(e.target.result, null); };
+   r.readAsDataURL(cardFile);
+  } else if (heroFile) {
+   var r2 = new FileReader();
+   r2.onload = function(e) { finishSave(null, e.target.result); };
+   r2.readAsDataURL(heroFile);
+  } else {
+   finishSave(null, null);
+  }
+ }
+
+ function resetCsOverride() {
+  if (!csCurrentSlug) return;
+  if (!confirm('Reset "' + csCurrentSlug + '" to its default hardcoded content? This cannot be undone.')) return;
+  var overrides = getCsOverrides();
+  var cardImgs  = getCsCardImgs();
+  delete overrides[csCurrentSlug];
+  delete cardImgs[csCurrentSlug];
+  localStorage.setItem(CS_KEY, JSON.stringify(overrides));
+  localStorage.setItem(CS_CARD_IMGS_KEY, JSON.stringify(cardImgs));
+  renderCsGrid();
+  closeCsModal();
+  showCsToast('Reset to default ✓');
+ }
+
+ function showCsToast(msg) {
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:2rem;right:2rem;background:#2B317B;color:#fff;padding:.75rem 1.5rem;border-radius:8px;font-size:.875rem;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.2);';
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 2800);
+ }
+
+ // Render grid when case studies tab is opened
+ document.querySelectorAll('.nav-btn[data-panel]').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+   if (btn.getAttribute('data-panel') === 'casestudies') { renderCsGrid(); }
+  });
+ });
+
  </script>
 </body>
 </html>
