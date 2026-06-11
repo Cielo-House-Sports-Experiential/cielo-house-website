@@ -32,7 +32,7 @@
  .article-meta-divider { width: 1px; height: 14px; background: var(--color-light-grey); }
  .faq h3 { font-family: var(--font-display); font-size: 1.15rem; color: var(--color-midnight); margin-top: 1.75rem; margin-bottom: 0.5rem; }
  .faq p { color: var(--color-text-light); line-height: 1.75; }
- .prose img { width: 100%; height: auto; border-radius: var(--radius-md); margin: 1.5rem 0; display: block; max-width: 100%; }
+ .prose img { width: 100% !important; height: auto !important; border-radius: var(--radius-md); margin: 1.5rem 0; display: block !important; max-width: 100% !important; }
  .preview-banner { background: var(--color-gold); color: #fff; text-align: center; padding: 0.6rem 1rem; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.05em; }
  @media (max-width: 900px) { .article-layout { grid-template-columns: 1fr; } }
  </style>
@@ -216,6 +216,20 @@
    }
    html += '<div style="background:var(--color-off-white); border-radius:var(--radius-md); padding:2rem; margin-top:3rem; border-top:2px solid var(--color-gold);"><span class="eyebrow">Work with Cielo House</span><p style="margin:0.75rem 0 1.5rem; color:var(--color-text-light);">Cielo House designs and delivers premium activations and hospitality at Australia\'s biggest sporting events.</p><a href="https://bookings.cloud.microsoft/bookwithme/user/09c4fcda6e43449fbb5fa48dacc5b8df%40cielohouse.com.au/meetingtype/SBPjwa8KpUm0AltusmmcvA2?anonymous&ismsaljsauthenabled" target="_blank" rel="noopener noreferrer" class="btn btn--primary">Schedule a Briefing Call</a></div>';
    document.getElementById('prose').innerHTML = html;
+
+   // Fix Wix CDN image URLs: replace thumbnail params (w_153,h_89 etc) with full-res
+   document.querySelectorAll('#prose img').forEach(img => {
+     if (img.src && img.src.includes('wixstatic.com')) {
+       // Remove /v1/fill/w_NNN,h_NNN and replace with high-res request
+       img.src = img.src.replace(/\/v1\/fill\/[^?#]*/g, '/v1/fill/w_1400,q_90');
+     }
+     // Ensure all article images display full-width at native quality
+     img.style.width = '100%';
+     img.style.height = 'auto';
+     img.style.display = 'block';
+     img.removeAttribute('width');
+     img.removeAttribute('height');
+   });
  }
  load();
  </script>
