@@ -137,7 +137,7 @@
  <span class="divider divider--center"></span>
  </div>
  <div class="blog-grid" id="blog-grid">
-  <article class="blog-card">
+  <article class="blog-card" data-animate>
    <a href="blog/post.html?slug=elevating-brands-through-live-experiences">
     <div class="blog-card__img-wrap"><img src="images/our-work/chiko-bathurst-1000.jpg" alt="Elevating brands through unforgettable live experiences" class="blog-card__img" loading="lazy"/></div>
     <span class="blog-card__tag">Brand Experience</span>
@@ -146,7 +146,7 @@
     <span class="blog-card__meta">Britt Niven</span>
    </a>
   </article>
-  <article class="blog-card">
+  <article class="blog-card" data-animate>
    <a href="blog/post.html?slug=corporate-hospitality-guide">
     <div class="blog-card__img-wrap"><img src="images/our-work/coates-formula-1-australian-grand-prix.jpg" alt="Corporate hospitality guide" class="blog-card__img" loading="lazy"/></div>
     <span class="blog-card__tag">Hospitality</span>
@@ -155,7 +155,7 @@
     <span class="blog-card__meta">Britt Niven</span>
    </a>
   </article>
-  <article class="blog-card">
+  <article class="blog-card" data-animate>
    <a href="blog/post.html?slug=promotional-models-brand-ambassadors">
     <div class="blog-card__img-wrap"><img src="images/our-work/boost-mobile-gold-coast-500.jpg" alt="Promotional models vs brand ambassadors" class="blog-card__img" loading="lazy"/></div>
     <span class="blog-card__tag">Talent</span>
@@ -164,7 +164,7 @@
     <span class="blog-card__meta">Britt Niven</span>
    </a>
   </article>
-  <article class="blog-card">
+  <article class="blog-card" data-animate>
    <a href="blog/post.html?slug=content-creation-at-events">
     <div class="blog-card__img-wrap"><img src="images/our-work/chiko-bathurst-1000.jpg" alt="Content creation at events" class="blog-card__img" loading="lazy"/></div>
     <span class="blog-card__tag">Content</span>
@@ -173,7 +173,7 @@
     <span class="blog-card__meta">Britt Niven</span>
    </a>
   </article>
-  <article class="blog-card">
+  <article class="blog-card" data-animate>
    <a href="blog/post.html?slug=supercars-gold-coast-500-guide">
     <div class="blog-card__img-wrap"><img src="images/our-work/boost-mobile-gold-coast-500.jpg" alt="Supercars Gold Coast 500 guide" class="blog-card__img" loading="lazy"/></div>
     <span class="blog-card__tag">Events Guide</span>
@@ -182,7 +182,7 @@
     <span class="blog-card__meta">Britt Niven</span>
    </a>
   </article>
-  <article class="blog-card">
+  <article class="blog-card" data-animate>
    <a href="blog/post.html?slug=vip-experiences-australia">
     <div class="blog-card__img-wrap"><img src="images/our-work/coates-formula-1-australian-grand-prix.jpg" alt="VIP experiences Australia" class="blog-card__img" loading="lazy"/></div>
     <span class="blog-card__tag">VIP Experiences</span>
@@ -306,7 +306,7 @@
    posts.slice(1).forEach((p, i) => {
      const art = document.createElement('article');
      art.className = 'blog-card';
-     // no animation delay — cards render immediately
+     art.setAttribute('data-animate', '');
      const imgHtml = p.image
        ? `<div class="blog-card__img-wrap"><img src="${esc(p.image)}" alt="${esc(p.title)}" class="blog-card__img" loading="lazy"/></div>`
        : `<div class="blog-card__img-wrap" style="background:linear-gradient(135deg,#2B317B,#668DC6);"></div>`;
@@ -319,6 +319,16 @@
        + `</a>`;
      grid.appendChild(art);
    });
+
+   // Observe newly injected cards for scroll animation
+   if ('IntersectionObserver' in window) {
+     const obs = new IntersectionObserver((entries) => {
+       entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('animated'); obs.unobserve(e.target); } });
+     }, { threshold: 0.1 });
+     grid.querySelectorAll('[data-animate]').forEach(el => obs.observe(el));
+   } else {
+     grid.querySelectorAll('[data-animate]').forEach(el => el.classList.add('animated'));
+   }
  })();
  </script>
  <script src="js/main.js" defer></script>
