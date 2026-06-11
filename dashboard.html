@@ -806,21 +806,31 @@
 
    <!-- Add subscriber -->
    <div class="card" style="margin-bottom:1.25rem;">
-     <div class="card-title">Add Subscribers</div>
-     <div style="display:flex;gap:0.75rem;align-items:flex-end;flex-wrap:wrap;margin-bottom:1.25rem;">
-       <div class="form-group" style="flex:1;min-width:220px;margin-bottom:0;">
-         <label class="form-label">Single Email</label>
-         <input class="form-input" id="sub-add-email" type="email" placeholder="name@company.com.au" />
+     <div class="card-title">Add Subscriber</div>
+     <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:0.75rem;align-items:flex-end;flex-wrap:wrap;">
+       <div class="form-group" style="margin-bottom:0;">
+         <label class="form-label">Name</label>
+         <input class="form-input" id="sub-add-name" type="text" placeholder="Full name" />
        </div>
-       <button class="btn btn-primary" onclick="subAddSingle()" style="padding:0.7rem 1.25rem;">Add</button>
+       <div class="form-group" style="margin-bottom:0;">
+         <label class="form-label">Email <span style="color:#c0392b;">*</span></label>
+         <input class="form-input" id="sub-add-email" type="email" placeholder="name@company.com" />
+       </div>
+       <div class="form-group" style="margin-bottom:0;">
+         <label class="form-label">Phone</label>
+         <input class="form-input" id="sub-add-phone" type="text" placeholder="+61 400 000 000" />
+       </div>
+       <button class="btn btn-primary" onclick="subAddSingle()" style="padding:0.7rem 1.25rem;white-space:nowrap;">Add</button>
      </div>
-     <div class="form-group">
-       <label class="form-label">Bulk Import <span style="font-weight:400;color:#aaa;">(paste one email per line, or comma-separated)</span></label>
-       <textarea class="form-textarea" id="sub-bulk-input" rows="4" placeholder="email1@domain.com&#10;email2@domain.com&#10;email3@domain.com"></textarea>
-     </div>
-     <div style="display:flex;gap:0.75rem;align-items:center;margin-top:0.75rem;flex-wrap:wrap;">
-       <button class="btn btn-primary" onclick="subBulkImport()">Import All</button>
-       <span id="sub-import-msg" style="font-size:0.78rem;color:#27ae60;display:none;"></span>
+     <div style="margin-top:1.25rem;">
+       <div class="form-group" style="margin-bottom:0.5rem;">
+         <label class="form-label">Bulk Import <span style="font-weight:400;color:#aaa;">(paste emails, one per line or comma-separated)</span></label>
+         <textarea class="form-textarea" id="sub-bulk-input" rows="3" placeholder="email1@domain.com&#10;email2@domain.com"></textarea>
+       </div>
+       <div style="display:flex;gap:0.75rem;align-items:center;">
+         <button class="btn btn-primary" onclick="subBulkImport()">Import</button>
+         <span id="sub-import-msg" style="font-size:0.78rem;color:#27ae60;display:none;"></span>
+       </div>
      </div>
    </div>
 
@@ -833,7 +843,15 @@
          <button class="btn btn-secondary btn-sm" onclick="subExportCSV()">Export CSV</button>
        </div>
      </div>
-     <div class="sub-list" id="sub-list"><div class="empty">No subscribers yet.</div></div>
+     <!-- Table header -->
+     <div style="display:grid;grid-template-columns:2fr 2.5fr 1.5fr 1.5fr auto;gap:0.75rem;padding:0.5rem 0.75rem;border-bottom:2px solid var(--color-light-grey);margin-bottom:0.25rem;">
+       <span style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#aaa;">Name</span>
+       <span style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#aaa;">Email</span>
+       <span style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#aaa;">Phone</span>
+       <span style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#aaa;">Date Joined</span>
+       <span></span>
+     </div>
+     <div id="sub-list"><div class="empty">No subscribers yet.</div></div>
    </div>
  </div>
 
@@ -2465,41 +2483,52 @@
 
  // ── Seed Wix mailing list into Subscribers — imported once, never overwritten ──
  (function seedWixSubscribers() {
-   var existing = JSON.parse(localStorage.getItem('ch_subscribers') || '[]');
-   var existingSet = new Set(existing.map(function(e){ return e.toLowerCase(); }));
-   var wixEmails = [
-     'kirrabond06@gmail.com',
-     'christinalillian14@gmail.com',
-     'britt@cielohouse.com.au',
-     'secondlifethriftshop25@gmail.com',
-     'craig@expoevolution.com.au',
-     'vickibrown15@hotmail.com',
-     'kellie.savage@adecco.com.au',
-     'northwestchefhire@gmail.com',
-     'nat_wardell@hotmail.com',
-     'maheva@racquetclub.com.au',
-     'stylist@nella4hair.com.au',
-     'giovana.colacique@gmail.com',
-     'peace2163@hotmail.com',
-     'jorden@ampdbros.com',
-     'grayshill@bigpond.com',
-     'giovana@cielohouse.com.au',
-     'julian@rivers-smith.com',
-     'elizabethskye@hotmail.com',
-     'mrskategordon2015@gmail.com',
-     'hello@sunshinehireco.com.au',
-     'sarahlmdubery@gmail.com',
-     'scheepersjenn@icloud.com',
-     'dk@dk.events',
-     'jodie.lancaster@outlook.com.au',
-     'sam.eyles@builtnotbought.com.au',
-     'silviaapereez17@gmail.com'
+   var raw = JSON.parse(localStorage.getItem('ch_subscribers') || '[]');
+   // Normalise to objects first
+   var existing = raw.map(function(s){ return typeof s === 'string' ? { name:'', email:s, phone:'', dateJoined:'' } : s; });
+   var existingSet = new Set(existing.map(function(s){ return s.email.toLowerCase(); }));
+   var wix = [
+     { name: 'Kirra Bond',                       email: 'kirrabond06@gmail.com',            phone: '+61 449 940 779', dateJoined: '2025-10-31' },
+     { name: 'Christina Law',                     email: 'christinalillian14@gmail.com',     phone: '+61 425 154 098', dateJoined: '2025-10-02' },
+     { name: 'Britt Niven',                       email: 'britt@cielohouse.com.au',          phone: '',               dateJoined: '2025-04-10' },
+     { name: 'Stacey Scofield',                   email: 'secondlifethriftshop25@gmail.com', phone: '',               dateJoined: '2025-09-06' },
+     { name: 'Craig Hoskinson',                   email: 'craig@expoevolution.com.au',       phone: '+61 411 889 984', dateJoined: '2025-11-24' },
+     { name: 'Vicki',                             email: 'vickibrown15@hotmail.com',         phone: '',               dateJoined: '2025-09-08' },
+     { name: 'Kellie Savage',                     email: 'kellie.savage@adecco.com.au',      phone: '',               dateJoined: '2026-04-24' },
+     { name: 'Puneet Dhir',                       email: 'northwestchefhire@gmail.com',      phone: '',               dateJoined: '2025-11-07' },
+     { name: 'Natalie Wardell',                   email: 'nat_wardell@hotmail.com',          phone: '',               dateJoined: '2025-09-04' },
+     { name: 'Maheva Polo',                       email: 'maheva@racquetclub.com.au',        phone: '+61 421 985 291', dateJoined: '2026-05-07' },
+     { name: 'Nella Mobrici',                     email: 'stylist@nella4hair.com.au',        phone: '',               dateJoined: '2025-09-08' },
+     { name: 'Giovana Colacique Ramos da Silva',  email: 'giovana.colacique@gmail.com',      phone: '',               dateJoined: '2025-06-26' },
+     { name: 'Kevin Chu',                         email: 'peace2163@hotmail.com',            phone: '',               dateJoined: '2025-09-08' },
+     { name: 'Jorden Penter',                     email: 'jorden@ampdbros.com',              phone: '+61 434 712 867', dateJoined: '2026-02-25' },
+     { name: 'Susan Cross',                       email: 'grayshill@bigpond.com',            phone: '',               dateJoined: '2025-08-13' },
+     { name: 'Giovana Colacique',                 email: 'giovana@cielohouse.com.au',        phone: '',               dateJoined: '2025-08-30' },
+     { name: 'Julian Rivers-Smith',               email: 'julian@rivers-smith.com',          phone: '+61 472 702 482', dateJoined: '2026-03-17' },
+     { name: 'Elizabeth Jarrett',                 email: 'elizabethskye@hotmail.com',        phone: '',               dateJoined: '2025-09-12' },
+     { name: 'Kate Gordon',                       email: 'mrskategordon2015@gmail.com',      phone: '',               dateJoined: '2025-09-04' },
+     { name: 'Saxon Evans',                       email: 'hello@sunshinehireco.com.au',      phone: '+61 493 851 111', dateJoined: '2025-08-28' },
+     { name: 'Sarah Dubery',                      email: 'sarahlmdubery@gmail.com',          phone: '',               dateJoined: '2026-03-19' },
+     { name: 'Jennifer Scheepers',                email: 'scheepersjenn@icloud.com',         phone: '',               dateJoined: '2025-09-06' },
+     { name: 'Deyne Keegan',                      email: 'dk@dk.events',                     phone: '+61 448 810 000', dateJoined: '2025-07-27' },
+     { name: 'Jodie Lancaster',                   email: 'jodie.lancaster@outlook.com.au',   phone: '+61 403 771 617', dateJoined: '2025-11-05' },
+     { name: 'Sam Eyles',                         email: 'sam.eyles@builtnotbought.com.au',  phone: '+61 432 013 475', dateJoined: '2025-11-22' },
+     { name: 'Silvia Gutierrez Perez',            email: 'silviaapereez17@gmail.com',        phone: '',               dateJoined: '2025-10-20' }
    ];
    var added = 0;
-   wixEmails.forEach(function(e) {
-     if (!existingSet.has(e.toLowerCase())) { existing.push(e.toLowerCase()); added++; }
+   wix.forEach(function(c) {
+     if (!existingSet.has(c.email.toLowerCase())) {
+       existing.push({ name: c.name, email: c.email.toLowerCase(), phone: c.phone, dateJoined: c.dateJoined });
+       added++;
+     } else {
+       // Upgrade existing plain-email entry with full data
+       var idx = existing.findIndex(function(s){ return s.email.toLowerCase() === c.email.toLowerCase(); });
+       if (idx > -1 && !existing[idx].name) {
+         existing[idx] = { name: c.name, email: c.email.toLowerCase(), phone: c.phone, dateJoined: c.dateJoined };
+       }
+     }
    });
-   if (added > 0) localStorage.setItem('ch_subscribers', JSON.stringify(existing));
+   localStorage.setItem('ch_subscribers', JSON.stringify(existing));
  })();
 
  // Blog posts seed from live website data if never set
@@ -3785,18 +3814,30 @@
  renderPosts();
 
  // ===================== SUBSCRIBERS =====================
- function getSubs() { try { return JSON.parse(localStorage.getItem('ch_subscribers') || '[]'); } catch(e) { return []; } }
+ function getSubs() {
+   try {
+     var raw = JSON.parse(localStorage.getItem('ch_subscribers') || '[]');
+     // Migrate old format (plain email strings) to objects
+     return raw.map(function(s) {
+       if (typeof s === 'string') return { name: '', email: s, phone: '', dateJoined: '' };
+       return s;
+     });
+   } catch(e) { return []; }
+ }
  function saveSubs(arr) { localStorage.setItem('ch_subscribers', JSON.stringify(arr)); }
 
  function subAddSingle() {
-   var input = document.getElementById('sub-add-email');
-   var email = (input.value || '').trim().toLowerCase();
+   var name  = (document.getElementById('sub-add-name').value || '').trim();
+   var email = (document.getElementById('sub-add-email').value || '').trim().toLowerCase();
+   var phone = (document.getElementById('sub-add-phone').value || '').trim();
    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Enter a valid email address.'); return; }
    var subs = getSubs();
-   if (subs.includes(email)) { alert('That email is already in the list.'); return; }
-   subs.push(email);
+   if (subs.find(function(s){ return s.email === email; })) { alert('That email is already in the list.'); return; }
+   subs.push({ name: name, email: email, phone: phone, dateJoined: new Date().toISOString().slice(0,10) });
    saveSubs(subs);
-   input.value = '';
+   document.getElementById('sub-add-name').value = '';
+   document.getElementById('sub-add-email').value = '';
+   document.getElementById('sub-add-phone').value = '';
    renderSubs();
  }
 
@@ -3805,8 +3846,14 @@
    var emails = raw.split(/[\n,;]+/).map(function(e){ return e.trim().toLowerCase(); }).filter(function(e){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); });
    if (!emails.length) { alert('No valid email addresses found.'); return; }
    var subs = getSubs();
+   var existingEmails = new Set(subs.map(function(s){ return s.email; }));
    var added = 0;
-   emails.forEach(function(e) { if (!subs.includes(e)) { subs.push(e); added++; } });
+   emails.forEach(function(e) {
+     if (!existingEmails.has(e)) {
+       subs.push({ name: '', email: e, phone: '', dateJoined: new Date().toISOString().slice(0,10) });
+       added++;
+     }
+   });
    saveSubs(subs);
    document.getElementById('sub-bulk-input').value = '';
    var msg = document.getElementById('sub-import-msg');
@@ -3817,15 +3864,16 @@
  }
 
  function subDelete(email) {
-   var subs = getSubs().filter(function(e){ return e !== email; });
-   saveSubs(subs);
+   saveSubs(getSubs().filter(function(s){ return s.email !== email; }));
    renderSubs();
  }
 
  function subExportCSV() {
    var subs = getSubs();
    if (!subs.length) { alert('No subscribers to export.'); return; }
-   var csv = 'Email\n' + subs.join('\n');
+   var csv = 'Name,Email,Phone,Date Joined\n' + subs.map(function(s){
+     return [s.name||'', s.email||'', s.phone||'', s.dateJoined||''].map(function(v){ return '"' + v.replace(/"/g,'""') + '"'; }).join(',');
+   }).join('\n');
    var a = document.createElement('a');
    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
    a.download = 'cielo-house-subscribers-' + new Date().toISOString().slice(0,10) + '.csv';
@@ -3834,19 +3882,29 @@
 
  function renderSubs() {
    var subs = getSubs();
-   var search = (document.getElementById('sub-search') || {}).value || '';
-   var filtered = search ? subs.filter(function(e){ return e.toLowerCase().includes(search.toLowerCase()); }) : subs;
+   var search = ((document.getElementById('sub-search') || {}).value || '').toLowerCase();
+   var filtered = search ? subs.filter(function(s){
+     return (s.name||'').toLowerCase().includes(search) || (s.email||'').toLowerCase().includes(search) || (s.phone||'').toLowerCase().includes(search);
+   }) : subs;
+   // Sort: by dateJoined desc
+   filtered.sort(function(a,b){ return (b.dateJoined||'').localeCompare(a.dateJoined||''); });
    document.getElementById('sub-count').textContent = subs.length;
    var list = document.getElementById('sub-list');
-   if (!filtered.length) { list.innerHTML = '<div class="empty">' + (search ? 'No results for "' + esc(search) + '".' : 'No subscribers yet. Add some above.') + '</div>'; return; }
+   if (!filtered.length) {
+     list.innerHTML = '<div class="empty">' + (search ? 'No results for "' + esc(search) + '".' : 'No subscribers yet. Add some above.') + '</div>';
+     return;
+   }
    list.innerHTML = '';
-   filtered.forEach(function(email, idx) {
+   filtered.forEach(function(s) {
      var item = document.createElement('div');
-     item.className = 'sub-item';
-     item.style.cssText = 'justify-content:space-between;';
-     item.innerHTML = '<span class="sub-num">' + (idx+1) + '</span>'
-       + '<span style="flex:1;">' + esc(email) + '</span>'
-       + '<button onclick="subDelete(\'' + esc(email) + '\')" style="background:none;border:none;cursor:pointer;color:#c0392b;font-size:0.72rem;font-weight:600;font-family:\'Poppins\',sans-serif;padding:0.2rem 0.4rem;">Remove</button>';
+     item.style.cssText = 'display:grid;grid-template-columns:2fr 2.5fr 1.5fr 1.5fr auto;gap:0.75rem;align-items:center;padding:0.65rem 0.75rem;border-bottom:1px solid var(--color-light-grey);font-size:0.85rem;';
+     var dateStr = s.dateJoined ? new Date(s.dateJoined).toLocaleDateString('en-AU', {day:'numeric',month:'short',year:'numeric'}) : '—';
+     item.innerHTML =
+       '<span style="font-weight:600;color:#2B317B;">' + esc(s.name || '—') + '</span>'
+       + '<span style="color:#444;">' + esc(s.email) + '</span>'
+       + '<span style="color:#888;">' + esc(s.phone || '—') + '</span>'
+       + '<span style="color:#aaa;font-size:0.78rem;">' + dateStr + '</span>'
+       + '<button onclick="subDelete(\'' + esc(s.email) + '\')" style="background:none;border:none;cursor:pointer;color:#c0392b;font-size:0.72rem;font-weight:600;font-family:\'Poppins\',sans-serif;padding:0.2rem 0.4rem;white-space:nowrap;">Remove</button>';
      list.appendChild(item);
    });
  }
