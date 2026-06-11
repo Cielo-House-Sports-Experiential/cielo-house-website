@@ -230,6 +230,7 @@
    const U = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
    const K = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
    const esc = s => (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+   const stripMd = s => (s||'').replace(/\[([^\]]+)\]\([^)]+\)/g,'$1').replace(/!\[[^\]]*\]\([^)]+\)/g,'').replace(/[*_`#]+/g,'').trim();
    const postUrl = slug => 'blog/post.html?slug=' + encodeURIComponent(slug);
 
    const grid = document.getElementById('blog-grid');
@@ -297,7 +298,7 @@
      + `<span class="eyebrow">Featured</span>`
      + `<span style="font-size:.75rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--color-gold);display:block;margin-bottom:.75rem;">${esc(feat.category||'Insights')}</span>`
      + `<h2 style="font-family:var(--font-display);font-size:clamp(1.75rem,3vw,2.75rem);margin-bottom:1rem;line-height:1.2;"><a href="${postUrl(feat.slug)}" style="color:var(--color-midnight);">${esc(feat.title)}</a></h2>`
-     + (feat.excerpt ? `<p style="color:var(--color-text-light);line-height:1.75;margin-bottom:1.5rem;">${esc(feat.excerpt)}</p>` : '')
+     + (feat.excerpt ? `<p style="color:var(--color-text-light);line-height:1.75;margin-bottom:1.5rem;">${esc(stripMd(feat.excerpt))}</p>` : '')
      + `<div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">`
      + `<span style="font-size:.8rem;color:var(--color-mid-grey);">By ${esc(feat.author||'Britt Niven')}</span>`
      + `<a href="${postUrl(feat.slug)}" class="link-arrow">Read article <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>`
@@ -315,7 +316,7 @@
        + imgHtml
        + `<span class="blog-card__tag">${esc(p.category||'Insights')}</span>`
        + `<h3 class="blog-card__title">${esc(p.title)}</h3>`
-       + (p.excerpt ? `<p class="blog-card__excerpt">${esc(p.excerpt)}</p>` : '')
+       + (p.excerpt ? `<p class="blog-card__excerpt">${esc(stripMd(p.excerpt))}</p>` : '')
        + `<span class="blog-card__meta">${esc(p.author||'Britt Niven')}</span>`
        + `</a>`;
      grid.appendChild(art);
