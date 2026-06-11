@@ -258,6 +258,28 @@
      } catch(e) {}
    }
 
+   // ── TIER 3: Static data/posts.json (works for all visitors) ──
+   if (!posts.length) {
+     try {
+       const r = await fetch('data/posts.json');
+       const data = await r.json();
+       if (Array.isArray(data) && data.length) {
+         posts = data
+           .filter(p => (p.status||'published').toLowerCase() === 'published')
+           .sort((a,b) => new Date(b.date||0) - new Date(a.date||0))
+           .map(p => ({
+             slug: p.slug,
+             title: p.title,
+             excerpt: p.excerpt||'',
+             category: p.category||'Insights',
+             image: p.featuredImage||p.image||null,
+             author: p.author||'Britt Niven',
+             date: p.date||null
+           }));
+       }
+     } catch(e) {}
+   }
+
    // If no live data, keep the hardcoded HTML — nothing to do
    if (!posts.length) return;
 
