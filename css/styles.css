@@ -1436,6 +1436,39 @@ h1 em, h2 em, h3 em {
 }
 
 /* ============================================
+   FEATURED ARTICLE
+   ============================================ */
+
+.featured-article {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  padding-bottom: var(--space-16);
+  border-bottom: 1px solid var(--color-light-grey);
+  margin-bottom: var(--space-16);
+}
+
+.featured-article__img {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  aspect-ratio: 16/10;
+}
+
+.featured-article__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 768px) {
+  .featured-article {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+/* ============================================
    FOOTER
    ============================================ */
 

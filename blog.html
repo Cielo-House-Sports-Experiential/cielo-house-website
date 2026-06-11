@@ -110,9 +110,9 @@
  <!-- FEATURED ARTICLE -->
  <section class="section section--lg" aria-label="Featured article" id="featured-section">
  <div class="container">
- <article id="featured-article" style="display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center; padding-bottom:var(--space-16); border-bottom:1px solid var(--color-light-grey); margin-bottom:var(--space-16);">
-  <div style="border-radius:var(--radius-lg);overflow:hidden;aspect-ratio:16/10;">
-   <img src="images/our-work/boost-mobile-gold-coast-500.jpg" alt="Why companies should invest in sponsorship activations" style="width:100%;height:100%;object-fit:cover;" loading="lazy"/>
+ <article id="featured-article" class="featured-article">
+  <div class="featured-article__img">
+   <img src="images/our-work/boost-mobile-gold-coast-500.jpg" alt="Why companies should invest in sponsorship activations" loading="lazy"/>
   </div>
   <div>
    <span class="eyebrow">Featured</span>
@@ -290,8 +290,8 @@
    const feat = posts[0];
    const featArticle = document.getElementById('featured-article');
    featArticle.innerHTML =
-     `<div style="border-radius:var(--radius-lg);overflow:hidden;aspect-ratio:16/10;">`
-     + (feat.image ? `<img src="${esc(feat.image)}" alt="${esc(feat.title)}" style="width:100%;height:100%;object-fit:cover;" loading="lazy"/>` : `<div style="width:100%;height:100%;background:var(--color-off-white);"></div>`)
+     `<div class="featured-article__img">`
+     + (feat.image ? `<img src="${esc(feat.image)}" alt="${esc(feat.title)}" loading="lazy"/>` : `<div style="width:100%;height:100%;background:var(--color-off-white);"></div>`)
      + `</div><div>`
      + `<span class="eyebrow">Featured</span>`
      + `<span style="font-size:.75rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--color-gold);display:block;margin-bottom:.75rem;">${esc(feat.category||'Insights')}</span>`
