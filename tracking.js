@@ -219,8 +219,7 @@
 
     banner.innerHTML =
       '<div style="flex:1;min-width:200px;line-height:1.5;">' +
-        '<strong>We use cookies</strong> to understand how visitors use our site — pages visited, time spent, and how you found us. ' +
-        'This helps us improve your experience. ' +
+        'We use cookies to help us improve your experience. ' +
         '<a href="/privacy.html" style="color:#93b4e8;text-decoration:underline;">Privacy Policy</a>' +
       '</div>' +
       '<div style="display:flex;gap:0.5rem;flex-shrink:0;">' +
