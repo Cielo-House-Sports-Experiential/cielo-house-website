@@ -998,6 +998,13 @@ h1 em, h2 em, h3 em {
   grid-column: span 2;
 }
 
+.work-grid .work-card:last-child:not(.work-card--large) {
+  grid-column: 1 / -1;
+  max-width: calc(50% - var(--space-4) / 2);
+  justify-self: center;
+  width: 100%;
+}
+
 .work-card__img-wrap {
   overflow: hidden;
   aspect-ratio: 16/7;
