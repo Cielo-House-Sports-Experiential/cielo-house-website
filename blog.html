@@ -284,8 +284,7 @@
    posts.slice(1).forEach((p, i) => {
      const art = document.createElement('article');
      art.className = 'blog-card';
-     art.setAttribute('data-animate','');
-     if (i%3 !== 0) art.setAttribute('data-animate-delay', String(i%3));
+     // no animation delay — cards render immediately
      const imgHtml = p.image
        ? `<div class="blog-card__img-wrap"><img src="${esc(p.image)}" alt="${esc(p.title)}" class="blog-card__img" loading="lazy"/></div>`
        : `<div class="blog-card__img-wrap" style="background:linear-gradient(135deg,#2B317B,#668DC6);"></div>`;
