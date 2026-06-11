@@ -1510,6 +1510,8 @@
    if (!cid || !sec) { alert('Please enter both your Client ID and Client Secret.'); return; }
    localStorage.setItem('ch_google_client_id', cid);
    localStorage.setItem('ch_google_client_secret', sec);
+   _setCookie('ch_ga_cid', cid, 365);
+   _setCookie('ch_ga_sec', sec, 365);
    closeGoogleSetup();
    connectGoogle();
  }
@@ -1530,6 +1532,35 @@
 
  function _getScopes() {
    return 'https://www.googleapis.com/auth/analytics.readonly https://www.googleapis.com/auth/webmasters.readonly';
+ }
+
+ // ── COOKIE HELPERS — backup credentials so localStorage clears don't disconnect ──
+ function _setCookie(name, value, days) {
+   var expires = new Date(Date.now() + days * 864e5).toUTCString();
+   document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=/; SameSite=Strict';
+ }
+ function _getCookie(name) {
+   var match = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
+   return match ? decodeURIComponent(match[1]) : null;
+ }
+ function _saveCredsToCookies() {
+   var rt  = localStorage.getItem('ch_ga_refresh_token');
+   var cid = localStorage.getItem('ch_google_client_id');
+   var sec = localStorage.getItem('ch_google_client_secret');
+   if (rt)  _setCookie('ch_ga_rt',  rt,  365);
+   if (cid) _setCookie('ch_ga_cid', cid, 365);
+   if (sec) _setCookie('ch_ga_sec', sec, 365);
+ }
+ function _restoreCredsFromCookies() {
+   // If localStorage was cleared, restore from cookies silently
+   var rt  = _getCookie('ch_ga_rt');
+   var cid = _getCookie('ch_ga_cid');
+   var sec = _getCookie('ch_ga_sec');
+   var restored = false;
+   if (rt  && !localStorage.getItem('ch_ga_refresh_token')) { localStorage.setItem('ch_ga_refresh_token', rt);           restored = true; }
+   if (cid && !localStorage.getItem('ch_google_client_id'))  { localStorage.setItem('ch_google_client_id', cid);          restored = true; }
+   if (sec && !localStorage.getItem('ch_google_client_secret')){ localStorage.setItem('ch_google_client_secret', sec);    restored = true; }
+   return restored;
  }
 
  // ── PERMANENT REFRESH: uses stored refresh_token via fetch — zero popups ──
@@ -1561,6 +1592,7 @@
      _gaTokenExp = Date.now() + ((d.expires_in || 3600) * 1000);
      localStorage.setItem('ch_ga_token', _gaToken);
      localStorage.setItem('ch_ga_token_exp', String(_gaTokenExp));
+     _saveCredsToCookies();
      scheduleTokenRefresh((d.expires_in || 3600) * 1000);
      return _gaToken;
    } catch(e) { return null; }
@@ -1621,6 +1653,7 @@
            localStorage.setItem('ch_ga_token_exp', String(_gaTokenExp));
            if (d.refresh_token) {
              localStorage.setItem('ch_ga_refresh_token', d.refresh_token);
+             _saveCredsToCookies();
            } else {
              // Should not happen with access_type=offline + prompt=consent
              document.getElementById('gbar-error-msg').innerHTML = 'Connected but no refresh token received. Make sure your OAuth app is Published (not Testing) in Google Cloud Console OAuth consent screen, then reconnect.';
@@ -2365,6 +2398,8 @@
      var notice = document.getElementById('api-enable-notice');
      if (notice) notice.style.display = 'block';
    }
+   // Restore credentials from cookies if localStorage was cleared (cache wipe, new browser profile, etc.)
+   _restoreCredsFromCookies();
    var hasRefreshToken = !!localStorage.getItem('ch_ga_refresh_token');
    var token = localStorage.getItem('ch_ga_token');
    var exp   = parseInt(localStorage.getItem('ch_ga_token_exp') || '0');
@@ -2392,14 +2427,12 @@
      document.getElementById('gbar-sync-label').textContent = 'Syncing…';
      syncGoogleData(false);
    } else {
-     // If credentials are already saved, skip setup modal — go straight to Google popup
+     // If credentials are already saved, show a one-click reconnect banner (can't auto-popup — browser blocks it)
      var hasCreds = localStorage.getItem('ch_google_client_id') && localStorage.getItem('ch_google_client_secret');
      if (hasCreds) {
-       // Credentials saved but no refresh token — auto-trigger reconnect silently
-       gbarShow('loading');
-       document.getElementById('gbar-sync-label') && (document.getElementById('gbar-sync-label').textContent = 'Reconnecting…');
-       // Small delay so GSI script has time to load
-       setTimeout(connectGoogle, 1200);
+       document.getElementById('gbar-error-msg').innerHTML =
+         'Session expired — <strong style="cursor:pointer;text-decoration:underline;" onclick="connectGoogle()">click here to reconnect</strong>. Your credentials are saved, it\'s just one click.';
+       gbarShow('error');
      } else {
        gbarShow('setup');
      }
@@ -2414,6 +2447,60 @@
      }
    });
  });
+
+ // ── Migrate: remove any Wix-imported entries wrongly placed in Contact Forms ──
+ (function migrateWixContacts() {
+   var forms = JSON.parse(localStorage.getItem('ch_contact_forms') || '[]');
+   var wixEntries = forms.filter(function(c){ return c.source === 'wix' || c.message === 'Imported from Wix'; });
+   if (!wixEntries.length) return;
+   // Remove them from contact forms
+   var cleaned = forms.filter(function(c){ return c.source !== 'wix' && c.message !== 'Imported from Wix'; });
+   localStorage.setItem('ch_contact_forms', JSON.stringify(cleaned));
+   // Move their emails into subscribers
+   var subs = JSON.parse(localStorage.getItem('ch_subscribers') || '[]');
+   var subsSet = new Set(subs.map(function(e){ return e.toLowerCase(); }));
+   wixEntries.forEach(function(c){ if (c.email && !subsSet.has(c.email.toLowerCase())) { subs.push(c.email.toLowerCase()); subsSet.add(c.email.toLowerCase()); } });
+   localStorage.setItem('ch_subscribers', JSON.stringify(subs));
+ })();
+
+ // ── Seed Wix mailing list into Subscribers — imported once, never overwritten ──
+ (function seedWixSubscribers() {
+   var existing = JSON.parse(localStorage.getItem('ch_subscribers') || '[]');
+   var existingSet = new Set(existing.map(function(e){ return e.toLowerCase(); }));
+   var wixEmails = [
+     'kirrabond06@gmail.com',
+     'christinalillian14@gmail.com',
+     'britt@cielohouse.com.au',
+     'secondlifethriftshop25@gmail.com',
+     'craig@expoevolution.com.au',
+     'vickibrown15@hotmail.com',
+     'kellie.savage@adecco.com.au',
+     'northwestchefhire@gmail.com',
+     'nat_wardell@hotmail.com',
+     'maheva@racquetclub.com.au',
+     'stylist@nella4hair.com.au',
+     'giovana.colacique@gmail.com',
+     'peace2163@hotmail.com',
+     'jorden@ampdbros.com',
+     'grayshill@bigpond.com',
+     'giovana@cielohouse.com.au',
+     'julian@rivers-smith.com',
+     'elizabethskye@hotmail.com',
+     'mrskategordon2015@gmail.com',
+     'hello@sunshinehireco.com.au',
+     'sarahlmdubery@gmail.com',
+     'scheepersjenn@icloud.com',
+     'dk@dk.events',
+     'jodie.lancaster@outlook.com.au',
+     'sam.eyles@builtnotbought.com.au',
+     'silviaapereez17@gmail.com'
+   ];
+   var added = 0;
+   wixEmails.forEach(function(e) {
+     if (!existingSet.has(e.toLowerCase())) { existing.push(e.toLowerCase()); added++; }
+   });
+   if (added > 0) localStorage.setItem('ch_subscribers', JSON.stringify(existing));
+ })();
 
  // Blog posts seed from live website data if never set
  (function seedBlogPosts() {
