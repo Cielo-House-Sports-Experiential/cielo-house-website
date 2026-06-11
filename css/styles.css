@@ -1372,6 +1372,7 @@ h1 em, h2 em, h3 em {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-8);
+  align-items: start;
 }
 
 .blog-card {
