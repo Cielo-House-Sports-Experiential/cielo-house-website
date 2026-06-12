@@ -752,7 +752,14 @@
         <button class="blog-tab" data-status="Scheduled">Scheduled <span class="blog-tab-count" id="btc-scheduled"></span></button>
         <button class="blog-tab" data-status="Draft">Drafts <span class="blog-tab-count" id="btc-draft"></span></button>
       </div>
-      <input class="form-input" id="blog-search" placeholder="Search posts..." style="max-width:220px;padding:0.5rem 0.85rem;font-size:0.82rem;" oninput="renderPosts()" />
+      <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+        <input class="form-input" id="blog-search" placeholder="Search posts..." style="max-width:220px;padding:0.5rem 0.85rem;font-size:0.82rem;" oninput="renderPosts()" />
+        <button onclick="publishToSite()" id="publish-btn" style="background:#1a7a40;color:#fff;border:none;border-radius:6px;padding:0.5rem 1rem;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;display:flex;align-items:center;gap:0.4rem;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+          Publish to Site
+        </button>
+        <span id="publish-status" style="font-size:0.78rem;display:none;"></span>
+      </div>
     </div>
     <!-- Bulk action bar -->
     <div id="bulk-bar">
@@ -1389,6 +1396,12 @@
      <label class="form-label">Gemini API Key</label>
      <input class="form-input" id="key-gemini" placeholder="AIza..." type="password" />
    </div>
+   <hr style="border:none;border-top:1px solid #e8eaf0;margin:1rem 0;" />
+   <div class="form-group" style="margin-bottom:1.25rem;">
+     <label class="form-label">GitHub Personal Access Token <span style="font-weight:400;color:#888;">(for "Publish to Site")</span></label>
+     <p style="font-size:0.78rem;color:#666;margin:0.25rem 0 0.6rem;">Needed to push blog content to the live site. <a href="https://github.com/settings/tokens/new?scopes=repo&description=CieloHouseDashboard" target="_blank" style="color:#2B317B;">Create one here</a> — tick the <strong>repo</strong> scope.</p>
+     <input class="form-input" id="key-github" placeholder="ghp_..." type="password" />
+   </div>
    <div style="display:flex;gap:0.75rem;">
      <button class="btn btn-primary" onclick="saveAiKeys()" style="flex:1;">Save &amp; Run Check Now</button>
      <button class="btn btn-secondary btn-sm" onclick="closeAiKeys()">Cancel</button>
@@ -1443,6 +1456,7 @@
    document.getElementById('key-openai').value      = localStorage.getItem('ch_key_openai') || '';
    document.getElementById('key-perplexity').value  = localStorage.getItem('ch_key_perplexity') || '';
    document.getElementById('key-gemini').value      = localStorage.getItem('ch_key_gemini') || '';
+   document.getElementById('key-github').value      = localStorage.getItem('ch_key_github') || '';
    document.getElementById('ai-keys-modal').style.display = 'block';
  }
  function closeAiKeys() { document.getElementById('ai-keys-modal').style.display = 'none'; }
@@ -1450,11 +1464,69 @@
    var ok = document.getElementById('key-openai').value.trim();
    var pk = document.getElementById('key-perplexity').value.trim();
    var gk = document.getElementById('key-gemini').value.trim();
+   var gh = document.getElementById('key-github').value.trim();
    if (ok) localStorage.setItem('ch_key_openai', ok);
    if (pk) localStorage.setItem('ch_key_perplexity', pk);
    if (gk) localStorage.setItem('ch_key_gemini', gk);
+   if (gh) localStorage.setItem('ch_key_github', gh);
    closeAiKeys();
    runAiChecks(true);
+ }
+
+ // ===================== PUBLISH TO SITE =====================
+ async function publishToSite() {
+   var token = localStorage.getItem('ch_key_github');
+   if (!token) {
+     openAiKeys();
+     alert('Add your GitHub Personal Access Token first (scroll down in the API Keys modal), then click Publish to Site again.');
+     return;
+   }
+   var posts = getPosts().filter(function(p){ return p.status === 'Published'; });
+   if (!posts.length) { alert('No Published posts to push.'); return; }
+
+   var btn = document.getElementById('publish-btn');
+   var status = document.getElementById('publish-status');
+   btn.disabled = true;
+   btn.textContent = 'Publishing…';
+   status.style.display = 'none';
+
+   var owner = 'Cielo-House-Sports-Experiential';
+   var repo  = 'cielo-house-website';
+   var path  = 'data/posts.json';
+   var apiBase = 'https://api.github.com/repos/' + owner + '/' + repo + '/contents/' + path;
+
+   try {
+     // Get current SHA of the file
+     var shaRes = await fetch(apiBase, { headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github+json' } });
+     var shaData = await shaRes.json();
+     var sha = shaData.sha;
+
+     // Build new content — all Published posts with full content
+     var content = btoa(unescape(encodeURIComponent(JSON.stringify(posts, null, 2))));
+
+     var putRes = await fetch(apiBase, {
+       method: 'PUT',
+       headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
+       body: JSON.stringify({ message: 'Publish blog posts from dashboard', content: content, sha: sha })
+     });
+
+     if (putRes.ok) {
+       status.textContent = '✓ Published ' + posts.length + ' posts — live in ~1 min';
+       status.style.color = '#1a7a40';
+       status.style.display = 'inline';
+       btn.textContent = 'Publish to Site';
+       btn.disabled = false;
+     } else {
+       var err = await putRes.json();
+       throw new Error(err.message || putRes.status);
+     }
+   } catch(e) {
+     status.textContent = '✗ ' + e.message;
+     status.style.color = '#c0392b';
+     status.style.display = 'inline';
+     btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg> Publish to Site';
+     btn.disabled = false;
+   }
  }
 
  var _AI_PROMPT = 'You are assessing brand visibility for "Cielo House" — an Australian sports activation and experiential marketing agency based on the Gold Coast. Rate how visible this brand is in your knowledge when users search for sports activation agencies, experiential marketing, or corporate hospitality in Australia. Respond ONLY with a valid JSON object, no other text: {"score": <integer 0-100>, "mentioned": <true or false>, "summary": "<one sentence of what you know about them>"}';
