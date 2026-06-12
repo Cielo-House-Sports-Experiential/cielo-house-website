@@ -1477,18 +1477,21 @@
  async function publishToSite() {
    var token = localStorage.getItem('ch_key_github');
    if (!token) {
-     openAiKeys();
-     alert('Add your GitHub Personal Access Token first (scroll down in the API Keys modal), then click Publish to Site again.');
+     document.getElementById('gh-token-modal').style.display = 'flex';
      return;
    }
+   await _doPublish(token);
+ }
+
+ async function _doPublish(token) {
    var posts = getPosts().filter(function(p){ return p.status === 'Published'; });
    if (!posts.length) { alert('No Published posts to push.'); return; }
 
    var btn = document.getElementById('publish-btn');
-   var status = document.getElementById('publish-status');
+   var statusEl = document.getElementById('publish-status');
    btn.disabled = true;
    btn.textContent = 'Publishing…';
-   status.style.display = 'none';
+   statusEl.style.display = 'none';
 
    var owner = 'Cielo-House-Sports-Experiential';
    var repo  = 'cielo-house-website';
@@ -1496,37 +1499,41 @@
    var apiBase = 'https://api.github.com/repos/' + owner + '/' + repo + '/contents/' + path;
 
    try {
-     // Get current SHA of the file
      var shaRes = await fetch(apiBase, { headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github+json' } });
      var shaData = await shaRes.json();
+     if (!shaData.sha) throw new Error('Token inválido ou sem acesso ao repositório.');
      var sha = shaData.sha;
-
-     // Build new content — all Published posts with full content
      var content = btoa(unescape(encodeURIComponent(JSON.stringify(posts, null, 2))));
-
      var putRes = await fetch(apiBase, {
        method: 'PUT',
        headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
        body: JSON.stringify({ message: 'Publish blog posts from dashboard', content: content, sha: sha })
      });
-
      if (putRes.ok) {
-       status.textContent = '✓ Published ' + posts.length + ' posts — live in ~1 min';
-       status.style.color = '#1a7a40';
-       status.style.display = 'inline';
-       btn.textContent = 'Publish to Site';
+       localStorage.setItem('ch_key_github', token);
+       statusEl.textContent = '✓ ' + posts.length + ' posts publicados — ao vivo em ~1 min';
+       statusEl.style.color = '#1a7a40';
+       statusEl.style.display = 'inline';
+       btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg> Publish to Site';
        btn.disabled = false;
      } else {
        var err = await putRes.json();
        throw new Error(err.message || putRes.status);
      }
    } catch(e) {
-     status.textContent = '✗ ' + e.message;
-     status.style.color = '#c0392b';
-     status.style.display = 'inline';
+     statusEl.textContent = '✗ ' + e.message;
+     statusEl.style.color = '#c0392b';
+     statusEl.style.display = 'inline';
      btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg> Publish to Site';
      btn.disabled = false;
    }
+ }
+
+ function saveGhToken() {
+   var t = document.getElementById('gh-token-input').value.trim();
+   if (!t) return;
+   document.getElementById('gh-token-modal').style.display = 'none';
+   _doPublish(t);
  }
 
  var _AI_PROMPT = 'You are assessing brand visibility for "Cielo House" — an Australian sports activation and experiential marketing agency based on the Gold Coast. Rate how visible this brand is in your knowledge when users search for sports activation agencies, experiential marketing, or corporate hospitality in Australia. Respond ONLY with a valid JSON object, no other text: {"score": <integer 0-100>, "mentioned": <true or false>, "summary": "<one sentence of what you know about them>"}';
@@ -4865,5 +4872,33 @@ Respond ONLY with valid JSON array, no other text:
  });
 
  </script>
+
+<!-- GitHub Token Setup Modal -->
+<div id="gh-token-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:14px;padding:2rem;max-width:480px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+    <div style="font-size:1.2rem;font-weight:700;color:#1a1a2e;margin-bottom:0.5rem;">Conectar ao GitHub — 1 vez só</div>
+    <p style="font-size:0.88rem;color:#555;line-height:1.6;margin-bottom:1.25rem;">Para publicar posts no site você precisa de um GitHub Token. É rápido — só precisa fazer isso uma vez.</p>
+
+    <div style="background:#f0f4ff;border-radius:8px;padding:1rem;font-size:0.83rem;color:#2B317B;margin-bottom:1.25rem;line-height:1.8;">
+      <strong>Passo 1:</strong> Clique no link abaixo para criar o token:<br>
+      <a href="https://github.com/settings/tokens/new?scopes=repo&description=CieloHouseDashboard" target="_blank" style="color:#1a7a40;font-weight:600;">→ github.com — Criar token (abre numa nova aba)</a><br>
+      <strong>Passo 2:</strong> Deixa o nome como está e clica <strong>"Generate token"</strong><br>
+      <strong>Passo 3:</strong> Copia o token (começa com <code>ghp_</code>) e cola abaixo
+    </div>
+
+    <input id="gh-token-input" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+      style="width:100%;padding:0.65rem 0.9rem;border:1.5px solid #d0d5e8;border-radius:8px;font-size:0.9rem;box-sizing:border-box;margin-bottom:1rem;font-family:'Poppins',sans-serif;"
+      onkeydown="if(event.key==='Enter')saveGhToken()" />
+
+    <div style="display:flex;gap:0.75rem;">
+      <button onclick="saveGhToken()" style="flex:1;background:#1a7a40;color:#fff;border:none;border-radius:8px;padding:0.7rem;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;">
+        Salvar e Publicar Agora
+      </button>
+      <button onclick="document.getElementById('gh-token-modal').style.display='none'" style="background:none;border:1.5px solid #d0d5e8;border-radius:8px;padding:0.7rem 1rem;font-size:0.9rem;cursor:pointer;color:#555;font-family:'Poppins',sans-serif;">
+        Cancelar
+      </button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
