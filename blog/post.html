@@ -189,6 +189,18 @@
      } catch(e) {}
    }
 
+   // Tier 3: data/posts.json static fallback — works for all visitors without Supabase
+   if (!post) {
+     try {
+       const r = await fetch('../data/posts.json');
+       const data = await r.json();
+       if (Array.isArray(data)) {
+         const found = data.find(p => p.slug === slug);
+         if (found) post = found;
+       }
+     } catch(e) {}
+   }
+
    if (!post) {
      document.getElementById('title').textContent = 'Article not found';
      document.getElementById('prose').innerHTML = '<p>This article could not be loaded. Please try again later.</p>';
@@ -206,7 +218,8 @@
 
    let html = '';
    if (post.image) html += '<img src="' + esc(post.image) + '" alt="' + esc(post.title) + '" style="width:100%;height:auto;border-radius:var(--radius-md);margin-bottom:2rem;display:block;" />';
-   html += renderContent(post.content);
+   const bodyHtml = renderContent(post.content);
+   html += bodyHtml || (post.excerpt ? '<p class="lead">' + esc(post.excerpt) + '</p>' : '');
    if (Array.isArray(post.seo_qa) && post.seo_qa.length) {
      html += '<div class="faq"><h2>Frequently Asked Questions</h2>';
      post.seo_qa.forEach(qa => { html += '<h3>' + esc(qa.q) + '</h3><p>' + esc(qa.a) + '</p>'; });
