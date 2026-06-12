@@ -545,26 +545,6 @@
  </a>
  </article>
  </div>
- <script>
- (async function(){
-  const U='https://nkabuhbkuzcxajzrlenj.supabase.co';
-  const K='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
-  const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  const grid=document.getElementById('home-blog-grid');
-  let posts=[];
-  try{const r=await fetch(`${U}/rest/v1/blog_posts?status=eq.Published&select=slug,title,excerpt,category,image,date&order=date.desc&limit=3`,{headers:{apikey:K,Authorization:'Bearer '+K}});const d=await r.json();if(Array.isArray(d)&&d.length)posts=d;}catch(e){}
-  if(!posts.length){try{const l=JSON.parse(localStorage.getItem('ch_blog_posts')||'[]');posts=l.filter(p=>p.status==='Published').sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)).slice(0,3);}catch(e){}}
-  if(!posts.length){try{const r=await fetch('data/posts.json');const d=await r.json();if(Array.isArray(d)&&d.length)posts=d.slice(0,3);}catch(e){}}
-  if(!posts.length)return;
-  const delays=['','1','2'];
-  grid.innerHTML=posts.slice(0,3).map((p,i)=>{
-   const url='blog/post.html?slug='+encodeURIComponent(p.slug||(p.title||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'));
-   const img=p.image||'images/our-work/boost-mobile-gold-coast-500.jpg';
-   const yr=p.date?(new Date(p.date).getFullYear()):'2026';
-   return `<article class="blog-card" data-animate${delays[i]?' data-animate-delay="'+delays[i]+'"':''}><a href="${url}"><div class="blog-card__img-wrap"><img src="${esc(img)}" alt="${esc(p.title)}" class="blog-card__img" loading="lazy"/></div><span class="blog-card__tag">${esc(p.category||'Insights')}</span><h3 class="blog-card__title">${esc(p.title)}</h3><p class="blog-card__excerpt">${esc(p.excerpt||'')}</p><span class="blog-card__meta">${yr}</span></a></article>`;
-  }).join('');
- })();
- </script>
  </div>
  </section>
 
