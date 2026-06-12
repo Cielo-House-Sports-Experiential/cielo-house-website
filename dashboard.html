@@ -2785,10 +2785,6 @@
  // Blog posts seed from live website data if never set
  (function seedBlogPosts() {
  var existing = JSON.parse(localStorage.getItem('ch_blog_posts') || 'null');
- // Re-seed if posts have wrong local image paths (fix from June 2026)
- if (existing !== null && existing.length > 0 && !(existing[0].image || '').startsWith('http')) {
-   localStorage.removeItem('ch_blog_posts'); existing = null;
- }
  if (existing !== null && existing.length > 0) return;
  var seed = [
    { title: 'AI and Experiential Marketing Trends Defining 2026', category: 'Business Tips', status: 'Published', date: '2026-05-30', excerpt: 'There is something happening in America right now that you genuinely have to experience in person to understand, and you can feel it the moment you step outside the airport.', image: 'https://static.wixstatic.com/media/39d64b_20b8dcc5fe2c4314b97432705bea3ebe~mv2.jpg', slug: 'ai-and-experiential-marketing-trends-defining-2026', views: 0 },
