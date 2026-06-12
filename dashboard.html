@@ -1499,14 +1499,14 @@
    var apiBase = 'https://api.github.com/repos/' + owner + '/' + repo + '/contents/' + path;
 
    try {
-     var shaRes = await fetch(apiBase, { headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github+json' } });
+     var shaRes = await fetch(apiBase, { headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' } });
      var shaData = await shaRes.json();
-     if (!shaData.sha) throw new Error('Token inválido ou sem acesso ao repositório.');
+     if (!shaRes.ok) throw new Error(shaData.message || ('GitHub erro ' + shaRes.status));
      var sha = shaData.sha;
      var content = btoa(unescape(encodeURIComponent(JSON.stringify(posts, null, 2))));
      var putRes = await fetch(apiBase, {
        method: 'PUT',
-       headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
+       headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
        body: JSON.stringify({ message: 'Publish blog posts from dashboard', content: content, sha: sha })
      });
      if (putRes.ok) {
@@ -4879,11 +4879,12 @@ Respond ONLY with valid JSON array, no other text:
     <div style="font-size:1.2rem;font-weight:700;color:#1a1a2e;margin-bottom:0.5rem;">Conectar ao GitHub — 1 vez só</div>
     <p style="font-size:0.88rem;color:#555;line-height:1.6;margin-bottom:1.25rem;">Para publicar posts no site você precisa de um GitHub Token. É rápido — só precisa fazer isso uma vez.</p>
 
-    <div style="background:#f0f4ff;border-radius:8px;padding:1rem;font-size:0.83rem;color:#2B317B;margin-bottom:1.25rem;line-height:1.8;">
-      <strong>Passo 1:</strong> Clique no link abaixo para criar o token:<br>
-      <a href="https://github.com/settings/tokens/new?scopes=repo&description=CieloHouseDashboard" target="_blank" style="color:#1a7a40;font-weight:600;">→ github.com — Criar token (abre numa nova aba)</a><br>
-      <strong>Passo 2:</strong> Deixa o nome como está e clica <strong>"Generate token"</strong><br>
-      <strong>Passo 3:</strong> Copia o token (começa com <code>ghp_</code>) e cola abaixo
+    <div style="background:#f0f4ff;border-radius:8px;padding:1rem;font-size:0.83rem;color:#2B317B;margin-bottom:1.25rem;line-height:1.9;">
+      <strong>Passo 1:</strong> Abra este link (usa o GitHub da tua chefe):<br>
+      <a href="https://github.com/settings/tokens/new?scopes=repo&description=CieloHouseDashboard" target="_blank" style="color:#1a7a40;font-weight:600;">→ Criar token clássico no GitHub</a><br>
+      <strong>Passo 2:</strong> Em <em>Note</em> deixa qualquer nome. Em <em>Expiration</em> escolhe <strong>No expiration</strong>.<br>
+      <strong>Passo 3:</strong> Em <em>Select scopes</em> marca a caixa <strong>repo</strong> (primeira da lista).<br>
+      <strong>Passo 4:</strong> Clica <strong>"Generate token"</strong> → copia o token (começa com <code style="background:#dde4ff;padding:1px 4px;border-radius:3px;">ghp_</code>) e cola abaixo.
     </div>
 
     <input id="gh-token-input" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
