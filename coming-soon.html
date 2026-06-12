@@ -62,6 +62,8 @@
       animation: fadeUp 0.9s cubic-bezier(.22,1,.36,1) 0.3s both;
     }
 
+    /* On mobile use top-anchor so position tracks the image's blue zone regardless of screen height */
+
     /* Buttons sit side by side on desktop */
     .btns-row {
       display: flex;
@@ -140,10 +142,11 @@
       text-align: left;
     }
 
-    /* Mobile: centered in the blue area */
+    /* Mobile: anchor from top — solid blue starts at ~79% of image height */
     @media (max-width: 768px) {
       .btns-wrap {
-        bottom: 6%;
+        bottom: auto;
+        top: 79%;
         left: 0;
         right: 0;
         align-items: center;
@@ -169,7 +172,7 @@
 
       .btn {
         width: 100%;
-        max-width: 280px;
+        max-width: 260px;
         justify-content: center;
         font-size: 0.72rem;
         padding: 0.65rem 1.1rem;
@@ -179,13 +182,6 @@
       .btn svg {
         width: 14px;
         height: 14px;
-      }
-    }
-
-    /* Small mobile */
-    @media (max-width: 420px) {
-      .btns-wrap {
-        bottom: 8%;
       }
     }
   </style>
