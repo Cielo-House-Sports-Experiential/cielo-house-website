@@ -99,8 +99,9 @@
  <div class="container">
 
  <img
+ id="cs-hero-image"
  src="../images/our-work/coates-formula-1-australian-grand-prix.jpg"
- alt="Coates VIP hospitality program at the 2025 Gold Coast 500"
+ alt="Coates VIP hospitality suite at the 2026 F1 Australian Grand Prix"
  class="hero-image"
  loading="eager"
  />
@@ -109,13 +110,33 @@
 
  <article class="case-prose" data-animate>
 
- <p class="lead">Coates required a premium hospitality programme and sponsor activation presence at the F1 Australian Grand Prix. Cielo House designed and delivered the full hospitality programme from brief through to post-event reconciliation.</p>
+ <p class="lead" id="cs-lead">The F1 Australian Grand Prix is the most prized invite on the Coates customer calendar. For the 2026 race weekend at Albert Park in Melbourne, Coates briefed Cielo to host its top tier customers inside a premium, exclusive suite — a space designed to land an impression the moment guests walked in.</p>
 
  <h2>The Brief</h2>
- <p>Coates required a premium hospitality programme and sponsor activation presence at the F1 Australian Grand Prix. The brief called for a branded lounge experience that would hold its standard across the full race weekend, an arrival sequence and in-room journey for tiered guests, and onsite talent integration to reflect the Coates brand presence at one of Australia's most commercially visible motorsport events.</p>
+ <p id="cs-brief">The F1 Australian Grand Prix is the most prized invite on the Coates customer calendar. For the 2026 race weekend at Albert Park in Melbourne, Coates briefed Cielo to host its top tier customers inside a premium, exclusive suite, a space designed to land an impression the moment guests walked in.</p>
+
+ <div class="stat-row">
+ <div class="stat-block">
+  <span class="stat-number" id="cs-stat1n">180</span>
+  <span class="stat-desc" id="cs-stat1d">Guests hosted across three days</span>
+ </div>
+ <div class="stat-block">
+  <span class="stat-number" id="cs-stat2n">58</span>
+  <span class="stat-desc" id="cs-stat2d">Money can't buy experiences delivered</span>
+ </div>
+ <div class="stat-block">
+  <span class="stat-number" id="cs-stat3n">4</span>
+  <span class="stat-desc" id="cs-stat3d">Walkinshaw driver and executive appearances</span>
+ </div>
+ </div>
 
  <h2>What Was Delivered</h2>
- <p>Cielo House designed and delivered the full hospitality programme from brief through to post-event reconciliation. The branded lounge concept, fit-out, and supplier curation were developed specifically for the Albert Park environment. The guest experience sequence was built in reverse from departure, so the arrival flow, the in-room dwell experience, and the departure moment all held to the same production standard. Talent integration and host briefing were managed by the Cielo House team, alongside crew management, service standards, and live floor management across all four days of the event.</p>
+ <p id="cs-delivered">Cielo designed and built the Coates Lounge as a custom, modular suite, engineered with sustainability in mind and detailed to speak to the Coates partnerships with Supercars and Walkinshaw. Branding ran through every touch of the room, from catering aprons and bar runners to napkins, coasters, florals, and lanyards, with a custom charging station built in for guests. Premium catering ran throughout each day, a dedicated host held the room at all times, and the programme opened access to money can't buy experiences, including hot laps, Walkinshaw garage tours, F1 paddock tours, and appearances from Walkinshaw drivers and executives.<br><br>Across three days, the Coates Lounge hosted 180 top tier customers to a single, held standard. The suite drew praise from guests throughout the weekend, carried by the detail in the fit out and the hospitality on the floor, and the response continued in the follow up that landed with Coates the week after the race.</p>
+
+ <blockquote>
+ <p id="cs-quote">The F1 weekend is the most prized invite on our calendar, and the Coates Lounge drew high praise from everyone I spoke to across the three days. The follow up emails this week are a true reflection of the preparation and the attention to detail.</p>
+ </blockquote>
+ <p style="font-size:0.9rem;color:var(--color-mid-grey);margin-top:-1rem;padding-left:1.5rem;"><em id="cs-attribution">A Coates Executive</em></p>
 
  </article>
 
@@ -127,19 +148,19 @@
  </div>
  <div class="meta-row">
  <span class="meta-label">Event</span>
- <span class="meta-value">Supercars Gold Coast 500</span>
+ <span class="meta-value">F1 Australian Grand Prix</span>
  </div>
  <div class="meta-row">
  <span class="meta-label">Location</span>
- <span class="meta-value">Gold Coast, QLD</span>
+ <span class="meta-value">Albert Park, Melbourne VIC</span>
  </div>
  <div class="meta-row">
  <span class="meta-label">Year</span>
- <span class="meta-value">2025</span>
+ <span class="meta-value">2026</span>
  </div>
  <div class="meta-row">
  <span class="meta-label">Services Delivered</span>
- <span class="meta-value">Corporate Hospitality · Guest Experience Design · Event Staffing · Catering Curation · Gifting</span>
+ <span class="meta-value">Premium Hospitality · Suite Design &amp; Build · Guest Experience · Catering Curation · Talent Integration · Event Staffing</span>
  </div>
  </div>
 
@@ -196,5 +217,8 @@
  </footer>
 
  <script src="../js/main.js" defer></script>
+ <script>
+ (function(){try{var d=(JSON.parse(localStorage.getItem('ch_cs_overrides')||'{}')||{})['coates-vip-hospitality'];if(!d)return;if(d.heroImage)document.getElementById('cs-hero-image').src=d.heroImage;if(d.lead)document.getElementById('cs-lead').innerHTML=d.lead;if(d.brief)document.getElementById('cs-brief').innerHTML=d.brief;if(d.delivered)document.getElementById('cs-delivered').innerHTML=d.delivered;if(d.quote)document.getElementById('cs-quote').textContent=d.quote;if(d.attribution)document.getElementById('cs-attribution').textContent=d.attribution;if(d.stat1n)document.getElementById('cs-stat1n').textContent=d.stat1n;if(d.stat1d)document.getElementById('cs-stat1d').textContent=d.stat1d;if(d.stat2n)document.getElementById('cs-stat2n').textContent=d.stat2n;if(d.stat2d)document.getElementById('cs-stat2d').textContent=d.stat2d;if(d.stat3n)document.getElementById('cs-stat3n').textContent=d.stat3n;if(d.stat3d)document.getElementById('cs-stat3d').textContent=d.stat3d;}catch(e){}})();
+ </script>
 </body>
 </html>
