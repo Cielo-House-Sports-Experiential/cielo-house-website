@@ -1475,12 +1475,30 @@
 
  // ===================== PUBLISH TO SITE =====================
  async function publishToSite() {
+   var posts = getPosts().filter(function(p){ return p.status === 'Published'; });
+   if (!posts.length) { alert('No Published posts to push.'); return; }
+
    var token = localStorage.getItem('ch_key_github');
-   if (!token) {
-     document.getElementById('gh-token-modal').style.display = 'flex';
-     return;
+   if (token) {
+     await _doPublish(token);
+   } else {
+     // No token — download file and let Claude commit from terminal
+     _downloadPostsJson(posts);
    }
-   await _doPublish(token);
+ }
+
+ function _downloadPostsJson(posts) {
+   var json = JSON.stringify(posts, null, 2);
+   var blob = new Blob([json], { type: 'application/json' });
+   var url = URL.createObjectURL(blob);
+   var a = document.createElement('a');
+   a.href = url;
+   a.download = 'posts.json';
+   a.click();
+   URL.revokeObjectURL(url);
+   document.getElementById('publish-status').textContent = '✓ posts.json baixado — arrasta para a pasta data/ do site e avisa o Claude';
+   document.getElementById('publish-status').style.color = '#1a7a40';
+   document.getElementById('publish-status').style.display = 'inline';
  }
 
  async function _doPublish(token) {
