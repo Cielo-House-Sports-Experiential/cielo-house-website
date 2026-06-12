@@ -476,6 +476,7 @@ p {
 }
 
 .nav__mobile.open {
+  display: flex;
   opacity: 1;
   pointer-events: all;
 }
