@@ -602,8 +602,8 @@
  </div>
  </footer>
 
- <script src="js/main.js?v=2" defer></script>
- <script src="js/events.js?v=2" defer></script>
+ <script src="js/main.js?v=3" defer></script>
+ <script src="js/events.js?v=3" defer></script>
  <script>
  function handleEmailSignup(e) {
  e.preventDefault();
@@ -616,74 +616,108 @@
  setTimeout(function() { msg.style.display = 'none'; }, 4000);
  }
 
- /* ── Load testimonials from dashboard if available ── */
- (function() {
-   var track = document.getElementById('tcarousel-track');
-   if (!track) return;
-   try {
-     var live = JSON.parse(localStorage.getItem('ch_testimonials_live') || 'null');
-     if (live && Array.isArray(live) && live.length > 0) {
-       track.innerHTML = live.map(function(t) {
-         return '<div class="tcarousel__card">'
-           + '<span class="tcarousel__quote-icon" aria-hidden="true">&ldquo;</span>'
-           + (t.highlight ? '<p class="tcarousel__highlight">' + t.highlight + '</p>' : '')
-           + '<p class="tcarousel__body">' + t.body + '</p>'
-           + '<p class="tcarousel__name">' + t.name
-           + (t.role ? ' <span class="tcarousel__company"> ' + t.role + '</span>' : '')
-           + ' <span class="tcarousel__company"> ' + t.company + '</span></p>'
-           + '</div>';
-       }).join('');
+ /* ── Live home-page content from Supabase (same on every device, driven by the
+       dashboard — no localStorage, no hardcoded content). The static cards in the
+       HTML are SEO / no-JS fallbacks only. ── */
+ (function () {
+   var SB = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
+   var SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
+   var H = { apikey: SK, Authorization: 'Bearer ' + SK };
+   function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+   /* Featured Work — live case_studies (matches the Work page) */
+   var workGrid = document.querySelector('.work-grid');
+   if (workGrid) {
+     fetch(SB + '/rest/v1/case_studies?published=eq.true&select=slug,featured,category,card_tag,card_title,card_image,card_image_alt,card_link&order=sort_order.asc&limit=3', { headers: H })
+       .then(function (r) { return r.ok ? r.json() : null; })
+       .then(function (rows) {
+         if (!rows || !rows.length) return;
+         workGrid.innerHTML = rows.map(function (c, i) {
+           var large = i === 0 ? ' work-card--large' : '';
+           var link = c.card_link || ('work/' + c.slug + '.html');
+           return '<a href="' + esc(link) + '" class="work-card' + large + '">'
+             + '<div class="work-card__img-wrap"><img src="' + esc(c.card_image) + '" alt="' + esc(c.card_image_alt || c.card_title) + '" class="work-card__img" loading="lazy"/></div>'
+             + '<div class="work-card__content"><span class="work-card__tag">' + esc(c.card_tag) + '</span><h3 class="work-card__title">' + esc(c.card_title) + '</h3></div>'
+             + '<div class="work-card__arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" width="16" height="16"><path d="M3 13L13 3M13 3H6M13 3v7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>'
+             + '</a>';
+         }).join('');
+       }).catch(function () {});
+   }
+
+   /* Insights — latest 3 published posts */
+   var blogGrid = document.querySelector('.blog-grid');
+   if (blogGrid) {
+     fetch(SB + '/rest/v1/blog_posts?status=eq.Published&select=slug,title,excerpt,image,category,date,author&order=date.desc&limit=3', { headers: H })
+       .then(function (r) { return r.ok ? r.json() : null; })
+       .then(function (rows) {
+         if (!rows || !rows.length) return;
+         blogGrid.innerHTML = rows.map(function (p) {
+           return '<article class="blog-card"><a href="blog/post.html?slug=' + encodeURIComponent(p.slug) + '">'
+             + '<div class="blog-card__img-wrap"><img src="' + esc(p.image) + '" alt="' + esc(p.title) + '" class="blog-card__img" loading="lazy"/></div>'
+             + (p.category ? '<span class="blog-card__tag">' + esc(p.category) + '</span>' : '')
+             + '<h3 class="blog-card__title">' + esc(p.title) + '</h3>'
+             + '<p class="blog-card__excerpt">' + esc(p.excerpt) + '</p>'
+             + '<span class="blog-card__meta">' + esc(p.author || 'Cielo House') + '</span>'
+             + '</a></article>';
+         }).join('');
+       }).catch(function () {});
+   }
+
+   /* Testimonials — live, then (re)build the carousel on whatever cards exist */
+   fetch(SB + '/rest/v1/testimonials?visible=eq.true&select=name,company,role,highlight,body&order=sort_order.asc', { headers: H })
+     .then(function (r) { return r.ok ? r.json() : null; })
+     .then(function (rows) {
+       var track = document.getElementById('tcarousel-track');
+       if (track && rows && rows.length) {
+         track.innerHTML = rows.map(function (t) {
+           return '<div class="tcarousel__card"><span class="tcarousel__quote-icon" aria-hidden="true">&ldquo;</span>'
+             + (t.highlight ? '<p class="tcarousel__highlight">' + esc(t.highlight) + '</p>' : '')
+             + '<p class="tcarousel__body">' + esc(t.body) + '</p>'
+             + '<p class="tcarousel__name">' + esc(t.name)
+             + (t.role ? ' <span class="tcarousel__company"> ' + esc(t.role) + '</span>' : '')
+             + ' <span class="tcarousel__company"> ' + esc(t.company) + '</span></p>'
+             + '</div>';
+         }).join('');
+       }
+       initTcarousel();
+     })
+     .catch(function () { initTcarousel(); });
+
+   function initTcarousel() {
+     var track = document.getElementById('tcarousel-track');
+     var prevBtn = document.getElementById('tcarousel-prev');
+     var nextBtn = document.getElementById('tcarousel-next');
+     var dotsContainer = document.getElementById('tcarousel-dots');
+     if (!track || !prevBtn || !nextBtn || !dotsContainer) return;
+     var cards = Array.prototype.slice.call(track.querySelectorAll('.tcarousel__card'));
+     var total = cards.length;
+     if (!total) return;
+     var current = 0;
+     function goTo(index) {
+       cards[current].classList.remove('is-active');
+       current = index;
+       cards[current].classList.add('is-active');
+       dotsContainer.querySelectorAll('.tcarousel__dot').forEach(function (d, i) {
+         d.className = 'tcarousel__dot' + (i === current ? ' tcarousel__dot--active' : '');
+       });
+       prevBtn.disabled = current === 0;
+       nextBtn.disabled = current === total - 1;
      }
-   } catch(e) {}
- })();
-
- (function() {
- var track = document.getElementById('tcarousel-track');
- var prevBtn = document.getElementById('tcarousel-prev');
- var nextBtn = document.getElementById('tcarousel-next');
- var dotsContainer = document.getElementById('tcarousel-dots');
- if (!track) return;
-
- var cards = Array.prototype.slice.call(track.querySelectorAll('.tcarousel__card'));
- var total = cards.length;
- var current = 0;
-
- function buildDots() {
- dotsContainer.innerHTML = '';
- for (var i = 0; i < total; i++) {
- var dot = document.createElement('span');
- dot.className = 'tcarousel__dot' + (i === current ? ' tcarousel__dot--active' : '');
- dot.setAttribute('data-index', i);
- dot.addEventListener('click', function() {
- goTo(parseInt(this.getAttribute('data-index')));
- });
- dotsContainer.appendChild(dot);
- }
- }
-
- function goTo(index) {
- cards[current].classList.remove('is-active');
- current = index;
- cards[current].classList.add('is-active');
- var dots = dotsContainer.querySelectorAll('.tcarousel__dot');
- dots.forEach(function(d, i) {
- d.className = 'tcarousel__dot' + (i === current ? ' tcarousel__dot--active' : '');
- });
- prevBtn.disabled = current === 0;
- nextBtn.disabled = current === total - 1;
- }
-
- prevBtn.addEventListener('click', function() {
- if (current > 0) goTo(current - 1);
- });
-
- nextBtn.addEventListener('click', function() {
- if (current < total - 1) goTo(current + 1);
- });
-
- buildDots();
- cards[0].classList.add('is-active');
- prevBtn.disabled = true;
+     dotsContainer.innerHTML = '';
+     for (var i = 0; i < total; i++) {
+       var dot = document.createElement('span');
+       dot.className = 'tcarousel__dot' + (i === 0 ? ' tcarousel__dot--active' : '');
+       dot.setAttribute('data-index', i);
+       dot.addEventListener('click', function () { goTo(parseInt(this.getAttribute('data-index'), 10)); });
+       dotsContainer.appendChild(dot);
+     }
+     cards.forEach(function (c) { c.classList.remove('is-active'); });
+     cards[0].classList.add('is-active');
+     prevBtn.onclick = function () { if (current > 0) goTo(current - 1); };
+     nextBtn.onclick = function () { if (current < total - 1) goTo(current + 1); };
+     prevBtn.disabled = true;
+     nextBtn.disabled = total <= 1;
+   }
  })();
  </script>
 <script src="/tracking.js"></script>

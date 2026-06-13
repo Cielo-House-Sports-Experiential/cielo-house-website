@@ -51,27 +51,28 @@ function buildDates(start, end) {
   return s + ' - ' + fmtDate(end);
 }
 
-/* ---- Load events from dashboard localStorage, max 4 ---- */
+/* ---- Supabase (live source of truth — same anon key the rest of the site uses) ---- */
+var EVENTS_SB = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
+var EVENTS_SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
+
+/* ---- Load events from Supabase (same on every device), max 4 ---- */
 function loadEvents() {
-  try {
-    var stored = JSON.parse(localStorage.getItem('ch_events'));
-    if (stored && Array.isArray(stored) && stored.length > 0) {
-      // Sort by start date, take first 4
-      stored.sort(function(a, b) {
-        return (a.start || '').localeCompare(b.start || '');
-      });
-      return stored.slice(0, 4);
-    }
-  } catch (e) {}
-  return FALLBACK_EVENTS.slice(0, 4);
+  fetch(EVENTS_SB + '/rest/v1/site_events?select=title,location,start_date,end_date,photo&order=start_date.asc&limit=4', { headers: { apikey: EVENTS_SK, Authorization: 'Bearer ' + EVENTS_SK } })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (rows) {
+      if (!rows || !rows.length) { renderEvents(FALLBACK_EVENTS.slice(0, 4)); return; }
+      renderEvents(rows.map(function (e) {
+        return { title: e.title, location: e.location, start: e.start_date, end: e.end_date, photo: e.photo };
+      }));
+    })
+    .catch(function () { renderEvents(FALLBACK_EVENTS.slice(0, 4)); });
 }
 
 /* ---- Render ---- */
-function renderEvents() {
+function renderEvents(events) {
   var grid = document.getElementById('events-grid');
   if (!grid) return;
-
-  var events = loadEvents();
+  if (!events || !events.length) events = FALLBACK_EVENTS.slice(0, 4);
   grid.setAttribute('data-count', events.length);
 
   grid.innerHTML = events.map(function(ev, i) {
@@ -102,9 +103,4 @@ function renderEvents() {
   }).join('');
 }
 
-document.addEventListener('DOMContentLoaded', renderEvents);
-
-/* Re-render if dashboard updates events in another tab */
-window.addEventListener('storage', function(e) {
-  if (e.key === 'ch_events') renderEvents();
-});
+document.addEventListener('DOMContentLoaded', loadEvents);

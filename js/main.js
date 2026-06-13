@@ -563,18 +563,23 @@ if (heroBg && window.innerWidth > 768) {
  }
  ];
 
+ // Live FAQs from Supabase (same on every device, managed in the dashboard).
+ var FAQ_SB = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
+ var FAQ_SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
  function loadFaqs() {
- try {
- var stored = JSON.parse(localStorage.getItem(FAQ_KEY));
- return (stored && stored.length) ? stored : DEFAULT_FAQS;
- } catch (e) { return DEFAULT_FAQS; }
+ fetch(FAQ_SB + '/rest/v1/faqs?select=question,answer&order=sort_order.asc', { headers: { apikey: FAQ_SK, Authorization: 'Bearer ' + FAQ_SK } })
+ .then(function (r) { return r.ok ? r.json() : null; })
+ .then(function (rows) {
+ if (!rows || !rows.length) { renderFaqs(DEFAULT_FAQS); return; }
+ renderFaqs(rows.map(function (f) { return { q: f.question, a: f.answer }; }));
+ })
+ .catch(function () { renderFaqs(DEFAULT_FAQS); });
  }
 
- function renderFaqs() {
+ function renderFaqs(faqs) {
  var list = document.getElementById('faq-list');
  if (!list) return;
-
- var faqs = loadFaqs();
+ if (!faqs || !faqs.length) faqs = DEFAULT_FAQS;
  list.innerHTML = '';
 
  faqs.forEach(function (faq, idx) {
@@ -643,12 +648,7 @@ if (heroBg && window.innerWidth > 768) {
  .replace(/"/g, '&quot;');
  }
 
- renderFaqs();
-
- // Re-render if another tab updates localStorage
- window.addEventListener('storage', function (e) {
- if (e.key === FAQ_KEY) renderFaqs();
- });
+ loadFaqs();
 })();
 
 /* ============================================
