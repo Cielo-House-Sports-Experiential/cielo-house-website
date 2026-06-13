@@ -4984,11 +4984,11 @@ Respond ONLY with valid JSON array, no other text:
   var file = input.files[0]; if(!file) return;
   var u = document.getElementById(urlInputId);
   if(u){ u.value=''; u.setAttribute('data-uploading','1'); u.placeholder='Uploading…'; }
-  var reader = new FileReader();
-  reader.onload = function(e){
-   var img = new Image();
-   img.onerror = function(){ if(u){ u.removeAttribute('data-uploading'); u.placeholder='Upload failed — try again'; } alert('Could not read that image. Try a JPG or PNG.'); };
-   img.onload = function(){
+  var objUrl;
+  try { objUrl = URL.createObjectURL(file); } catch(err){ if(u){ u.removeAttribute('data-uploading'); u.placeholder='Upload failed — try again'; } alert('Could not open that file.'); return; }
+  var img = new Image();
+  img.onerror = function(){ try{URL.revokeObjectURL(objUrl);}catch(e){} if(u){ u.removeAttribute('data-uploading'); u.placeholder='Upload failed — try again'; } alert('Could not read that image. If it is in iCloud/Photos, drag it to your Desktop first so it downloads, then try again.'); };
+  img.onload = function(){
     // Shrink + compress in the browser so a small file uploads fast.
     var maxW = 1600;
     var scale = Math.min(1, maxW / (img.width || maxW));
@@ -4998,14 +4998,14 @@ Respond ONLY with valid JSON array, no other text:
     canvas.width = w; canvas.height = h;
     canvas.getContext('2d').drawImage(img, 0, 0, w, h);
     var dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+    try{URL.revokeObjectURL(objUrl);}catch(e){}
     showCsImgPreview(previewId, dataUrl);
     fetch('/api/cs-upload?t='+Date.now(), { method:'POST', cache:'no-store', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ data: dataUrl, type:'image/jpeg', ext:'jpg' }) })
      .then(function(r){ if(!r.ok){ return r.text().then(function(t){ throw new Error('HTTP '+r.status+(t?(' — '+t.slice(0,160)):'')); }); } return r.json(); })
      .then(function(d){ if(!d || !d.url) throw new Error('no url returned'); if(u){ u.value = d.url; u.removeAttribute('data-uploading'); u.placeholder=''; } if(typeof csToast==='function') csToast('Image uploaded ✓'); })
      .catch(function(err){ if(u){ u.removeAttribute('data-uploading'); u.placeholder='Upload failed — try again'; } alert('Image upload failed: ' + ((err&&err.message)||'network/blocked')); });
-   };
-   img.src = e.target.result;
   };
+  img.src = objUrl;
   reader.readAsDataURL(file);
  }
 

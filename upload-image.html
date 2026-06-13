@@ -56,17 +56,17 @@
     var slot=document.querySelector('input[name=slot]:checked').value;
     go.disabled=true; st.style.color='#2B317B'; st.textContent='Uploading…';
     log('clicked', slot+' size='+file.size+' type='+(file.type||'?'));
-    var reader=new FileReader();
-    reader.onerror=function(){ go.disabled=false; st.style.color='#c0392b'; st.textContent='Could not read the file.'; log('reader-error','FileReader failed'); };
-    reader.onload=function(e){
-      log('file-read','len='+(e.target.result||'').length);
+    var objUrl;
+    try { objUrl = URL.createObjectURL(file); } catch(err){ go.disabled=false; st.style.color='#c0392b'; st.textContent='Could not open the file.'; log('objurl-error',String(err)); return; }
+    (function(){
       var img=new Image();
-      img.onerror=function(){ go.disabled=false; st.style.color='#c0392b'; st.textContent='Could not read that image — try a JPG or PNG.'; log('img-error','image decode failed'); };
+      img.onerror=function(){ try{URL.revokeObjectURL(objUrl);}catch(e){} go.disabled=false; st.style.color='#c0392b'; st.textContent='Could not read that image. If it is in iCloud/Photos, drag it to your Desktop first (so it downloads), then try again.'; log('img-error','decode failed'); };
       img.onload=function(){
         var maxW=1600, scale=Math.min(1,maxW/(img.width||maxW));
         var w=Math.max(1,Math.round((img.width||maxW)*scale)), h=Math.max(1,Math.round((img.height||maxW)*scale));
         var cv=document.createElement('canvas'); cv.width=w; cv.height=h; cv.getContext('2d').drawImage(img,0,0,w,h);
         var dataUrl=cv.toDataURL('image/jpeg',0.82);
+        try{URL.revokeObjectURL(objUrl);}catch(e){}
         var pv=document.getElementById('preview'); pv.src=dataUrl; pv.style.display='block';
         log('resized', w+'x'+h+' b64len='+dataUrl.length);
         fetch('/api/cs-upload?t='+Date.now(),{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:dataUrl,type:'image/jpeg',ext:'jpg'})})
@@ -77,9 +77,8 @@
           .then(function(){ go.disabled=false; st.style.color='#1a7a40'; st.textContent='✓ Saved and live. Refresh the work / service page to see it.'; log('saved','done'); })
           .catch(function(err){ go.disabled=false; st.style.color='#c0392b'; st.textContent='Failed: '+((err&&err.message)||'error'); log('ERROR', (err&&err.message)||'error'); });
       };
-      img.src=e.target.result;
-    };
-    reader.readAsDataURL(file);
+      img.src=objUrl;
+    })();
   };
 })();
 </script>

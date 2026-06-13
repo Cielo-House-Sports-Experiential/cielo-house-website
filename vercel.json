@@ -1,6 +1,14 @@
 {
   "version": 2,
   "outputDirectory": ".",
+  "redirects": [
+    { "source": "/UPLOAD-IMAGE.HTML", "destination": "/upload-image.html" },
+    { "source": "/UPLOAD-IMAGE.html", "destination": "/upload-image.html" },
+    { "source": "/Upload-Image.html", "destination": "/upload-image.html" },
+    { "source": "/DASHBOARD.HTML", "destination": "/dashboard.html" },
+    { "source": "/DASHBOARD.html", "destination": "/dashboard.html" },
+    { "source": "/Dashboard.html", "destination": "/dashboard.html" }
+  ],
   "rewrites": [
     { "source": "/blog/:slug", "destination": "/blog/post.html?slug=:slug" }
   ],
