@@ -3,5 +3,13 @@
   "outputDirectory": ".",
   "rewrites": [
     { "source": "/blog/:slug", "destination": "/blog/post.html?slug=:slug" }
+  ],
+  "headers": [
+    {
+      "source": "/dashboard.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate, max-age=0" }
+      ]
+    }
   ]
 }
