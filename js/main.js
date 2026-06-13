@@ -38,6 +38,24 @@ if (hamburger && mobileMenu) {
  document.body.style.overflow = '';
  });
  });
+
+ // Services dropdown inside the mobile menu
+ const mobileToggle = document.querySelector('.nav__mobile-toggle');
+ if (mobileToggle) {
+ mobileToggle.addEventListener('click', () => {
+ const group = mobileToggle.closest('.nav__mobile-group');
+ if (group) group.classList.toggle('open');
+ mobileToggle.setAttribute('aria-expanded', group && group.classList.contains('open') ? 'true' : 'false');
+ });
+ }
+ // Sub-links navigate, so close the menu like the other links
+ document.querySelectorAll('.nav__mobile-sublink').forEach(link => {
+ link.addEventListener('click', () => {
+ hamburger.classList.remove('open');
+ mobileMenu.classList.remove('open');
+ document.body.style.overflow = '';
+ });
+ });
 }
 
 /* --- Scroll Animations (Intersection Observer) --- */

@@ -499,6 +499,62 @@ p {
   color: var(--color-gold);
 }
 
+/* Mobile menu: each item on its own line + Services dropdown */
+.nav__mobile nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+  width: 100%;
+}
+.nav__mobile-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+.nav__mobile-toggle {
+  font-family: var(--font-display);
+  font-size: var(--text-4xl);
+  color: var(--color-white);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: color var(--duration-fast);
+}
+.nav__mobile-toggle:hover {
+  color: var(--color-gold);
+}
+.nav__mobile-caret {
+  font-size: 0.5em;
+  transition: transform var(--duration-fast);
+}
+.nav__mobile-group.open .nav__mobile-caret {
+  transform: rotate(180deg);
+}
+.nav__mobile-sub {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+.nav__mobile-group.open .nav__mobile-sub {
+  display: flex;
+}
+.nav__mobile-sublink {
+  font-family: var(--font-body);
+  font-size: var(--text-xl);
+  color: rgba(255, 255, 255, 0.7);
+  transition: color var(--duration-fast);
+}
+.nav__mobile-sublink:hover {
+  color: var(--color-gold);
+}
+
 /* ============================================
    BUTTONS
    ============================================ */
@@ -2434,7 +2490,7 @@ h1 em, h2 em, h3 em {
 
   .footer__top {
     grid-template-columns: 1fr;
-    gap: var(--space-10);
+    gap: calc(var(--space-10) * 3);
   }
 
   .footer__bottom {
