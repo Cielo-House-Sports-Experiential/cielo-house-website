@@ -3926,14 +3926,12 @@
  // Cover image upload
  document.getElementById('blog-img-file').addEventListener('change', function(e) {
    var file = e.target.files[0]; if (!file) return;
-   var reader = new FileReader();
-   reader.onload = function(ev) {
-     document.getElementById('blog-image').value = ev.target.result;
-     document.getElementById('blog-img-preview').src = ev.target.result;
-     document.getElementById('blog-img-preview').style.display = 'block';
+   var prev = document.getElementById('blog-img-preview');
+   blogUploadImage(file, prev, function(url){
+     document.getElementById('blog-image').value = url;
+     prev.style.display = 'block';
      document.getElementById('blog-img-remove').style.display = 'block';
-   };
-   reader.readAsDataURL(file);
+   });
  });
  document.getElementById('blog-img-remove').addEventListener('click', function(e) {
    e.stopPropagation();
@@ -3983,14 +3981,33 @@
 
  document.getElementById('rte-img-file').addEventListener('change', function(e) {
    var file = e.target.files[0]; if (!file) return;
-   var reader = new FileReader();
-   reader.onload = function(ev) {
-     document.getElementById('rte-img-url').value = ev.target.result;
-     document.getElementById('rte-img-preview').src = ev.target.result;
-     document.getElementById('rte-img-preview').style.display = 'block';
-   };
-   reader.readAsDataURL(file);
+   var urlInput = document.getElementById('rte-img-url');
+   var prev = document.getElementById('rte-img-preview');
+   urlInput.value = ''; urlInput.placeholder = 'Uploading…';
+   blogUploadImage(file, prev, function(url){ urlInput.value = url; urlInput.placeholder = 'https://...'; }, function(){ urlInput.placeholder = 'Upload failed — try again'; });
  });
+
+ /* Upload a blog image to storage and return its URL (never embed it as a blob
+    in the post — that's what was blocking saves). */
+ function blogUploadImage(file, previewEl, onUrl, onFail) {
+   if (file.size > 12 * 1024 * 1024) { alert('Image must be under 12 MB.'); if(onFail)onFail(); return; }
+   var objUrl;
+   try { objUrl = URL.createObjectURL(file); } catch(err){ alert('Could not open that file.'); if(onFail)onFail(); return; }
+   var img = new Image();
+   img.onerror = function(){ try{URL.revokeObjectURL(objUrl);}catch(x){} alert('Could not read that image. If it is in iCloud/Photos, drag it to your Desktop first, then try again.'); if(onFail)onFail(); };
+   img.onload = function(){
+     if (previewEl) { previewEl.src = objUrl; previewEl.style.display = 'block'; }
+     var maxW = 1600, scale = Math.min(1, maxW / (img.width || maxW));
+     var w = Math.max(1, Math.round((img.width||maxW) * scale)), h = Math.max(1, Math.round((img.height||maxW) * scale));
+     var cv = document.createElement('canvas'); cv.width = w; cv.height = h; cv.getContext('2d').drawImage(img, 0, 0, w, h);
+     var dataUrl = cv.toDataURL('image/jpeg', 0.85);
+     fetch('/api/cs-upload?t=' + Date.now(), { method:'POST', cache:'no-store', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ data: dataUrl, type:'image/jpeg', ext:'jpg' }) })
+       .then(function(r){ if(!r.ok){ return r.text().then(function(t){ throw new Error('HTTP '+r.status); }); } return r.json(); })
+       .then(function(d){ if(!d || !d.url) throw new Error('no url'); try{URL.revokeObjectURL(objUrl);}catch(x){} if(typeof csToast==='function') csToast('Image uploaded ✓'); onUrl(d.url); })
+       .catch(function(){ try{URL.revokeObjectURL(objUrl);}catch(x){} alert('Image upload failed. Please try again.'); if(onFail)onFail(); });
+   };
+   img.src = objUrl;
+ }
 
  function rteConfirmImage() {
    var src     = document.getElementById('rte-img-url').value.trim();
