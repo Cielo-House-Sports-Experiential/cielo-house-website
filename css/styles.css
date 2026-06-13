@@ -2482,6 +2482,29 @@ h1 em, h2 em, h3 em {
     border-left: none;
     border-top: 1px solid rgba(255, 255, 255, 0.07);
   }
+
+  /* Per-page inline grids (split content + galleries) collapse on mobile.
+     Inline styles can't carry a media query, so these attribute-selector
+     rules (with !important, which beats a non-important inline declaration)
+     stack them on phones across every page in one place. */
+  [style*="grid-template-columns:1fr 1fr"],
+  [style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+    gap: 2.5rem !important;
+    align-items: start !important;
+  }
+  [style*="grid-template-columns:repeat(3,1fr)"],
+  [style*="grid-template-columns: repeat(3, 1fr)"],
+  [style*="grid-template-columns:repeat(4,1fr)"],
+  [style*="grid-template-columns: repeat(4, 1fr)"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  /* Big inline card padding (form / mailing-list panels) eases off on phones
+     so the interior keeps usable width. */
+  [style*="padding:3rem"],
+  [style*="padding: 3rem"] {
+    padding: 1.75rem !important;
+  }
 }
 
 /* ============================================
