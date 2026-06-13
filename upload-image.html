@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Cache-Control" content="no-store" />
+<title>Upload Case Study Image | Cielo House</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#2B317B;color:#1a1a2e;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;margin:0;padding:32px 16px}
+  .card{background:#fff;border-radius:16px;padding:28px;width:min(560px,100%);box-shadow:0 20px 60px rgba(0,0,0,.25)}
+  h1{color:#2B317B;font-size:20px;margin:0 0 16px}
+  label{display:block;font-weight:600;font-size:14px;margin:14px 0 6px;color:#2B317B}
+  select,input[type=file]{width:100%;padding:10px;border:1px solid #cdd5e6;border-radius:8px;font-size:15px;background:#fff}
+  .radios{display:flex;gap:18px;margin-top:6px}
+  .radios label{display:flex;align-items:center;gap:6px;font-weight:500;margin:0}
+  button{width:100%;margin-top:18px;padding:15px;background:#2B317B;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer}
+  button:disabled{opacity:.6}
+  #preview{max-width:100%;border-radius:8px;margin-top:14px;display:none}
+  #status{margin-top:14px;font-size:15px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Upload a case study image</h1>
+  <label for="cs">Case study</label>
+  <select id="cs"><option>Loading…</option></select>
+  <label>Which image?</label>
+  <div class="radios">
+    <label><input type="radio" name="slot" value="card_image" checked /> Card image</label>
+    <label><input type="radio" name="slot" value="hero_image" /> Hero image</label>
+  </div>
+  <label for="file">Choose image</label>
+  <input type="file" id="file" accept="image/*" />
+  <img id="preview" alt="preview" />
+  <button id="go">Upload &amp; Save</button>
+  <div id="status"></div>
+</div>
+<script>
+(function(){
+  var SB='https://nkabuhbkuzcxajzrlenj.supabase.co';
+  var SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
+  var H={apikey:SK,Authorization:'Bearer '+SK};
+  var sel=document.getElementById('cs'), st=document.getElementById('status'), go=document.getElementById('go');
+  fetch(SB+'/rest/v1/case_studies?select=id,card_title&order=sort_order.asc',{headers:H})
+    .then(function(r){return r.json();})
+    .then(function(rows){ sel.innerHTML=''; (rows||[]).forEach(function(c){ var o=document.createElement('option'); o.value=c.id; o.textContent=c.card_title||c.id; sel.appendChild(o); }); })
+    .catch(function(){ sel.innerHTML='<option>Could not load — refresh</option>'; });
+
+  go.onclick=function(){
+    var file=document.getElementById('file').files[0];
+    if(!file){ alert('Choose an image first.'); return; }
+    var id=sel.value;
+    var slot=document.querySelector('input[name=slot]:checked').value;
+    go.disabled=true; st.style.color='#2B317B'; st.textContent='Uploading…';
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var img=new Image();
+      img.onerror=function(){ go.disabled=false; st.style.color='#c0392b'; st.textContent='Could not read that image — try a JPG or PNG.'; };
+      img.onload=function(){
+        var maxW=1600, scale=Math.min(1,maxW/(img.width||maxW));
+        var w=Math.max(1,Math.round((img.width||maxW)*scale)), h=Math.max(1,Math.round((img.height||maxW)*scale));
+        var cv=document.createElement('canvas'); cv.width=w; cv.height=h; cv.getContext('2d').drawImage(img,0,0,w,h);
+        var dataUrl=cv.toDataURL('image/jpeg',0.82);
+        var pv=document.getElementById('preview'); pv.src=dataUrl; pv.style.display='block';
+        fetch('/api/cs-upload',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:dataUrl,type:'image/jpeg',ext:'jpg'})})
+          .then(function(r){ return r.json().then(function(d){ if(!r.ok) throw new Error(d.error||('HTTP '+r.status)); return d; }); })
+          .then(function(d){ if(!d.url) throw new Error('no url'); var patch={}; patch[slot]=d.url;
+            return fetch(SB+'/rest/v1/case_studies?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:Object.assign({},H,{'Content-Type':'application/json','Prefer':'return=representation'}),body:JSON.stringify(patch)}); })
+          .then(function(r){ return r.json().then(function(d){ if(!r.ok) throw new Error('save failed'); return d; }); })
+          .then(function(){ go.disabled=false; st.style.color='#1a7a40'; st.textContent='✓ Saved and live. Refresh the work / service page to see it.'; })
+          .catch(function(err){ go.disabled=false; st.style.color='#c0392b'; st.textContent='Failed: '+((err&&err.message)||'error'); });
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+})();
+</script>
+</body>
+</html>
