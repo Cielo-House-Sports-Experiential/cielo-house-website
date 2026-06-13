@@ -8,11 +8,7 @@
    var ADMIN = ['britt@cielohouse.com.au', 'giovana@cielohouse.com.au', 'connect@cielohouse.com.au'];
    function ok() { document.documentElement.style.visibility = ''; }
    function go() { window.location.replace('login.html'); }
-   // If the Supabase library failed to load, fall back to the existing session flag.
-   if (typeof supabase === 'undefined') {
-     if (sessionStorage.getItem('ch_auth') === 'true') { ok(); } else { go(); }
-     return;
-   }
+   if (typeof supabase === 'undefined') { go(); return; }
    var _sb = supabase.createClient('https://nkabuhbkuzcxajzrlenj.supabase.co',
      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo',
      { auth: { detectSessionInUrl: true, persistSession: true } });
@@ -24,12 +20,10 @@
        window._edmToken = s.access_token; window._edmEmail = s.user.email;
        if (window.history && window.location.hash) { history.replaceState(null, '', window.location.pathname + window.location.search); }
        ok();
-     } else if (sessionStorage.getItem('ch_auth') === 'true') {
-       ok(); // current session still valid during the login transition
      } else {
        go();
      }
-   }).catch(function () { if (sessionStorage.getItem('ch_auth') === 'true') { ok(); } else { go(); } });
+   }).catch(function () { go(); });
  })();
  </script>
  <meta charset="UTF-8" />
