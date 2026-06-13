@@ -1954,6 +1954,14 @@ h1 em, h2 em, h3 em {
   line-height: 1.75;
 }
 
+/* Case-study hero meta (Client / Event / Event type) — always white */
+.case-meta-lines,
+.case-meta-lines p,
+.case-meta-lines strong,
+.case-meta-lines span {
+  color: #ffffff !important;
+}
+
 /* Responsive — stack on mobile */
 @media (max-width: 900px) {
   .page-hero {
