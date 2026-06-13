@@ -4189,6 +4189,18 @@
  }
  function saveSubs(arr) { localStorage.setItem('ch_subscribers', JSON.stringify(arr)); }
 
+ /* Subscribers live in Supabase (table: subscribers). Pull them in, and mirror
+    manual adds/deletes back so the dashboard and the website stay in sync. */
+ function _subSyncSB(s){ fetch(_SB+'/rest/v1/subscribers?on_conflict=email',{method:'POST',headers:Object.assign({},_sbH(),{'Prefer':'resolution=ignore-duplicates,return=minimal'}),body:JSON.stringify({email:s.email,name:s.name||null,source:s.source||'dashboard'})}).catch(function(){}); }
+ function _subDelSB(email){ fetch(_SB+'/rest/v1/subscribers?email=eq.'+encodeURIComponent(email),{method:'DELETE',headers:_sbH()}).catch(function(){}); }
+ function subsLoadFromSB(){
+   return fetch(_SB+'/rest/v1/subscribers?select=*&order=created_at.desc',{headers:_sbH()})
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(rows){ if(!rows) return; var subs=rows.map(function(r){return {name:r.name||'',email:r.email||'',phone:'',dateJoined:(r.created_at||'').slice(0,10),source:r.source||''};}); saveSubs(subs); if(typeof renderSubs==='function') renderSubs(); var m=document.getElementById('m-subscribers'); if(m) m.textContent=subs.length; })
+    .catch(function(){});
+ }
+ subsLoadFromSB();
+
  function subAddSingle() {
    var name  = (document.getElementById('sub-add-name').value || '').trim();
    var email = (document.getElementById('sub-add-email').value || '').trim().toLowerCase();
@@ -4198,6 +4210,7 @@
    if (subs.find(function(s){ return s.email === email; })) { alert('That email is already in the list.'); return; }
    subs.push({ name: name, email: email, phone: phone, dateJoined: new Date().toISOString().slice(0,10) });
    saveSubs(subs);
+   _subSyncSB({ email: email, name: name, source: 'dashboard' });
    document.getElementById('sub-add-name').value = '';
    document.getElementById('sub-add-email').value = '';
    document.getElementById('sub-add-phone').value = '';
@@ -4214,6 +4227,7 @@
    emails.forEach(function(e) {
      if (!existingEmails.has(e)) {
        subs.push({ name: '', email: e, phone: '', dateJoined: new Date().toISOString().slice(0,10) });
+       _subSyncSB({ email: e, source: 'dashboard-bulk' });
        added++;
      }
    });
@@ -4228,6 +4242,7 @@
 
  function subDelete(email) {
    saveSubs(getSubs().filter(function(s){ return s.email !== email; }));
+   _subDelSB(email);
    renderSubs();
  }
 
@@ -4947,6 +4962,7 @@ Respond ONLY with valid JSON array, no other text:
    if (btn.getAttribute('data-panel') === 'casestudies') { csLoad(); }
    if (btn.getAttribute('data-panel') === 'team') { teamLoad(); }
    if (btn.getAttribute('data-panel') === 'chatwidget') { cwcfgLoad(); }
+   if (btn.getAttribute('data-panel') === 'subscribers') { subsLoadFromSB(); }
    if (btn.getAttribute('data-panel') === 'blog') { blogLoadFromSB(); }
   });
  });

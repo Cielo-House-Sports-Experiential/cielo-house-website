@@ -650,3 +650,24 @@ if (heroBg && window.innerWidth > 768) {
  if (e.key === FAQ_KEY) renderFaqs();
  });
 })();
+
+/* ============================================
+   Newsletter subscribe — saves to Supabase (subscribers table), not localStorage.
+   Used by the "Join Our Mailing List" forms across the site.
+   ============================================ */
+window.cieloSubscribe = function (form, source) {
+  var input = form.querySelector('input[type=email]');
+  var btn = form.querySelector('button[type="submit"]') || form.querySelector('button');
+  var email = input && input.value ? input.value.trim() : '';
+  if (!email) return false;
+  var SB = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
+  var SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
+  fetch(SB + '/rest/v1/subscribers?on_conflict=email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'apikey': SK, 'Authorization': 'Bearer ' + SK, 'Prefer': 'resolution=ignore-duplicates,return=minimal' },
+    body: JSON.stringify({ email: email, source: source || 'website' })
+  }).catch(function () {});
+  if (btn) btn.textContent = 'Subscribed ✓';
+  if (input) input.value = '';
+  return false;
+};

@@ -610,11 +610,7 @@
  var form = e.target;
  var msg = form.querySelector('.email-signup__msg');
  var input = form.querySelector('input[type=email]');
- var emails = JSON.parse(localStorage.getItem('ch_subscribers') || '[]');
- if (input.value && !emails.includes(input.value)) {
- emails.push(input.value);
- localStorage.setItem('ch_subscribers', JSON.stringify(emails));
- }
+ if (input.value && window.cieloSubscribe) { cieloSubscribe(form, 'home'); }
  msg.style.display = 'block';
  input.value = '';
  setTimeout(function() { msg.style.display = 'none'; }, 4000);
