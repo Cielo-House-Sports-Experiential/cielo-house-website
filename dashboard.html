@@ -4994,8 +4994,8 @@ Respond ONLY with valid JSON array, no other text:
   var ext = (file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'') || 'jpg';
   var path = 'case-studies/' + Date.now() + '-' + Math.random().toString(36).slice(2,8) + '.' + ext;
   fetch(CS_SB+'/storage/v1/object/'+path, { method:'POST', headers:{ apikey:CS_SK, Authorization:'Bearer '+CS_SK, 'Content-Type':file.type||'image/jpeg', 'x-upsert':'true' }, body:file })
-   .then(function(r){ if(!r.ok) throw new Error('upload'); if(u){ u.value = CS_SB+'/storage/v1/object/public/'+path; u.removeAttribute('data-uploading'); u.placeholder=''; } if(typeof csToast==='function') csToast('Image uploaded ✓'); })
-   .catch(function(){ if(u){ u.removeAttribute('data-uploading'); u.placeholder='Upload failed — try again'; } alert('Image upload failed. Please try again.'); });
+   .then(function(r){ if(!r.ok){ return r.text().then(function(t){ throw new Error('HTTP '+r.status+(t?(' — '+t.slice(0,160)):'')); }); } if(u){ u.value = CS_SB+'/storage/v1/object/public/'+path; u.removeAttribute('data-uploading'); u.placeholder=''; } if(typeof csToast==='function') csToast('Image uploaded ✓'); })
+   .catch(function(err){ if(u){ u.removeAttribute('data-uploading'); u.placeholder='Upload failed — try again'; } alert('Image upload failed: ' + ((err&&err.message)||'network/blocked')); });
  }
 
  function saveCsOverride(){
