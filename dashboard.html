@@ -5113,7 +5113,7 @@ Respond ONLY with valid JSON array, no other text:
  }
 
  function edmNew(){
-   fetch(_SB+'/rest/v1/edm_campaigns',{method:'POST',headers:Object.assign({},_sbH(),{'Prefer':'return=representation'}),body:JSON.stringify({subject:'Untitled email',status:'draft'})})
+   fetch(_SB+'/rest/v1/edm_campaigns',{method:'POST',headers:Object.assign({},_sbH(),{'Prefer':'return=representation'}),body:JSON.stringify({name:'Untitled email',subject:'Untitled email',status:'draft'})})
     .then(function(r){return r.json();})
     .then(function(d){ if(Array.isArray(d)&&d[0]) edmOpen(d[0].id); else alert('Could not create email.'); })
     .catch(function(){ alert('Could not create email.'); });
@@ -5168,7 +5168,7 @@ Respond ONLY with valid JSON array, no other text:
    _edmCur.subject=subject; _edmCur.preview_text=preview;
    document.getElementById('edm-b-title').textContent=subject||'Untitled email';
    edmRenderPreview();
-   fetch(_SB+'/rest/v1/edm_campaigns?id=eq.'+_edmCur.id,{method:'PATCH',headers:Object.assign({},_sbH(),{'Prefer':'return=minimal'}),body:JSON.stringify({subject:subject,preview_text:preview})}).catch(function(){});
+   fetch(_SB+'/rest/v1/edm_campaigns?id=eq.'+_edmCur.id,{method:'PATCH',headers:Object.assign({},_sbH(),{'Prefer':'return=minimal'}),body:JSON.stringify({name:subject||'Untitled email',subject:subject,preview_text:preview})}).catch(function(){});
  }
 
  function edmRenderSections(){
