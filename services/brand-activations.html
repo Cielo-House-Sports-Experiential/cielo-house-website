@@ -219,7 +219,7 @@
  </a>
  </div>
  <div class="work-grid" id="service-cases">
- <article class="work-card work-card--large" data-animate>
+ <article class="work-card" data-animate>
  <img
  src="../images/our-work/boost-mobile-gold-coast-500.jpg"
  alt="Boost Mobile Gold Coast 500 brand activation 2025 Cielo House"
@@ -377,12 +377,12 @@
    if (!grid) return;
    function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
    function rel(p) { return !p ? '' : (/^https?:\/\//.test(p) ? p : '../' + p); }
-   fetch(SB + '/rest/v1/case_studies?published=eq.true&show_on_activations=eq.true&select=slug,card_tag,card_title,card_image,card_image_alt,card_link&order=sort_order.asc', { headers: { apikey: SK, Authorization: 'Bearer ' + SK } })
+   fetch(SB + '/rest/v1/case_studies?published=eq.true&show_on_activations=eq.true&select=slug,card_tag,card_title,card_image,card_image_alt,card_link,featured&order=sort_order.asc', { headers: { apikey: SK, Authorization: 'Bearer ' + SK } })
      .then(function (r) { return r.ok ? r.json() : null; })
      .then(function (rows) {
        if (!rows || !rows.length) return;
-       grid.innerHTML = rows.map(function (c, i) {
-         var large = i === 0 ? ' work-card--large' : '';
+       grid.innerHTML = rows.map(function (c) {
+         var large = c.featured ? ' work-card--large' : '';
          var link = rel(c.card_link || ('work/' + c.slug + '.html'));
          return '<a href="' + esc(link) + '" class="work-card' + large + '">'
            + '<div class="work-card__img-wrap"><img src="' + esc(rel(c.card_image)) + '" alt="' + esc(c.card_image_alt || c.card_title) + '" class="work-card__img" loading="lazy"/></div>'
