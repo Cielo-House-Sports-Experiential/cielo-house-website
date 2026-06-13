@@ -246,7 +246,7 @@
  <a href="work.html" class="link-arrow" data-animate data-animate-delay="2">View all work <svg viewBox="0 0 16 16" fill="none" width="14" height="14" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>
  </div>
  <div class="work-grid">
- <article class="work-card work-card--large" data-animate>
+ <article class="work-card" data-animate>
  <div class="work-card__img-wrap">
  <img src="images/our-work/boost-mobile-gold-coast-500.jpg" alt="Boost Mobile Gold Coast 500 brand activation" class="work-card__img" loading="lazy" />
  </div>
@@ -628,14 +628,13 @@
    /* Featured Work — live case_studies (matches the Work page) */
    var workGrid = document.querySelector('.work-grid');
    if (workGrid) {
-     fetch(SB + '/rest/v1/case_studies?published=eq.true&select=slug,featured,category,card_tag,card_title,card_image,card_image_alt,card_link&order=sort_order.asc&limit=3', { headers: H })
+     fetch(SB + '/rest/v1/case_studies?published=eq.true&select=slug,featured,category,card_tag,card_title,card_image,card_image_alt,card_link&order=sort_order.asc&limit=4', { headers: H })
        .then(function (r) { return r.ok ? r.json() : null; })
        .then(function (rows) {
          if (!rows || !rows.length) return;
-         workGrid.innerHTML = rows.map(function (c, i) {
-           var large = i === 0 ? ' work-card--large' : '';
+         workGrid.innerHTML = rows.map(function (c) {
            var link = c.card_link || ('work/' + c.slug + '.html');
-           return '<a href="' + esc(link) + '" class="work-card' + large + '">'
+           return '<a href="' + esc(link) + '" class="work-card">'
              + '<div class="work-card__img-wrap"><img src="' + esc(c.card_image) + '" alt="' + esc(c.card_image_alt || c.card_title) + '" class="work-card__img" loading="lazy"/></div>'
              + '<div class="work-card__content"><span class="work-card__tag">' + esc(c.card_tag) + '</span><h3 class="work-card__title">' + esc(c.card_title) + '</h3></div>'
              + '<div class="work-card__arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" width="16" height="16"><path d="M3 13L13 3M13 3H6M13 3v7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>'
