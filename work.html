@@ -281,5 +281,31 @@
  </footer>
  <script src="js/main.js" defer></script>
 <script src="/tracking.js"></script>
+<script>
+/* Work cards from Supabase (case_studies). Static cards above are the SEO/no-JS
+   fallback; if the DB returns rows they replace the grid. Same Supabase + anon
+   key the blog uses — separate table, no localStorage. */
+(function () {
+  var SB = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
+  var SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
+  var grid = document.querySelector('.work-grid');
+  if (!grid) return;
+  function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  fetch(SB + '/rest/v1/case_studies?published=eq.true&select=slug,featured,category,card_tag,card_title,card_image,card_image_alt&order=sort_order.asc', { headers: { apikey: SK, Authorization: 'Bearer ' + SK } })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (rows) {
+      if (!rows || !rows.length) return; // keep static fallback
+      grid.innerHTML = rows.map(function (c) {
+        var large = c.featured ? ' work-card--large' : '';
+        return '<a href="work/' + esc(c.slug) + '.html" class="work-card' + large + '" data-category="' + esc(c.category) + '">'
+          + '<div class="work-card__img-wrap"><img src="' + esc(c.card_image) + '" alt="' + esc(c.card_image_alt || c.card_title) + '" class="work-card__img" loading="lazy"/></div>'
+          + '<div class="work-card__content"><span class="work-card__tag">' + esc(c.card_tag) + '</span><h3 class="work-card__title">' + esc(c.card_title) + '</h3></div>'
+          + '<div class="work-card__arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" width="16" height="16"><path d="M3 13L13 3M13 3H6M13 3v7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>'
+          + '</a>';
+      }).join('');
+    })
+    .catch(function () {});
+})();
+</script>
 </body>
 </html>
