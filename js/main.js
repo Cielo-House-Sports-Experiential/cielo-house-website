@@ -243,7 +243,7 @@ if (heroBg && window.innerWidth > 768) {
  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>\
  Chat With Our Team\
  </button>\
- <a href="https://www.cielohouse.com.au/contact.html#discovery-call" target="_blank" rel="noopener noreferrer" class="cw-btn cw-btn--secondary" aria-label="Schedule a Briefing Call">\
+ <a href="https://www.cielohouse.com.au/contact.html#discovery-call" class="cw-btn cw-btn--secondary" aria-label="Schedule a Briefing Call">\
  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>\
  Schedule a Briefing Call\
  </a>\
