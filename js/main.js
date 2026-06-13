@@ -234,8 +234,7 @@ if (heroBg && window.innerWidth > 768) {
  <button class="cw-header__close" id="cw-close-home" aria-label="Close">\
  <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>\
  </button>\
- <img class="cw-header__img" src="' + headerImgSrc + '" alt="Cielo mascot" id="cw-panel-title" />\
- <div class="cw-header__sub">Built for the Moment, Created to Last</div>\
+ <div class="cw-header__sub" id="cw-panel-title">Built for the Moment, Created to Last</div>\
  </div>\
  <div class="cw-body">\
  <p class="cw-body__copy">Have a question about our brand activations or premium hospitality experiences?</p>\
