@@ -938,6 +938,17 @@
       </select>
      </div>
     </div>
+    <div class="form-row">
+     <div class="form-group">
+      <label class="form-label">Show on service pages</label>
+      <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:#2B317B;cursor:pointer;margin-bottom:0.5rem;">
+       <input type="checkbox" id="cs-f-show-activations" /> Show on the Brand Activations page
+      </label>
+      <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:#2B317B;cursor:pointer;">
+       <input type="checkbox" id="cs-f-show-hospitality" /> Show on the Premium Hospitality page
+      </label>
+     </div>
+    </div>
    </div>
 
    <div class="modal-section">Detail Page Header</div>
@@ -4932,6 +4943,8 @@ Respond ONLY with valid JSON array, no other text:
   csSet('cs-f-order', cs.sort_order==null ? (csData.length+1) : cs.sort_order);
   var catEl=document.getElementById('cs-f-category'); if(catEl) catEl.value = cs.category || 'activation';
   var featEl=document.getElementById('cs-f-featured'); if(featEl) featEl.value = cs.featured ? 'true' : 'false';
+  var saEl=document.getElementById('cs-f-show-activations'); if(saEl) saEl.checked = !!cs.show_on_activations;
+  var shEl=document.getElementById('cs-f-show-hospitality'); if(shEl) shEl.checked = !!cs.show_on_hospitality;
   csSet('cs-f-herotag', cs.hero_tag);
   csSet('cs-f-title', cs.title);
   csSet('cs-f-eventtype', cs.event_type);
@@ -4990,6 +5003,8 @@ Respond ONLY with valid JSON array, no other text:
    sort_order: parseInt(csV('cs-f-order'),10) || 0,
    published: true,
    featured: document.getElementById('cs-f-featured').value === 'true',
+   show_on_activations: document.getElementById('cs-f-show-activations').checked,
+   show_on_hospitality: document.getElementById('cs-f-show-hospitality').checked,
    category: document.getElementById('cs-f-category').value || 'activation',
    card_tag: csV('cs-f-cardtag'),
    card_title: cardTitle,
