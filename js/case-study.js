@@ -21,6 +21,13 @@
     var el = document.getElementById(id);
     if (el && val != null && val !== '') el.innerHTML = val;
   }
+  // Image paths are stored root-relative (images/...) for work.html. Detail
+  // pages live one level deep in /work, so prefix ../ unless already absolute.
+  function resolveImg(p) {
+    if (!p) return p;
+    if (/^(https?:|\/|\.\.\/|data:)/.test(p)) return p;
+    return '../' + p;
+  }
 
   fetch(SB + '/rest/v1/case_studies?slug=eq.' + encodeURIComponent(slug) + '&select=*', { headers: { apikey: SK, Authorization: 'Bearer ' + SK } })
     .then(function (r) { return r.ok ? r.json() : null; })
@@ -39,7 +46,7 @@
       setText('cs-event-type', d.event_type);
 
       var hero = document.getElementById('cs-hero-image');
-      if (hero && d.hero_image) { hero.src = d.hero_image; if (d.hero_image_alt) hero.alt = d.hero_image_alt; }
+      if (hero && d.hero_image) { hero.src = resolveImg(d.hero_image); if (d.hero_image_alt) hero.alt = d.hero_image_alt; }
 
       setHTML('cs-lead', d.lead);
       setHTML('cs-brief', d.brief);
