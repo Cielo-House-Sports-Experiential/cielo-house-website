@@ -1,10 +1,36 @@
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
  <script>
- if (sessionStorage.getItem('ch_auth') !== 'true') {
- window.location.replace('login.html');
- }
+ (function () {
+   document.documentElement.style.visibility = 'hidden';
+   var ADMIN = ['britt@cielohouse.com.au', 'giovana@cielohouse.com.au', 'connect@cielohouse.com.au'];
+   function ok() { document.documentElement.style.visibility = ''; }
+   function go() { window.location.replace('login.html'); }
+   // If the Supabase library failed to load, fall back to the existing session flag.
+   if (typeof supabase === 'undefined') {
+     if (sessionStorage.getItem('ch_auth') === 'true') { ok(); } else { go(); }
+     return;
+   }
+   var _sb = supabase.createClient('https://nkabuhbkuzcxajzrlenj.supabase.co',
+     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo',
+     { auth: { detectSessionInUrl: true, persistSession: true } });
+   window._sbAuth = _sb;
+   _sb.auth.getSession().then(function (res) {
+     var s = res.data.session;
+     if (s && s.user && ADMIN.indexOf((s.user.email || '').toLowerCase()) >= 0) {
+       sessionStorage.setItem('ch_auth', 'true');
+       window._edmToken = s.access_token; window._edmEmail = s.user.email;
+       if (window.history && window.location.hash) { history.replaceState(null, '', window.location.pathname + window.location.search); }
+       ok();
+     } else if (sessionStorage.getItem('ch_auth') === 'true') {
+       ok(); // current session still valid during the login transition
+     } else {
+       go();
+     }
+   }).catch(function () { if (sessionStorage.getItem('ch_auth') === 'true') { ok(); } else { go(); } });
+ })();
  </script>
  <meta charset="UTF-8" />
  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -252,7 +278,7 @@
 
  <div class="banner">
  <span>Admin Dashboard Internal Use Only</span>
- <button class="banner__logout" onclick="sessionStorage.removeItem('ch_auth'); window.location.href='login.html';">Log Out</button>
+ <button class="banner__logout" onclick="try{window._sbAuth&&window._sbAuth.auth.signOut();}catch(e){} sessionStorage.removeItem('ch_auth'); window.location.href='login.html';">Log Out</button>
  </div>
 
  <div class="shell">

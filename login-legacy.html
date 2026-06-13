@@ -136,55 +136,50 @@
  <h1 class="login-title">Team Access</h1>
  <p class="login-sub">Admin Dashboard</p>
 
- <div class="error-msg" id="msg"></div>
+ <div class="error-msg" id="error-msg">Incorrect username or password. Try again.</div>
 
- <form id="login-form">
+ <form id="login-form" onsubmit="handleLogin(event)">
  <div class="field">
- <label for="email">Email Address</label>
- <input type="email" id="email" name="email" placeholder="you@cielohouse.com.au" autocomplete="email" required />
+ <label for="username">Username</label>
+ <input type="text" id="username" name="username" placeholder="Enter username" autocomplete="username" required />
  </div>
- <button type="submit" class="btn-login" id="send-btn">Send Login Link →</button>
+ <div class="field">
+ <label for="password">Password</label>
+ <input type="password" id="password" name="password" placeholder="Enter password" autocomplete="current-password" required />
+ </div>
+ <button type="submit" class="btn-login">Sign In →</button>
  </form>
 
- <p class="login-footer">A secure one-time login link will be emailed to you.</p>
+ <p class="login-footer">Cielo House | Internal Use Only</p>
  </div>
 
- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
  <script>
- (function () {
-   var SB = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
-   var SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
-   var ADMIN = ['britt@cielohouse.com.au', 'giovana@cielohouse.com.au', 'connect@cielohouse.com.au'];
-   var sb = supabase.createClient(SB, SK, { auth: { detectSessionInUrl: true, persistSession: true } });
-   var msg = document.getElementById('msg');
-   function show(t, ok) {
-     msg.textContent = t; msg.classList.add('visible');
-     if (ok) { msg.style.background = '#f0fff4'; msg.style.color = '#1a7a40'; msg.style.borderColor = '#b7e4c7'; }
-   }
-   sb.auth.getSession().then(function (res) {
-     var s = res.data.session;
-     if (s && s.user) {
-       if (ADMIN.indexOf((s.user.email || '').toLowerCase()) >= 0) {
-         sessionStorage.setItem('ch_auth', 'true');
-         window.location.replace('dashboard.html');
-       } else {
-         sb.auth.signOut();
-         show('That account is not authorised for this dashboard.');
-       }
-     }
-   });
-   document.getElementById('login-form').addEventListener('submit', function (e) {
-     e.preventDefault();
-     var email = (document.getElementById('email').value || '').trim().toLowerCase();
-     if (ADMIN.indexOf(email) < 0) { show('That email is not authorised.'); return; }
-     var btn = document.getElementById('send-btn'); btn.textContent = 'Sending…'; btn.disabled = true;
-     sb.auth.signInWithOtp({ email: email, options: { emailRedirectTo: window.location.origin + '/dashboard.html' } })
-       .then(function (r) {
-         if (r.error) { show(r.error.message || 'Could not send link.'); btn.textContent = 'Send Login Link →'; btn.disabled = false; }
-         else { show('Check your inbox — a secure login link was sent to ' + email + '.', true); }
-       });
-   });
- })();
+ // Redirect to dashboard if already logged in
+ if (sessionStorage.getItem('ch_auth') === 'true') {
+ window.location.href = 'dashboard.html';
+ }
+
+ // Credentials change these to update login details
+ const CREDENTIALS = {
+ username: 'cielo',
+ password: 'house2025'
+ };
+
+ function handleLogin(e) {
+ e.preventDefault();
+ const user = document.getElementById('username').value.trim();
+ const pass = document.getElementById('password').value;
+ const error = document.getElementById('error-msg');
+
+ if (user === CREDENTIALS.username && pass === CREDENTIALS.password) {
+ sessionStorage.setItem('ch_auth', 'true');
+ window.location.href = 'dashboard.html';
+ } else {
+ error.classList.add('visible');
+ document.getElementById('password').value = '';
+ document.getElementById('password').focus();
+ }
+ }
  </script>
 
 </body>
