@@ -267,6 +267,7 @@
  <button class="nav-btn" data-panel="blog">Blog Posts</button>
  <button class="nav-btn" data-panel="casestudies">Case Studies</button>
  <button class="nav-btn" data-panel="team">Team</button>
+ <button class="nav-btn" data-panel="chatwidget">Chat Widget</button>
  <div class="sidebar__label">Content</div>
  <button class="nav-btn" data-panel="testimonials">Testimonials</button>
  <button class="nav-btn" data-panel="faq">FAQ</button>
@@ -1104,6 +1105,26 @@
     <button class="btn btn-secondary" onclick="closeTeamModal()" style="background:#f4f6fa;color:#555;border:1.5px solid #dde2f0;">Cancel</button>
     <button class="btn btn-primary" onclick="saveTeamMember()">Save Member</button>
    </div>
+  </div>
+ </div>
+
+ <!-- ===== CHAT WIDGET ===== -->
+ <div class="panel" id="panel-chatwidget">
+  <h1 class="page-title">Chat Widget</h1>
+  <p class="page-sub">Manage the "Talk with Cielo House" chat widget that appears on the website. Saves to Supabase, applies across the site within ~1 minute.</p>
+  <div class="card" style="max-width:560px;">
+   <div style="display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;">
+    <div>
+     <div style="font-weight:600;color:#2B317B;font-size:1rem;margin-bottom:0.25rem;">Chat widget</div>
+     <div style="font-size:0.85rem;color:#888;" id="cwcfg-status">Loading…</div>
+    </div>
+    <label style="position:relative;display:inline-block;width:54px;height:30px;flex-shrink:0;cursor:pointer;">
+     <input type="checkbox" id="cwcfg-toggle" onchange="cwcfgToggle()" style="opacity:0;width:0;height:0;" />
+     <span id="cwcfg-track" style="position:absolute;inset:0;background:#cdd5e6;border-radius:30px;transition:background .2s;"></span>
+     <span id="cwcfg-knob" style="position:absolute;top:3px;left:3px;width:24px;height:24px;background:#fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,0.25);transition:transform .2s;"></span>
+    </label>
+   </div>
+   <p style="font-size:0.8rem;color:#aaa;margin-top:1rem;margin-bottom:0;">When off, the chat widget is hidden everywhere on the site. Text, messages and routing for the chat will be added here next.</p>
   </div>
  </div>
 
@@ -4886,6 +4907,32 @@ Respond ONLY with valid JSON array, no other text:
 
  teamLoad();
 
+ // ===================== CHAT WIDGET SETTINGS (Supabase) =====================
+ function _cwH(){ return { 'Content-Type':'application/json', 'apikey':CS_SK, 'Authorization':'Bearer '+CS_SK }; }
+ function cwcfgRender(enabled){
+  var cb=document.getElementById('cwcfg-toggle'), st=document.getElementById('cwcfg-status'), tr=document.getElementById('cwcfg-track'), kn=document.getElementById('cwcfg-knob');
+  if(!cb) return;
+  cb.checked = !!enabled;
+  if(st) st.textContent = enabled ? 'On — visible on the website' : 'Off — hidden everywhere';
+  if(tr) tr.style.background = enabled ? '#27ae60' : '#cdd5e6';
+  if(kn) kn.style.transform = enabled ? 'translateX(24px)' : 'translateX(0)';
+ }
+ function cwcfgLoad(){
+  fetch(CS_SB+'/rest/v1/chat_widget_settings?id=eq.main&select=enabled', {headers:_cwH()})
+   .then(function(r){return r.ok?r.json():null;})
+   .then(function(rows){ cwcfgRender(rows && rows[0] ? rows[0].enabled : false); })
+   .catch(function(){ var st=document.getElementById('cwcfg-status'); if(st) st.textContent='Could not load setting.'; });
+ }
+ function cwcfgToggle(){
+  var cb=document.getElementById('cwcfg-toggle'); if(!cb) return;
+  var val=cb.checked;
+  cwcfgRender(val);
+  fetch(CS_SB+'/rest/v1/chat_widget_settings?id=eq.main', {method:'PATCH', headers:Object.assign({},_cwH(),{'Prefer':'return=minimal'}), body:JSON.stringify({enabled:val, updated_at:new Date().toISOString()})})
+   .then(function(r){ if(!r.ok) throw new Error('save failed'); csToast(val?'Chat widget turned ON':'Chat widget turned OFF'); })
+   .catch(function(e){ alert('Could not save: '+e.message); cwcfgLoad(); });
+ }
+ cwcfgLoad();
+
  function showCsToast(msg) {
   var t = document.createElement('div');
   t.textContent = msg;
@@ -4899,6 +4946,7 @@ Respond ONLY with valid JSON array, no other text:
   btn.addEventListener('click', function() {
    if (btn.getAttribute('data-panel') === 'casestudies') { csLoad(); }
    if (btn.getAttribute('data-panel') === 'team') { teamLoad(); }
+   if (btn.getAttribute('data-panel') === 'chatwidget') { cwcfgLoad(); }
    if (btn.getAttribute('data-panel') === 'blog') { blogLoadFromSB(); }
   });
  });

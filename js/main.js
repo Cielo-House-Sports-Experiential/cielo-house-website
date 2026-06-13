@@ -288,6 +288,18 @@ if (heroBg && window.innerWidth > 768) {
  container.innerHTML = HTML;
  document.body.appendChild(container);
 
+ // ── Visibility gated by the dashboard toggle (Supabase). Hidden until
+ //    confirmed enabled, so OFF is the safe default. ──
+ container.style.display = 'none';
+ (function () {
+ var SB = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
+ var SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
+ fetch(SB + '/rest/v1/chat_widget_settings?id=eq.main&select=enabled', { headers: { apikey: SK, Authorization: 'Bearer ' + SK } })
+ .then(function (r) { return r.ok ? r.json() : null; })
+ .then(function (rows) { if (rows && rows[0] && rows[0].enabled === true) container.style.display = ''; })
+ .catch(function () {});
+ })();
+
  // ── Refs ─────────────────────────────────────
  var trigger = document.getElementById('cw-trigger');
  var panel = document.getElementById('cw-panel');
