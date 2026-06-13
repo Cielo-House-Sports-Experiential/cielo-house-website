@@ -3984,7 +3984,7 @@
    var urlInput = document.getElementById('rte-img-url');
    var prev = document.getElementById('rte-img-preview');
    urlInput.value = ''; urlInput.placeholder = 'Uploading…';
-   blogUploadImage(file, prev, function(url){ urlInput.value = url; urlInput.placeholder = 'https://...'; }, function(){ urlInput.placeholder = 'Upload failed — try again'; });
+   blogUploadImage(file, prev, function(url){ urlInput.value = url; urlInput.placeholder = 'https://...'; rteConfirmImage(); }, function(){ urlInput.placeholder = 'Upload failed — try again'; });
  });
 
  /* Upload a blog image to storage and return its URL (never embed it as a blob
@@ -4013,7 +4013,10 @@
    var src     = document.getElementById('rte-img-url').value.trim();
    var alt     = document.getElementById('rte-img-alt').value.trim();
    var caption = document.getElementById('rte-img-caption').value.trim();
-   if (!src) { alert('Please upload or enter an image URL.'); return; }
+   if (!src) {
+     if (document.getElementById('rte-img-url').placeholder === 'Uploading…') { alert('Your image is still uploading — it will drop in by itself in a second.'); return; }
+     alert('Choose an image to upload (use the upload box).'); return;
+   }
    rteCloseModal('rte-img-modal');
    document.getElementById('blog-content').focus();
    if (_rteSelection) {
