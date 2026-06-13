@@ -70,9 +70,13 @@
  <main>
  <section class="page-hero" aria-label="Case study hero">
  <div class="page-hero__inner">
- <div style="margin-bottom:1rem;"><span class="work-tag">CASE STUDY | EXPERIENTIAL ACTIVATION</span></div>
- <h1 class="page-hero__title">Mophie at the WSL Gold Coast Pro</h1>
- <p class="page-hero__lead">Client: Mophie | Event: WSL Bonsoy Gold Coast Pro | Activation type: Beach fan activation | Delivered by: Cielo House</p>
+ <div style="margin-bottom:1rem;"><span class="work-tag" id="cs-hero-tag">CASE STUDY | EXPERIENTIAL ACTIVATION</span></div>
+ <h1 class="page-hero__title" id="cs-title">Mophie at the WSL Gold Coast Pro</h1>
+ <div class="page-hero__lead case-meta-lines" style="color:var(--color-white);">
+ <p style="margin:0 0 0.55rem;"><strong>Client:</strong> <span id="cs-client">Mophie</span></p>
+ <p style="margin:0 0 0.55rem;"><strong>Event:</strong> <span id="cs-event">WSL Bonsoy Gold Coast Pro</span></p>
+ <p style="margin:0;"><strong>Event type:</strong> <span id="cs-event-type">Beach fan activation</span></p>
+ </div>
  </div>
  <div class="page-hero__video-wrap" aria-hidden="true">
  <video autoplay muted loop playsinline preload="auto" tabindex="-1">
@@ -100,11 +104,16 @@
  </article>
  <aside>
  <div class="meta-card">
- <div class="meta-row"><span class="meta-label">Client</span><span class="meta-value">Mophie</span></div>
- <div class="meta-row"><span class="meta-label">Event</span><span class="meta-value">WSL Bonsoy Gold Coast Pro</span></div>
- <div class="meta-row"><span class="meta-label">Location</span><span class="meta-value">Snapper Rocks, Gold Coast QLD</span></div>
- <div class="meta-row"><span class="meta-label">Year</span><span class="meta-value">2026</span></div>
- <div class="meta-row"><span class="meta-label">Services Delivered</span><span class="meta-value">Experiential Activation · Event Production · Brand Activation · Product Experience</span></div>
+ <div class="meta-row"><span class="meta-label">Client</span>
+ <span class="meta-value" id="cs-meta-client">Mophie</span></div>
+ <div class="meta-row"><span class="meta-label">Event</span>
+ <span class="meta-value" id="cs-meta-event">WSL Bonsoy Gold Coast Pro</span></div>
+ <div class="meta-row"><span class="meta-label">Location</span>
+ <span class="meta-value" id="cs-meta-location">Snapper Rocks, Gold Coast QLD</span></div>
+ <div class="meta-row"><span class="meta-label">Year</span>
+ <span class="meta-value" id="cs-meta-year">2026</span></div>
+ <div class="meta-row"><span class="meta-label">Services Delivered</span>
+ <span class="meta-value" id="cs-meta-services">Experiential Activation · Event Production · Brand Activation · Product Experience</span></div>
  </div>
  <div style="background:var(--color-off-white);border-radius:var(--radius-md);padding:1.75rem;border-top:2px solid var(--color-gold);">
  <a href="https://www.cielohouse.com.au/work.html" style="font-size:0.95rem;color:var(--color-gold);font-weight:600;text-decoration:none;line-height:1.5;display:block;">View All Work →</a>
@@ -124,6 +133,6 @@
  <div class="footer__bottom"><p class="footer__copy">Copyright &copy; 2025 Cielo House | Sports + Experiential</p></div>
  </footer>
  <script src="../js/main.js" defer></script>
- <script>(function(){try{var d=(JSON.parse(localStorage.getItem('ch_cs_overrides')||'{}')||{})['mophie-wsl-gold-coast-2026'];if(!d)return;if(d.heroImage)document.getElementById('cs-hero-image').src=d.heroImage;if(d.lead)document.getElementById('cs-lead').innerHTML=d.lead;if(d.brief)document.getElementById('cs-brief').innerHTML=d.brief;if(d.delivered)document.getElementById('cs-delivered').innerHTML=d.delivered;if(d.quote)document.getElementById('cs-quote').textContent=d.quote;if(d.attribution)document.getElementById('cs-attribution').textContent=d.attribution;if(d.stat1n)document.getElementById('cs-stat1n').textContent=d.stat1n;if(d.stat1d)document.getElementById('cs-stat1d').textContent=d.stat1d;if(d.stat2n)document.getElementById('cs-stat2n').textContent=d.stat2n;if(d.stat2d)document.getElementById('cs-stat2d').textContent=d.stat2d;if(d.stat3n)document.getElementById('cs-stat3n').textContent=d.stat3n;if(d.stat3d)document.getElementById('cs-stat3d').textContent=d.stat3d;}catch(e){}})();</script>
+ <script src="../js/case-study.js"></script>
 </body>
 </html>

@@ -70,9 +70,13 @@
  <main>
  <section class="page-hero" aria-label="Case study hero">
  <div class="page-hero__inner">
- <div style="margin-bottom:1rem;"><span class="work-tag">CASE STUDY | PREMIUM HOSPITALITY</span></div>
- <h1 class="page-hero__title">Coates at the Bathurst 1000</h1>
- <p class="page-hero__lead">Client: Coates | Event: Bathurst 1000 Supercars | Activation type: Premium hospitality suite | Delivered by: Cielo House</p>
+ <div style="margin-bottom:1rem;"><span class="work-tag" id="cs-hero-tag">CASE STUDY | PREMIUM HOSPITALITY</span></div>
+ <h1 class="page-hero__title" id="cs-title">Coates at the Bathurst 1000</h1>
+ <div class="page-hero__lead case-meta-lines" style="color:var(--color-white);">
+ <p style="margin:0 0 0.55rem;"><strong>Client:</strong> <span id="cs-client">Coates</span></p>
+ <p style="margin:0 0 0.55rem;"><strong>Event:</strong> <span id="cs-event">Bathurst 1000 Supercars</span></p>
+ <p style="margin:0;"><strong>Event type:</strong> <span id="cs-event-type">Premium hospitality suite</span></p>
+ </div>
  </div>
  <div class="page-hero__video-wrap" aria-hidden="true">
  <video autoplay muted loop playsinline preload="auto" tabindex="-1">
@@ -100,11 +104,16 @@
  </article>
  <aside>
  <div class="meta-card">
- <div class="meta-row"><span class="meta-label">Client</span><span class="meta-value">Coates</span></div>
- <div class="meta-row"><span class="meta-label">Event</span><span class="meta-value">Bathurst 1000 Supercars</span></div>
- <div class="meta-row"><span class="meta-label">Location</span><span class="meta-value">Mount Panorama, Bathurst NSW</span></div>
- <div class="meta-row"><span class="meta-label">Year</span><span class="meta-value">2025</span></div>
- <div class="meta-row"><span class="meta-label">Services Delivered</span><span class="meta-value">Corporate Hospitality · Event Production · Guest Experience Management · Trackside Branding</span></div>
+ <div class="meta-row"><span class="meta-label">Client</span>
+ <span class="meta-value" id="cs-meta-client">Coates</span></div>
+ <div class="meta-row"><span class="meta-label">Event</span>
+ <span class="meta-value" id="cs-meta-event">Bathurst 1000 Supercars</span></div>
+ <div class="meta-row"><span class="meta-label">Location</span>
+ <span class="meta-value" id="cs-meta-location">Mount Panorama, Bathurst NSW</span></div>
+ <div class="meta-row"><span class="meta-label">Year</span>
+ <span class="meta-value" id="cs-meta-year">2025</span></div>
+ <div class="meta-row"><span class="meta-label">Services Delivered</span>
+ <span class="meta-value" id="cs-meta-services">Corporate Hospitality · Event Production · Guest Experience Management · Trackside Branding</span></div>
  </div>
  <div style="background:var(--color-off-white);border-radius:var(--radius-md);padding:1.75rem;border-top:2px solid var(--color-gold);">
  <a href="https://www.cielohouse.com.au/work.html" style="font-size:0.95rem;color:var(--color-gold);font-weight:600;text-decoration:none;line-height:1.5;display:block;">View All Work →</a>
@@ -124,6 +133,6 @@
  <div class="footer__bottom"><p class="footer__copy">Copyright &copy; 2025 Cielo House | Sports + Experiential</p></div>
  </footer>
  <script src="../js/main.js" defer></script>
- <script>(function(){try{var d=(JSON.parse(localStorage.getItem('ch_cs_overrides')||'{}')||{})['coates-bathurst-supercars-2025'];if(!d)return;if(d.heroImage)document.getElementById('cs-hero-image').src=d.heroImage;if(d.lead)document.getElementById('cs-lead').innerHTML=d.lead;if(d.brief)document.getElementById('cs-brief').innerHTML=d.brief;if(d.delivered)document.getElementById('cs-delivered').innerHTML=d.delivered;if(d.quote)document.getElementById('cs-quote').textContent=d.quote;if(d.attribution)document.getElementById('cs-attribution').textContent=d.attribution;if(d.stat1n)document.getElementById('cs-stat1n').textContent=d.stat1n;if(d.stat1d)document.getElementById('cs-stat1d').textContent=d.stat1d;if(d.stat2n)document.getElementById('cs-stat2n').textContent=d.stat2n;if(d.stat2d)document.getElementById('cs-stat2d').textContent=d.stat2d;if(d.stat3n)document.getElementById('cs-stat3n').textContent=d.stat3n;if(d.stat3d)document.getElementById('cs-stat3d').textContent=d.stat3d;}catch(e){}})();</script>
+ <script src="../js/case-study.js"></script>
 </body>
 </html>

@@ -75,10 +75,14 @@
  <section class="page-hero" aria-label="Case study hero">
  <div class="page-hero__inner">
  <div style="margin-bottom:1rem;">
- <span class="work-tag">CASE STUDY | CONSUMER PROMOTION</span>
+ <span class="work-tag" id="cs-hero-tag">CASE STUDY | CONSUMER PROMOTION</span>
  </div>
- <h1 class="page-hero__title">Chiko Bathurst 1000 National Competition</h1>
- <p class="page-hero__lead">Client: Chiko | Event: Bathurst 1000 Supercars | Campaign type: National consumer promotion | Delivered by: Cielo House</p>
+ <h1 class="page-hero__title" id="cs-title">Chiko Bathurst 1000 National Competition</h1>
+ <div class="page-hero__lead case-meta-lines" style="color:var(--color-white);">
+ <p style="margin:0 0 0.55rem;"><strong>Client:</strong> <span id="cs-client">Chiko</span></p>
+ <p style="margin:0 0 0.55rem;"><strong>Event:</strong> <span id="cs-event">Bathurst 1000 Supercars</span></p>
+ <p style="margin:0;"><strong>Event type:</strong> <span id="cs-event-type">National consumer promotion</span></p>
+ </div>
  </div>
  <div class="page-hero__video-wrap" aria-hidden="true">
  <video autoplay muted loop playsinline preload="auto" tabindex="-1">
@@ -133,10 +137,13 @@
 
  <aside>
  <div class="meta-card">
- <div class="meta-row"><span class="meta-label">Client</span><span class="meta-value">Chiko</span></div>
+ <div class="meta-row"><span class="meta-label">Client</span>
+ <span class="meta-value" id="cs-meta-client">Chiko</span></div>
  <div class="meta-row"><span class="meta-label">Campaign</span><span class="meta-value">Bathurst 1000 National Competition</span></div>
- <div class="meta-row"><span class="meta-label">Year</span><span class="meta-value">2025</span></div>
- <div class="meta-row"><span class="meta-label">Services Delivered</span><span class="meta-value">Consumer Promotion · Digital Marketing · Graphic Design · Website Build · Prize Fulfilment</span></div>
+ <div class="meta-row"><span class="meta-label">Year</span>
+ <span class="meta-value" id="cs-meta-year">2025</span></div>
+ <div class="meta-row"><span class="meta-label">Services Delivered</span>
+ <span class="meta-value" id="cs-meta-services">Consumer Promotion · Digital Marketing · Graphic Design · Website Build · Prize Fulfilment</span></div>
  </div>
 
 
@@ -166,8 +173,6 @@
  </footer>
 
  <script src="../js/main.js" defer></script>
- <script>
- (function(){try{var d=(JSON.parse(localStorage.getItem('ch_cs_overrides')||'{}')||{})['chiko-bathurst-competition-2025'];if(!d)return;if(d.heroImage)document.getElementById('cs-hero-image').src=d.heroImage;if(d.lead)document.getElementById('cs-lead').innerHTML=d.lead;if(d.brief)document.getElementById('cs-brief').innerHTML=d.brief;if(d.delivered)document.getElementById('cs-delivered').innerHTML=d.delivered;if(d.quote)document.getElementById('cs-quote').textContent=d.quote;if(d.attribution)document.getElementById('cs-attribution').textContent=d.attribution;if(d.stat1n)document.getElementById('cs-stat1n').textContent=d.stat1n;if(d.stat1d)document.getElementById('cs-stat1d').textContent=d.stat1d;if(d.stat2n)document.getElementById('cs-stat2n').textContent=d.stat2n;if(d.stat2d)document.getElementById('cs-stat2d').textContent=d.stat2d;if(d.stat3n)document.getElementById('cs-stat3n').textContent=d.stat3n;if(d.stat3d)document.getElementById('cs-stat3d').textContent=d.stat3d;}catch(e){}})();
- </script>
+ <script src="../js/case-study.js"></script>
 </body>
 </html>
