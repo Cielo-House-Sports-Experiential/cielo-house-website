@@ -262,7 +262,6 @@
  </a>
  <div class="sidebar__label">Dashboard</div>
  <button class="nav-btn active" data-panel="analytics">Analytics</button>
- <button class="nav-btn" data-panel="contacts">Contact Forms <span id="contacts-badge" style="display:none;background:#e74c3c;color:#fff;border-radius:20px;font-size:0.65rem;font-weight:700;padding:0.1rem 0.45rem;margin-left:0.35rem;"></span></button>
  <button class="nav-btn" data-panel="subscribers">Subscribers</button>
  <button class="nav-btn" data-panel="events">Events Calendar</button>
  <button class="nav-btn" data-panel="blog">Blog Posts</button>
@@ -780,33 +779,6 @@
 
  <!-- SUBSCRIBERS -->
  <!-- ===== CONTACT FORMS ===== -->
- <div class="panel" id="panel-contacts">
-   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem;flex-wrap:wrap;gap:0.75rem;">
-     <h1 class="page-title" style="margin-bottom:0;">Contact Forms</h1>
-     <div style="display:flex;gap:0.5rem;">
-       <button class="btn btn-secondary btn-sm" onclick="contactsMarkAllRead()">Mark All Read</button>
-       <button class="btn btn-secondary btn-sm" onclick="contactsExportCSV()">Export CSV</button>
-     </div>
-   </div>
-   <p class="page-sub">All enquiries submitted via the website contact form.</p>
-
-   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;">
-     <div class="metric"><div class="metric__label">Total Enquiries</div><div class="metric__value" id="ct-total">0</div></div>
-     <div class="metric"><div class="metric__label">New / Unread</div><div class="metric__value" id="ct-unread" style="color:#e74c3c;">0</div></div>
-     <div class="metric"><div class="metric__label">This Month</div><div class="metric__value" id="ct-month">0</div></div>
-   </div>
-
-   <!-- Filter tabs -->
-   <div style="display:flex;gap:0.25rem;background:#f5f7fb;border:1.5px solid #dde2f0;border-radius:8px;padding:0.25rem;margin-bottom:1.25rem;width:fit-content;">
-     <button class="blog-tab active" id="ct-tab-all" onclick="contactsFilter('all')">All</button>
-     <button class="blog-tab" id="ct-tab-new" onclick="contactsFilter('new')">New</button>
-     <button class="blog-tab" id="ct-tab-read" onclick="contactsFilter('read')">Read</button>
-     <button class="blog-tab" id="ct-tab-archived" onclick="contactsFilter('archived')">Archived</button>
-   </div>
-
-   <div id="contacts-list" class="item-list"><div class="empty">No enquiries yet. They will appear here automatically when someone fills in the contact form.</div></div>
- </div>
-
  <!-- ===== SUBSCRIBERS ===== -->
  <div class="panel" id="panel-subscribers">
    <h1 class="page-title">Subscribers</h1>
@@ -4160,118 +4132,6 @@
    });
  }
  renderSubs();
-
- // ===================== CONTACT FORMS =====================
- var CT_KEY = 'ch_contact_forms';
- var _ctFilter = 'all';
-
- function getContacts() { try { return JSON.parse(localStorage.getItem(CT_KEY) || '[]'); } catch(e) { return []; } }
- function saveContacts(arr) { localStorage.setItem(CT_KEY, JSON.stringify(arr)); }
-
- function contactsFilter(f) {
-   _ctFilter = f;
-   ['all','new','read','archived'].forEach(function(s){
-     var el = document.getElementById('ct-tab-' + s);
-     if (el) el.classList.toggle('active', s === f);
-   });
-   renderContacts();
- }
-
- function contactsMarkAllRead() {
-   var ct = getContacts();
-   ct.forEach(function(c){ if (c.status === 'new') c.status = 'read'; });
-   saveContacts(ct);
-   renderContacts();
-   updateContactsBadge();
- }
-
- function contactsExportCSV() {
-   var ct = getContacts();
-   if (!ct.length) { alert('No enquiries to export.'); return; }
-   var rows = ['Date,Name,Email,Company,Service,Message,Status'];
-   ct.forEach(function(c) {
-     rows.push([c.date, c.name, c.email, c.company || '', c.service || '', '"' + (c.message || '').replace(/"/g,'""') + '"', c.status].join(','));
-   });
-   var a = document.createElement('a');
-   a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(rows.join('\n'));
-   a.download = 'cielo-house-enquiries-' + new Date().toISOString().slice(0,10) + '.csv';
-   a.click();
- }
-
- function contactSetStatus(id, status) {
-   var ct = getContacts();
-   ct.forEach(function(c){ if (c.id === id) c.status = status; });
-   saveContacts(ct);
-   renderContacts();
-   updateContactsBadge();
- }
-
- function contactDelete(id) {
-   if (!confirm('Delete this enquiry?')) return;
-   saveContacts(getContacts().filter(function(c){ return c.id !== id; }));
-   renderContacts();
-   updateContactsBadge();
- }
-
- function updateContactsBadge() {
-   var unread = getContacts().filter(function(c){ return c.status === 'new'; }).length;
-   var badge = document.getElementById('contacts-badge');
-   if (badge) { badge.textContent = unread; badge.style.display = unread ? 'inline' : 'none'; }
-   var el = document.getElementById('ct-unread'); if (el) el.textContent = unread;
- }
-
- function renderContacts() {
-   var ct = getContacts();
-   var now = new Date();
-   var monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-   var total = ct.length, unread = 0, thisMonth = 0;
-   ct.forEach(function(c){
-     if (c.status === 'new') unread++;
-     if (new Date(c.date).getTime() >= monthStart) thisMonth++;
-   });
-   var el;
-   el = document.getElementById('ct-total'); if(el) el.textContent = total;
-   el = document.getElementById('ct-unread'); if(el) el.textContent = unread;
-   el = document.getElementById('ct-month'); if(el) el.textContent = thisMonth;
-
-   var filtered = ct.filter(function(c){ return _ctFilter === 'all' || c.status === _ctFilter; });
-   filtered.sort(function(a,b){ return new Date(b.date) - new Date(a.date); });
-
-   var list = document.getElementById('contacts-list');
-   if (!list) return;
-   if (!filtered.length) {
-     list.innerHTML = '<div class="empty">No ' + (_ctFilter !== 'all' ? _ctFilter + ' ' : '') + 'enquiries yet.</div>';
-   } else {
-     list.innerHTML = '';
-     filtered.forEach(function(c) {
-       var isNew = c.status === 'new';
-       var card = document.createElement('div');
-       card.className = 'item-row';
-       card.style.cssText = 'flex-direction:column;align-items:stretch;gap:0.5rem;' + (isNew ? 'border-left:3px solid #2B317B;background:#f8f9ff;' : '');
-       var d = new Date(c.date);
-       var dateStr = d.toLocaleDateString('en-AU', {day:'numeric',month:'short',year:'numeric'}) + ' ' + d.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
-       card.innerHTML =
-         '<div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">'
-         + (isNew ? '<span style="font-size:0.65rem;font-weight:700;background:#2B317B;color:#fff;border-radius:20px;padding:0.1rem 0.55rem;letter-spacing:0.05em;text-transform:uppercase;">New</span>' : '')
-         + '<span style="font-weight:600;font-size:0.9rem;color:#2B317B;">' + esc(c.name) + '</span>'
-         + '<span style="font-size:0.8rem;color:#668DC6;">' + esc(c.email) + '</span>'
-         + (c.company ? '<span style="font-size:0.78rem;color:#aaa;">' + esc(c.company) + '</span>' : '')
-         + '<span style="font-size:0.72rem;color:#ccc;margin-left:auto;">' + dateStr + '</span>'
-         + '</div>'
-         + (c.service ? '<div style="font-size:0.78rem;color:#668DC6;font-weight:600;">' + esc(c.service) + '</div>' : '')
-         + (c.message ? '<div style="font-size:0.82rem;color:#444;line-height:1.55;background:#f5f7fb;border-radius:6px;padding:0.55rem 0.75rem;">' + esc(c.message) + '</div>' : '')
-         + '<div style="display:flex;gap:0.4rem;flex-wrap:wrap;">'
-         + (isNew ? '<button onclick="contactSetStatus(\'' + c.id + '\',\'read\')" class="btn btn-secondary btn-sm" style="font-size:0.72rem;">Mark Read</button>' : '')
-         + (c.status !== 'archived' ? '<button onclick="contactSetStatus(\'' + c.id + '\',\'archived\')" class="btn btn-secondary btn-sm" style="font-size:0.72rem;">Archive</button>' : '<button onclick="contactSetStatus(\'' + c.id + '\',\'read\')" class="btn btn-secondary btn-sm" style="font-size:0.72rem;">Unarchive</button>')
-         + '<a href="mailto:' + esc(c.email) + '?subject=Re: Your Cielo House Enquiry" class="btn btn-primary btn-sm" style="font-size:0.72rem;text-decoration:none;">Reply by Email</a>'
-         + '<button onclick="contactDelete(\'' + c.id + '\')" class="btn btn-danger btn-sm" style="font-size:0.72rem;">Delete</button>'
-         + '</div>';
-       list.appendChild(card);
-     });
-   }
-   updateContactsBadge();
- }
- renderContacts();
 
  /* ── AI Knowledge Base ── */
  var AIK_KEY = 'ch_ai_knowledge';

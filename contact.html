@@ -12,6 +12,7 @@
  <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" /></noscript>
  <link rel="stylesheet" href="css/fonts.css" />
  <link rel="stylesheet" href="css/styles.css" />
+ <link rel="stylesheet" href="https://assets.calendly.com/assets/external/widget.css" />
  <meta property="og:title" content="Schedule a Briefing Call | Cielo House" />
  <meta property="og:description" content="Start your sports activation brief with Cielo House. Based on the Gold Coast — proven at the Gold Coast 500, F1 Australian Grand Prix, and Supercars season." />
  <meta property="og:type" content="website" />
@@ -220,7 +221,8 @@
  <label class="form-label" for="message" style="color:rgba(255,255,255,0.5);">Tell Us About Your Event</label>
  <textarea id="message" name="message" class="form-textarea" placeholder="Event type, date, location, goals…" rows="4"></textarea>
  </div>
- <button type="submit" class="btn btn--primary" style="width:100%; justify-content:center;">Schedule a Briefing Call</button>
+ <button type="submit" class="btn btn--primary" style="width:100%; justify-content:center;">Send Us a Brief</button>
+ <button type="button" id="calendly-btn" class="btn btn--primary" style="width:100%; justify-content:center; margin-top:0.75rem;">Schedule a Briefing Call</button>
  </form>
  </div>
  </div>
@@ -345,38 +347,68 @@
  </div>
  </footer>
  <script src="js/main.js" defer></script>
+ <script src="https://assets.calendly.com/assets/external/widget.js" async></script>
  <script>
- // Contact form — saves to localStorage so dashboard can display all enquiries
+ // Quick Enquiry — two independent actions.
+ //  • "Send Us a Brief" posts silently to Web3Forms, which emails the brief to
+ //    connect@cielohouse.com.au (website inbox) and cc's britt@cielohouse.com.au.
+ //  • "Schedule a Briefing Call" opens the Calendly popup. No link between them.
  (function () {
    var form = document.getElementById('enquiry-form');
    var successMsg = document.getElementById('form-success');
-   if (!form) return;
-   form.addEventListener('submit', function (e) {
-     e.preventDefault();
-     var btn = form.querySelector('button[type="submit"]');
-     btn.textContent = 'Sending…';
-     btn.disabled = true;
-     var data = new FormData(form);
-     var submission = {
-       id:      'ct_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
-       date:    new Date().toISOString(),
-       status:  'new',
-       name:    ((data.get('first_name') || '') + ' ' + (data.get('last_name') || '')).trim(),
-       email:   data.get('email') || '',
-       company: data.get('company') || '',
-       service: data.get('service') || '',
-       message: data.get('message') || ''
-     };
-     // Save to localStorage (read by dashboard)
-     try {
-       var existing = JSON.parse(localStorage.getItem('ch_contact_forms') || '[]');
-       existing.unshift(submission);
-       localStorage.setItem('ch_contact_forms', JSON.stringify(existing));
-     } catch(err) {}
-     // Show success
-     form.style.display = 'none';
-     if (successMsg) successMsg.style.display = 'block';
-   });
+   if (form) {
+     form.addEventListener('submit', function (e) {
+       e.preventDefault();
+       var btn = form.querySelector('button[type="submit"]');
+       var data = new FormData(form);
+       var name = ((data.get('first_name') || '') + ' ' + (data.get('last_name') || '')).trim();
+       var email = data.get('email') || '';
+       var message = data.get('message') || '';
+       if (!email) { alert('Please add your email address.'); document.getElementById('email').focus(); return; }
+       if (!message) { alert('Please tell us about your event.'); document.getElementById('message').focus(); return; }
+       btn.textContent = 'Sending…';
+       btn.disabled = true;
+       var payload = {
+         access_key: '7d4c2c59-d5b6-4ee0-909f-442b973b70d0',
+         subject: 'New website brief' + (name ? ' — ' + name : ''),
+         from_name: 'Cielo House Website',
+         cc: 'britt@cielohouse.com.au',
+         Name: name,
+         Email: email,
+         Company: data.get('company') || '',
+         Service: data.get('service') || '',
+         Message: message
+       };
+       fetch('https://api.web3forms.com/submit', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+         body: JSON.stringify(payload)
+       }).then(function (r) { return r.json(); }).then(function (res) {
+         if (res && res.success) {
+           form.style.display = 'none';
+           if (successMsg) successMsg.style.display = 'block';
+         } else {
+           btn.textContent = 'Send Us a Brief';
+           btn.disabled = false;
+           alert('Sorry, something went wrong sending your brief. Please email connect@cielohouse.com.au.');
+         }
+       }).catch(function () {
+         btn.textContent = 'Send Us a Brief';
+         btn.disabled = false;
+         alert('Sorry, something went wrong sending your brief. Please email connect@cielohouse.com.au.');
+       });
+     });
+   }
+   var cal = document.getElementById('calendly-btn');
+   if (cal) {
+     cal.addEventListener('click', function () {
+       if (window.Calendly) {
+         Calendly.initPopupWidget({ url: 'https://calendly.com/britt-cielohouse/event-briefing-call' });
+       } else {
+         window.open('https://calendly.com/britt-cielohouse/event-briefing-call', '_blank', 'noopener');
+       }
+     });
+   }
  })();
  </script>
 <script src="/tracking.js"></script>
