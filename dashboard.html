@@ -3066,6 +3066,23 @@
    if(done>0){ localStorage.setItem('ch_sb_synced','1'); }
  })();
 
+ /* Pull all posts FROM Supabase into the dashboard (Supabase is the source of truth) */
+ function blogLoadFromSB(){
+   return fetch(_SB+'/rest/v1/blog_posts?select=*&order=date.desc',{headers:_sbH()})
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(rows){
+      if(!rows||!rows.length)return;
+      var posts=rows.map(function(r){return {
+        title:r.title||'', slug:r.slug||'', category:r.category||'', status:r.status||'Published',
+        date:r.date||'', excerpt:r.excerpt||'', image:r.image||'', content:r.content||'',
+        views:r.views||0, sbId:r.id, seo_title:r.seo_title||'', meta_description:r.meta_description||''
+      };});
+      savePosts(posts);
+      if(typeof renderPosts==='function') renderPosts();
+    }).catch(function(){});
+ }
+ blogLoadFromSB();
+
  function blogUpdateStats() {
    var posts = getPosts();
    var pub  = posts.filter(function(p){ return p.status === 'Published'; }).length;
@@ -4880,6 +4897,7 @@ Respond ONLY with valid JSON array, no other text:
   btn.addEventListener('click', function() {
    if (btn.getAttribute('data-panel') === 'casestudies') { csLoad(); }
    if (btn.getAttribute('data-panel') === 'team') { teamLoad(); }
+   if (btn.getAttribute('data-panel') === 'blog') { blogLoadFromSB(); }
   });
  });
 
