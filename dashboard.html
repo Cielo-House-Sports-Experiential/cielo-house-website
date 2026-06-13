@@ -463,7 +463,7 @@
  </div>
 
  <div class="two-col">
-   <div class="card" style="margin-bottom:0;"><div class="card-title">Subscribers and Forms</div><div style="margin-bottom:1.25rem;"><div class="metric__label">Email Subscribers</div><div class="metric__value" id="m-subscribers">0</div></div><div><div class="metric__label">Contact Form Submissions</div><div class="metric__value" id="m-submissions">0</div></div></div>
+   <div class="card" style="margin-bottom:0;"><div class="card-title">Subscribers</div><div><div class="metric__label">Email Subscribers</div><div class="metric__value" id="m-subscribers">0</div></div></div>
    <div class="card" style="margin-bottom:0;">
      <div class="card-title">Top Pages (Last 30 Days)</div>
      <div id="act-top-pages" style="display:flex;flex-direction:column;gap:0.4rem;">
@@ -2355,7 +2355,6 @@
  function loadAnalytics() {
    var subs = JSON.parse(localStorage.getItem('ch_subscribers') || '[]');
    document.getElementById('m-subscribers').textContent = subs.length;
-   document.getElementById('m-submissions').textContent = localStorage.getItem('ch_form_submissions') || '0';
 
    var s = JSON.parse(localStorage.getItem('ch_stats') || '{}');
    var googleConnected = !!localStorage.getItem('ch_ga_token') && Date.now() < parseInt(localStorage.getItem('ch_ga_token_exp') || '0');
@@ -2688,21 +2687,6 @@
      }
    });
  });
-
- // ── Migrate: remove any Wix-imported entries wrongly placed in Contact Forms ──
- (function migrateWixContacts() {
-   var forms = JSON.parse(localStorage.getItem('ch_contact_forms') || '[]');
-   var wixEntries = forms.filter(function(c){ return c.source === 'wix' || c.message === 'Imported from Wix'; });
-   if (!wixEntries.length) return;
-   // Remove them from contact forms
-   var cleaned = forms.filter(function(c){ return c.source !== 'wix' && c.message !== 'Imported from Wix'; });
-   localStorage.setItem('ch_contact_forms', JSON.stringify(cleaned));
-   // Move their emails into subscribers
-   var subs = JSON.parse(localStorage.getItem('ch_subscribers') || '[]');
-   var subsSet = new Set(subs.map(function(e){ return e.toLowerCase(); }));
-   wixEntries.forEach(function(c){ if (c.email && !subsSet.has(c.email.toLowerCase())) { subs.push(c.email.toLowerCase()); subsSet.add(c.email.toLowerCase()); } });
-   localStorage.setItem('ch_subscribers', JSON.stringify(subs));
- })();
 
  // ── Seed Wix mailing list into Subscribers — imported once, never overwritten ──
  (function seedWixSubscribers() {

@@ -13,6 +13,12 @@
  <link rel="stylesheet" href="css/fonts.css" />
  <link rel="stylesheet" href="css/styles.css" />
  <link rel="stylesheet" href="https://assets.calendly.com/assets/external/widget.css" />
+ <style>
+ .enquiry-actions{display:flex;gap:1rem;flex-wrap:wrap;}
+ .enquiry-btn{flex:1 1 0;min-width:150px;display:inline-flex;align-items:center;justify-content:center;text-align:center;padding:0.95rem 1rem;border:2px solid var(--color-gold);background:transparent;color:var(--color-white);font-family:inherit;font-size:0.78rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;border-radius:10px;cursor:pointer;line-height:1.2;transition:background-color .2s ease,border-color .2s ease,color .2s ease;}
+ .enquiry-btn:hover{background:var(--color-gold);border-color:var(--color-gold-light);color:var(--color-white);}
+ .enquiry-btn:disabled{opacity:0.6;cursor:default;}
+ </style>
  <meta property="og:title" content="Schedule a Briefing Call | Cielo House" />
  <meta property="og:description" content="Start your sports activation brief with Cielo House. Based on the Gold Coast — proven at the Gold Coast 500, F1 Australian Grand Prix, and Supercars season." />
  <meta property="og:type" content="website" />
@@ -221,8 +227,10 @@
  <label class="form-label" for="message" style="color:rgba(255,255,255,0.5);">Tell Us About Your Event</label>
  <textarea id="message" name="message" class="form-textarea" placeholder="Event type, date, location, goals…" rows="4"></textarea>
  </div>
- <button type="submit" class="btn btn--primary" style="width:100%; justify-content:center;">Send Us a Brief</button>
- <button type="button" id="calendly-btn" class="btn btn--primary" style="width:100%; justify-content:center; margin-top:0.75rem;">Schedule a Briefing Call</button>
+ <div class="enquiry-actions">
+ <button type="submit" class="enquiry-btn">Send Us a Brief</button>
+ <button type="button" id="calendly-btn" class="enquiry-btn">Schedule a Briefing Call</button>
+ </div>
  </form>
  </div>
  </div>
