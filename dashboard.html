@@ -288,6 +288,7 @@
  <button class="nav-btn" data-panel="casestudies">Case Studies</button>
  <button class="nav-btn" data-panel="team">Team</button>
  <button class="nav-btn" data-panel="chatwidget">Chat Widget</button>
+ <button class="nav-btn" data-panel="edm">Email (EDM)</button>
  <div class="sidebar__label">Content</div>
  <button class="nav-btn" data-panel="testimonials">Testimonials</button>
  <button class="nav-btn" data-panel="faq">FAQ</button>
@@ -1145,6 +1146,106 @@
     </label>
    </div>
    <p style="font-size:0.8rem;color:#aaa;margin-top:1rem;margin-bottom:0;">When off, the chat widget is hidden everywhere on the site. Text, messages and routing for the chat will be added here next.</p>
+  </div>
+ </div>
+
+ <!-- ===== EMAIL (EDM) ===== -->
+ <div class="panel" id="panel-edm">
+
+  <!-- LIST VIEW -->
+  <div id="edm-list-view">
+   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem;flex-wrap:wrap;gap:1rem;">
+    <h1 class="page-title" style="margin-bottom:0;">Email (EDM)</h1>
+    <button class="btn btn-primary" onclick="edmNew()" style="font-size:0.78rem;padding:0.5rem 1.1rem;">+ New Email</button>
+   </div>
+   <p class="page-sub">Build image-stack emails and send them from connect@cielohouse.com.au to your subscriber list. Opens, clicks and unsubscribes are tracked automatically.</p>
+   <div class="metrics" style="grid-template-columns:repeat(3,1fr);margin-bottom:1.5rem;">
+    <div class="metric"><div class="metric__label">Drafts</div><div class="metric__value" id="edm-stat-draft">0</div><div class="metric__sub">not yet sent</div></div>
+    <div class="metric"><div class="metric__label">Sent</div><div class="metric__value" id="edm-stat-sent">0</div><div class="metric__sub">campaigns delivered</div></div>
+    <div class="metric"><div class="metric__label">Subscribers</div><div class="metric__value" id="edm-stat-subs">0</div><div class="metric__sub">subscribed contacts</div></div>
+   </div>
+   <div class="card">
+    <div class="card-title">All Emails</div>
+    <div id="edm-list"><div class="empty">Loading…</div></div>
+   </div>
+  </div>
+
+  <!-- BUILDER VIEW -->
+  <div id="edm-builder-view" style="display:none;">
+   <button class="btn btn-secondary btn-sm" onclick="edmBackToList()" style="margin-bottom:1rem;">&larr; All emails</button>
+   <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.25rem;">
+    <h1 class="page-title" id="edm-b-title" style="margin-bottom:0;">Email</h1>
+    <span id="edm-b-status" style="font-size:0.72rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:0.25rem 0.7rem;border-radius:20px;background:#eef0f7;color:#2B317B;">Draft</span>
+   </div>
+
+   <div style="display:grid;grid-template-columns:1fr 360px;gap:1.5rem;align-items:start;">
+    <div>
+     <!-- Subject + preview -->
+     <div class="card">
+      <div class="card-title">Subject &amp; preview</div>
+      <div class="form-group">
+       <label class="form-label">Subject line <span style="color:#e74c3c;">*</span></label>
+       <input class="form-input" id="edm-subject" placeholder="e.g. What's on at Cielo House this season" onblur="edmSaveMeta()" />
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+       <label class="form-label">Preview text <span style="color:#aaa;font-weight:400;">(the grey snippet shown after the subject in the inbox)</span></label>
+       <input class="form-input" id="edm-preview" placeholder="A short teaser line…" onblur="edmSaveMeta()" />
+      </div>
+     </div>
+
+     <!-- Image sections -->
+     <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+       <div class="card-title" style="margin-bottom:0;">Image sections</div>
+       <label class="btn btn-primary btn-sm" style="cursor:pointer;margin:0;">
+        + Add image
+        <input type="file" id="edm-sec-file" accept="image/png,image/jpeg,image/gif,image/webp" style="display:none;" onchange="edmAddSection(this)" />
+       </label>
+      </div>
+      <p style="font-size:0.76rem;color:#aaa;margin-top:-0.5rem;margin-bottom:1rem;">Stack the email as a set of full-width images (max 600px wide, under 5 MB each). Add a link to any image to make it clickable, and clicks are tracked per image.</p>
+      <div id="edm-sections"><div class="empty">No images yet. Click “Add image” to start building.</div></div>
+     </div>
+
+     <!-- Send -->
+     <div class="card">
+      <div class="card-title">Test &amp; send</div>
+      <div class="form-group">
+       <label class="form-label">Send a test to</label>
+       <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+        <input class="form-input" id="edm-test-emails" placeholder="you@cielohouse.com.au, another@…" style="flex:1;min-width:200px;" />
+        <button class="btn btn-secondary" onclick="edmTest()" id="edm-test-btn">Send test</button>
+       </div>
+       <div style="font-size:0.72rem;color:#aaa;margin-top:0.3rem;">Test copies are tagged [TEST] and are not tracked or counted.</div>
+      </div>
+      <hr style="border:none;border-top:1px solid #eef0f7;margin:1.25rem 0;" />
+      <div style="display:flex;align-items:center;gap:0.9rem;flex-wrap:wrap;">
+       <button class="btn btn-primary" onclick="edmSendNow()" id="edm-send-btn">Send to all subscribers</button>
+       <span id="edm-send-msg" style="font-size:0.8rem;color:#27ae60;"></span>
+      </div>
+      <div style="font-size:0.72rem;color:#aaa;margin-top:0.6rem;">Sends from <strong>connect@cielohouse.com.au</strong> to every subscribed contact, with a one-click unsubscribe footer. This cannot be undone.</div>
+     </div>
+    </div>
+
+    <!-- Live preview -->
+    <div class="card" style="position:sticky;top:1rem;padding:0;overflow:hidden;">
+     <div style="padding:0.85rem 1rem;border-bottom:1px solid #eef0f7;font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#2B317B;">Inbox preview</div>
+     <div style="background:#f4f4f4;padding:1rem;">
+      <div style="font-size:0.74rem;color:#888;margin-bottom:0.5rem;line-height:1.4;"><strong id="edm-pv-subject" style="color:#222;">Subject</strong><br><span id="edm-pv-preview"></span></div>
+      <div id="edm-pv-stack" style="max-width:300px;margin:0 auto;background:#fff;"></div>
+     </div>
+    </div>
+   </div>
+
+   <!-- Sent stats (shown once sent) -->
+   <div class="card" id="edm-stats-card" style="display:none;">
+    <div class="card-title">Performance</div>
+    <div class="metrics" style="grid-template-columns:repeat(4,1fr);">
+     <div class="metric"><div class="metric__label">Recipients</div><div class="metric__value" id="edm-m-recip">0</div></div>
+     <div class="metric"><div class="metric__label">Opens</div><div class="metric__value" id="edm-m-opens">0</div><div class="metric__sub" id="edm-m-openrate">0%</div></div>
+     <div class="metric"><div class="metric__label">Clicks</div><div class="metric__value" id="edm-m-clicks">0</div><div class="metric__sub" id="edm-m-clickrate">0%</div></div>
+     <div class="metric"><div class="metric__label">Unsubscribes</div><div class="metric__value" id="edm-m-unsub">0</div></div>
+    </div>
+   </div>
   </div>
  </div>
 
@@ -4968,6 +5069,215 @@ Respond ONLY with valid JSON array, no other text:
  }
  cwcfgLoad();
 
+ /* ===== EMAIL (EDM) ===== */
+ var _edmCur = null, _edmSecs = [];
+ function edmEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+ function edmDate(iso){ try{ var d=new Date(iso); var p=function(n){return(n<10?'0':'')+n;}; return p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+String(d.getFullYear()).slice(2); }catch(e){ return ''; } }
+ function edmCount(path, cb){
+   fetch(_SB+'/rest/v1/'+path, {headers:Object.assign({},_sbH(),{'Prefer':'count=exact','Range':'0-0'})})
+    .then(function(r){ var cr=r.headers.get('content-range')||''; var n=cr.split('/')[1]; cb((n&&n!=='*')?parseInt(n,10):0); })
+    .catch(function(){ cb(0); });
+ }
+
+ function edmLoad(){
+   fetch(_SB+'/rest/v1/edm_campaigns?select=*&order=created_at.desc',{headers:_sbH()})
+    .then(function(r){return r.json();})
+    .then(function(rows){
+      if(!Array.isArray(rows)) rows=[];
+      var draft=0,sent=0;
+      rows.forEach(function(c){ if(c.status==='sent') sent++; else draft++; });
+      document.getElementById('edm-stat-draft').textContent=draft;
+      document.getElementById('edm-stat-sent').textContent=sent;
+      var list=document.getElementById('edm-list');
+      if(!rows.length){ list.innerHTML='<div class="empty">No emails yet. Click “+ New Email” to build your first one.</div>'; return; }
+      list.innerHTML=rows.map(function(c){
+        var st=c.status==='sent'; var stats=c.stats||{};
+        var when=c.sent_at?('Sent '+edmDate(c.sent_at)):('Created '+edmDate(c.created_at));
+        var meta=st?((stats.sent||0)+' delivered'):'Draft';
+        return '<div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0.85rem 0;border-bottom:1px solid #eef0f7;flex-wrap:wrap;">'
+          +'<div style="min-width:200px;flex:1;"><div style="font-weight:600;color:#2B317B;">'+edmEsc(c.subject||'(no subject)')+'</div>'
+          +'<div style="font-size:0.76rem;color:#aaa;">'+when+' · '+meta+'</div></div>'
+          +'<div style="display:flex;gap:0.5rem;align-items:center;">'
+          +'<span style="font-size:0.66rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:0.2rem 0.6rem;border-radius:20px;background:'+(st?'#e6f7ec':'#eef0f7')+';color:'+(st?'#1a7a40':'#2B317B')+';">'+(st?'Sent':'Draft')+'</span>'
+          +'<button class="btn btn-secondary btn-sm" onclick="edmOpen(\''+c.id+'\')">'+(st?'View':'Edit')+'</button>'
+          +'</div></div>';
+      }).join('');
+    }).catch(function(){ document.getElementById('edm-list').innerHTML='<div class="empty">Could not load emails.</div>'; });
+   edmCount('subscribers?status=eq.subscribed&select=id', function(n){ document.getElementById('edm-stat-subs').textContent=n; });
+ }
+
+ function edmBackToList(){
+   _edmCur=null; _edmSecs=[];
+   document.getElementById('edm-builder-view').style.display='none';
+   document.getElementById('edm-list-view').style.display='block';
+ }
+
+ function edmNew(){
+   fetch(_SB+'/rest/v1/edm_campaigns',{method:'POST',headers:Object.assign({},_sbH(),{'Prefer':'return=representation'}),body:JSON.stringify({subject:'Untitled email',status:'draft'})})
+    .then(function(r){return r.json();})
+    .then(function(d){ if(Array.isArray(d)&&d[0]) edmOpen(d[0].id); else alert('Could not create email.'); })
+    .catch(function(){ alert('Could not create email.'); });
+ }
+
+ function edmOpen(id){
+   Promise.all([
+     fetch(_SB+'/rest/v1/edm_campaigns?id=eq.'+id+'&select=*',{headers:_sbH()}).then(function(r){return r.json();}),
+     fetch(_SB+'/rest/v1/edm_campaign_sections?campaign_id=eq.'+id+'&order=position.asc&select=*',{headers:_sbH()}).then(function(r){return r.json();})
+   ]).then(function(res){
+     var c=(res[0]||[])[0]; if(!c){ alert('Email not found.'); return; }
+     _edmCur=c; _edmSecs=Array.isArray(res[1])?res[1]:[];
+     document.getElementById('edm-list-view').style.display='none';
+     document.getElementById('edm-builder-view').style.display='block';
+     document.getElementById('edm-subject').value=c.subject||'';
+     document.getElementById('edm-preview').value=c.preview_text||'';
+     document.getElementById('edm-b-title').textContent=c.subject||'Untitled email';
+     var sent=c.status==='sent';
+     var badge=document.getElementById('edm-b-status');
+     badge.textContent=sent?'Sent':'Draft'; badge.style.background=sent?'#e6f7ec':'#eef0f7'; badge.style.color=sent?'#1a7a40':'#2B317B';
+     document.getElementById('edm-send-btn').style.display=sent?'none':'';
+     document.getElementById('edm-send-msg').textContent=sent?'This email has already been sent.':'';
+     edmRenderSections(); edmRenderPreview(); edmLoadStats(sent);
+   }).catch(function(){ alert('Could not open email.'); });
+ }
+
+ function edmLoadStats(sent){
+   var card=document.getElementById('edm-stats-card');
+   if(!sent || !_edmCur){ card.style.display='none'; return; }
+   card.style.display='';
+   var cid=_edmCur.id;
+   edmCount('edm_sends?campaign_id=eq.'+cid+'&select=id', function(recip){
+     document.getElementById('edm-m-recip').textContent=recip;
+     edmCount('edm_sends?campaign_id=eq.'+cid+'&opened_at=not.is.null&select=id', function(op){
+       document.getElementById('edm-m-opens').textContent=op;
+       document.getElementById('edm-m-openrate').textContent=(recip?Math.round(op/recip*100):0)+'%';
+     });
+     edmCount('edm_sends?campaign_id=eq.'+cid+'&clicked_at=not.is.null&select=id', function(cl){
+       document.getElementById('edm-m-clicks').textContent=cl;
+       document.getElementById('edm-m-clickrate').textContent=(recip?Math.round(cl/recip*100):0)+'%';
+     });
+     edmCount('edm_sends?campaign_id=eq.'+cid+'&unsubscribed_at=not.is.null&select=id', function(u){
+       document.getElementById('edm-m-unsub').textContent=u;
+     });
+   });
+ }
+
+ function edmSaveMeta(){
+   if(!_edmCur) return;
+   var subject=document.getElementById('edm-subject').value.trim();
+   var preview=document.getElementById('edm-preview').value.trim();
+   _edmCur.subject=subject; _edmCur.preview_text=preview;
+   document.getElementById('edm-b-title').textContent=subject||'Untitled email';
+   edmRenderPreview();
+   fetch(_SB+'/rest/v1/edm_campaigns?id=eq.'+_edmCur.id,{method:'PATCH',headers:Object.assign({},_sbH(),{'Prefer':'return=minimal'}),body:JSON.stringify({subject:subject,preview_text:preview})}).catch(function(){});
+ }
+
+ function edmRenderSections(){
+   var wrap=document.getElementById('edm-sections');
+   if(!_edmSecs.length){ wrap.innerHTML='<div class="empty">No images yet. Click “Add image” to start building.</div>'; return; }
+   wrap.innerHTML=_edmSecs.map(function(s,i){
+     return '<div style="border:1px solid #eef0f7;border-radius:8px;padding:0.75rem;margin-bottom:0.75rem;display:flex;gap:0.85rem;align-items:flex-start;">'
+       +'<img src="'+edmEsc(s.image_url)+'" style="width:90px;height:auto;border-radius:4px;flex-shrink:0;border:1px solid #eef0f7;" />'
+       +'<div style="flex:1;min-width:0;">'
+       +'<input class="form-input" style="margin-bottom:0.4rem;font-size:0.8rem;" placeholder="Alt text (shown when images are off)" value="'+edmEsc(s.image_alt||'')+'" onblur="edmSecMeta(\''+s.id+'\',\'image_alt\',this.value)" />'
+       +'<input class="form-input" style="font-size:0.8rem;" placeholder="Link when clicked (optional) — https://…" value="'+edmEsc(s.link_url||'')+'" onblur="edmSecMeta(\''+s.id+'\',\'link_url\',this.value)" />'
+       +'</div>'
+       +'<div style="display:flex;flex-direction:column;gap:0.3rem;">'
+       +'<button class="btn btn-secondary btn-sm" title="Move up" onclick="edmMoveSection('+i+',-1)"'+(i===0?' disabled':'')+'>&uarr;</button>'
+       +'<button class="btn btn-secondary btn-sm" title="Move down" onclick="edmMoveSection('+i+',1)"'+(i===_edmSecs.length-1?' disabled':'')+'>&darr;</button>'
+       +'<button class="btn btn-secondary btn-sm" title="Remove" onclick="edmDelSection(\''+s.id+'\')" style="color:#c0392b;">&#10005;</button>'
+       +'</div></div>';
+   }).join('');
+ }
+
+ function edmRenderPreview(){
+   document.getElementById('edm-pv-subject').textContent=document.getElementById('edm-subject').value||'Subject';
+   document.getElementById('edm-pv-preview').textContent=document.getElementById('edm-preview').value||'';
+   var stack=document.getElementById('edm-pv-stack');
+   stack.innerHTML=_edmSecs.map(function(s){ var img='<img src="'+edmEsc(s.image_url)+'" style="display:block;width:100%;" />'; return s.link_url?('<a href="'+edmEsc(s.link_url)+'" target="_blank" rel="noopener">'+img+'</a>'):img; }).join('')
+     +'<div style="padding:14px 10px;font-size:10px;color:#999;text-align:center;line-height:1.6;">Cielo House Experiential &amp; Events<br>connect@cielohouse.com.au<br>Unsubscribe</div>';
+ }
+
+ function edmAddSection(input){
+   var file=input.files[0]; if(!file) return;
+   if(file.size>5*1024*1024){ alert('Image must be under 5 MB.'); input.value=''; return; }
+   if(!_edmCur){ alert('Create the email first.'); input.value=''; return; }
+   var ext=(file.name.split('.').pop()||'png').toLowerCase().replace(/[^a-z0-9]/g,'')||'png';
+   var path=_edmCur.id+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
+   fetch(_SB+'/storage/v1/object/edm-assets/'+path,{method:'POST',headers:{'apikey':_SK,'Authorization':'Bearer '+(window._edmToken||_SK),'Content-Type':file.type||'image/png','x-upsert':'true'},body:file})
+    .then(function(r){ if(!r.ok) throw new Error('upload');
+      var pub=_SB+'/storage/v1/object/public/edm-assets/'+path;
+      var pos=_edmSecs.length?Math.max.apply(null,_edmSecs.map(function(s){return s.position||0;}))+1:0;
+      return fetch(_SB+'/rest/v1/edm_campaign_sections',{method:'POST',headers:Object.assign({},_sbH(),{'Prefer':'return=representation'}),body:JSON.stringify({campaign_id:_edmCur.id,position:pos,image_url:pub,image_alt:'',link_url:null})});
+    })
+    .then(function(r){return r.json();})
+    .then(function(d){ if(Array.isArray(d)&&d[0]){ _edmSecs.push(d[0]); edmRenderSections(); edmRenderPreview(); } input.value=''; })
+    .catch(function(){ alert('Could not upload image. Make sure you are still logged in, then try again.'); input.value=''; });
+ }
+
+ function edmSecMeta(id,field,val){
+   val=(val||'').trim();
+   if(field==='link_url' && val && !/^https?:\/\//i.test(val)){ val='https://'+val; }
+   var obj={}; obj[field]=val||null;
+   for(var i=0;i<_edmSecs.length;i++){ if(_edmSecs[i].id===id){ _edmSecs[i][field]=val||null; } }
+   edmRenderPreview();
+   fetch(_SB+'/rest/v1/edm_campaign_sections?id=eq.'+id,{method:'PATCH',headers:Object.assign({},_sbH(),{'Prefer':'return=minimal'}),body:JSON.stringify(obj)}).catch(function(){});
+ }
+
+ function edmDelSection(id){
+   if(!confirm('Remove this image from the email?')) return;
+   fetch(_SB+'/rest/v1/edm_campaign_sections?id=eq.'+id,{method:'DELETE',headers:_sbH()})
+    .then(function(){ _edmSecs=_edmSecs.filter(function(s){return s.id!==id;}); edmRenderSections(); edmRenderPreview(); })
+    .catch(function(){ alert('Could not remove image.'); });
+ }
+
+ function edmMoveSection(i,dir){
+   var j=i+dir; if(j<0||j>=_edmSecs.length) return;
+   var a=_edmSecs[i], b=_edmSecs[j];
+   var ap=a.position||0, bp=b.position||0;
+   a.position=bp; b.position=ap;
+   _edmSecs.sort(function(x,y){return (x.position||0)-(y.position||0);});
+   edmRenderSections(); edmRenderPreview();
+   fetch(_SB+'/rest/v1/edm_campaign_sections?id=eq.'+a.id,{method:'PATCH',headers:Object.assign({},_sbH(),{'Prefer':'return=minimal'}),body:JSON.stringify({position:a.position})}).catch(function(){});
+   fetch(_SB+'/rest/v1/edm_campaign_sections?id=eq.'+b.id,{method:'PATCH',headers:Object.assign({},_sbH(),{'Prefer':'return=minimal'}),body:JSON.stringify({position:b.position})}).catch(function(){});
+ }
+
+ function edmTest(){
+   if(!_edmCur) return;
+   var emails=document.getElementById('edm-test-emails').value.split(',').map(function(e){return e.trim();}).filter(Boolean);
+   if(!emails.length){ alert('Enter at least one test email address.'); return; }
+   if(!_edmSecs.length){ alert('Add at least one image before sending.'); return; }
+   edmSaveMeta();
+   var btn=document.getElementById('edm-test-btn'); btn.disabled=true; btn.textContent='Sending…';
+   fetch('/api/edm/send',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(window._edmToken||'')},body:JSON.stringify({campaign_id:_edmCur.id,mode:'test',test_emails:emails})})
+    .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
+    .then(function(res){ btn.disabled=false; btn.textContent='Send test';
+      if(res.ok&&res.j.ok){ alert('Test sent to '+res.j.sent+' address(es). Check the inbox.'); }
+      else { alert('Could not send test: '+((res.j&&res.j.error)||'unknown error')); } })
+    .catch(function(){ btn.disabled=false; btn.textContent='Send test'; alert('Could not send test.'); });
+ }
+
+ function edmSendNow(){
+   if(!_edmCur) return;
+   if(!_edmSecs.length){ alert('Add at least one image before sending.'); return; }
+   var subject=document.getElementById('edm-subject').value.trim();
+   if(!subject){ alert('Add a subject line before sending.'); return; }
+   if(!confirm('Send “'+subject+'” to ALL subscribed contacts now?\n\nThis sends real emails and cannot be undone.')) return;
+   edmSaveMeta();
+   var btn=document.getElementById('edm-send-btn'); btn.disabled=true; btn.textContent='Sending…';
+   fetch('/api/edm/send',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(window._edmToken||'')},body:JSON.stringify({campaign_id:_edmCur.id,mode:'now'})})
+    .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
+    .then(function(res){ btn.disabled=false; btn.textContent='Send to all subscribers';
+      if(res.ok&&res.j.ok){ document.getElementById('edm-send-msg').textContent='Sent to '+res.j.sent+' of '+res.j.recipients+' subscribers.'; edmOpen(_edmCur.id); }
+      else { alert('Could not send: '+((res.j&&res.j.error)||'unknown error')); } })
+    .catch(function(){ btn.disabled=false; btn.textContent='Send to all subscribers'; alert('Could not send.'); });
+ }
+
+ (function(){
+   var s=document.getElementById('edm-subject'), p=document.getElementById('edm-preview');
+   if(s) s.addEventListener('input', edmRenderPreview);
+   if(p) p.addEventListener('input', edmRenderPreview);
+ })();
+
  function showCsToast(msg) {
   var t = document.createElement('div');
   t.textContent = msg;
@@ -4984,6 +5294,7 @@ Respond ONLY with valid JSON array, no other text:
    if (btn.getAttribute('data-panel') === 'chatwidget') { cwcfgLoad(); }
    if (btn.getAttribute('data-panel') === 'subscribers') { subsLoadFromSB(); }
    if (btn.getAttribute('data-panel') === 'blog') { blogLoadFromSB(); }
+   if (btn.getAttribute('data-panel') === 'edm') { edmBackToList(); edmLoad(); }
   });
  });
 
