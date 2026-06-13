@@ -9,7 +9,7 @@ the public URL. Going through our own domain avoids the browser/extension blocks
 were killing the direct Supabase upload ("Failed to fetch").
 """
 from http.server import BaseHTTPRequestHandler
-import os, json, urllib.request, time, uuid
+import os, json, urllib.request, time, uuid, base64
 
 SB = os.environ.get('SUPABASE_URL', '')
 SR = os.environ.get('SUPABASE_SERVICE_ROLE_KEY', '')
@@ -39,10 +39,22 @@ class handler(BaseHTTPRequestHandler):
             if n <= 0:
                 return self._json(400, {'error': 'no file received'})
             if n > 30 * 1024 * 1024:
-                return self._json(413, {'error': 'image too large (max 25MB)'})
-            data = self.rfile.read(n)
-            ctype = self.headers.get('Content-Type') or 'image/jpeg'
-            ext = ''.join(c for c in (self.headers.get('x-ext') or 'jpg').lower() if c.isalnum()) or 'jpg'
+                return self._json(413, {'error': 'image too large'})
+            body = self.rfile.read(n)
+            req_ctype = (self.headers.get('Content-Type') or '')
+            if 'application/json' in req_ctype:
+                # JSON body: { data: <base64 or data-URL>, type, ext }
+                obj = json.loads(body.decode('utf-8'))
+                raw = obj.get('data') or ''
+                if raw.startswith('data:') and ',' in raw:
+                    raw = raw.split(',', 1)[1]
+                data = base64.b64decode(raw)
+                ctype = obj.get('type') or 'image/jpeg'
+                ext = ''.join(c for c in (obj.get('ext') or 'jpg').lower() if c.isalnum()) or 'jpg'
+            else:
+                data = body
+                ctype = req_ctype or 'image/jpeg'
+                ext = ''.join(c for c in (self.headers.get('x-ext') or 'jpg').lower() if c.isalnum()) or 'jpg'
             path = '%d-%s.%s' % (int(time.time()), uuid.uuid4().hex[:8], ext)
             req = urllib.request.Request(
                 SB + '/storage/v1/object/' + BUCKET + '/' + path, method='POST', data=data,

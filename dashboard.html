@@ -4982,22 +4982,22 @@ Respond ONLY with valid JSON array, no other text:
  }
  function previewCsImg(input, previewId, urlInputId){
   var file = input.files[0]; if(!file) return;
-  if(file.size > 10*1024*1024){ alert('Image must be under 10 MB.'); input.value=''; return; }
-  // instant local preview
-  var reader = new FileReader();
-  reader.onload = function(e){ showCsImgPreview(previewId, e.target.result); };
-  reader.readAsDataURL(file);
-  // upload to Supabase Storage and store ONLY the public URL (base64 in the row
-  // exceeds the request size limit and the save silently fails)
+  if(file.size > 3*1024*1024){ alert('Image must be under 3 MB.'); input.value=''; return; }
   var u = document.getElementById(urlInputId);
   if(u){ u.value=''; u.setAttribute('data-uploading','1'); u.placeholder='Uploading…'; }
   var ext = (file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'') || 'jpg';
-  // Upload via our own domain (same origin) — avoids the browser/extension block
-  // that was failing the direct Supabase upload. The server stores it + returns the URL.
-  fetch('/api/cs-upload', { method:'POST', headers:{ 'Content-Type':file.type||'image/jpeg', 'x-ext':ext }, body:file })
-   .then(function(r){ if(!r.ok){ return r.text().then(function(t){ throw new Error('HTTP '+r.status+(t?(' — '+t.slice(0,160)):'')); }); } return r.json(); })
-   .then(function(d){ if(!d || !d.url) throw new Error('no url returned'); if(u){ u.value = d.url; u.removeAttribute('data-uploading'); u.placeholder=''; } if(typeof csToast==='function') csToast('Image uploaded ✓'); })
-   .catch(function(err){ if(u){ u.removeAttribute('data-uploading'); u.placeholder='Upload failed — try again'; } alert('Image upload failed: ' + ((err&&err.message)||'network/blocked')); });
+  var reader = new FileReader();
+  reader.onload = function(e){
+   var dataUrl = e.target.result;
+   showCsImgPreview(previewId, dataUrl);
+   // Send the image as JSON to our own domain — the exact request type as the
+   // saves that work for you. The server stores it and returns the public URL.
+   fetch('/api/cs-upload', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ data: dataUrl, type: file.type||'image/jpeg', ext: ext }) })
+    .then(function(r){ if(!r.ok){ return r.text().then(function(t){ throw new Error('HTTP '+r.status+(t?(' — '+t.slice(0,160)):'')); }); } return r.json(); })
+    .then(function(d){ if(!d || !d.url) throw new Error('no url returned'); if(u){ u.value = d.url; u.removeAttribute('data-uploading'); u.placeholder=''; } if(typeof csToast==='function') csToast('Image uploaded ✓'); })
+    .catch(function(err){ if(u){ u.removeAttribute('data-uploading'); u.placeholder='Upload failed — try again'; } alert('Image upload failed: ' + ((err&&err.message)||'network/blocked')); });
+  };
+  reader.readAsDataURL(file);
  }
 
  function saveCsOverride(){
