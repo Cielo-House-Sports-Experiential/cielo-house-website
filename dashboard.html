@@ -4999,7 +4999,7 @@ Respond ONLY with valid JSON array, no other text:
     canvas.getContext('2d').drawImage(img, 0, 0, w, h);
     var dataUrl = canvas.toDataURL('image/jpeg', 0.82);
     showCsImgPreview(previewId, dataUrl);
-    fetch('/api/cs-upload', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ data: dataUrl, type:'image/jpeg', ext:'jpg' }) })
+    fetch('/api/cs-upload?t='+Date.now(), { method:'POST', cache:'no-store', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ data: dataUrl, type:'image/jpeg', ext:'jpg' }) })
      .then(function(r){ if(!r.ok){ return r.text().then(function(t){ throw new Error('HTTP '+r.status+(t?(' — '+t.slice(0,160)):'')); }); } return r.json(); })
      .then(function(d){ if(!d || !d.url) throw new Error('no url returned'); if(u){ u.value = d.url; u.removeAttribute('data-uploading'); u.placeholder=''; } if(typeof csToast==='function') csToast('Image uploaded ✓'); })
      .catch(function(err){ if(u){ u.removeAttribute('data-uploading'); u.placeholder='Upload failed — try again'; } alert('Image upload failed: ' + ((err&&err.message)||'network/blocked')); });
