@@ -555,6 +555,39 @@ p {
   color: var(--color-gold);
 }
 
+/* About: "How Cielo House Operates" pillars — 3 across, stacked on mobile */
+.about-pillars {
+  grid-template-columns: repeat(3, 1fr);
+}
+@media (max-width: 768px) {
+  .about-pillars {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Blog: top "Featured" article looks like a normal card on mobile */
+@media (max-width: 768px) {
+  #featured-article {
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+  #featured-article > div {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    padding-left: 0 !important;
+    height: auto !important;
+  }
+  #featured-article > div:first-child {
+    height: 220px !important;
+  }
+  #featured-article h2 {
+    font-size: 1.4rem !important;
+  }
+  #featured-article .eyebrow {
+    display: none !important;
+  }
+}
+
 /* ============================================
    BUTTONS
    ============================================ */
