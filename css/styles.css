@@ -477,7 +477,7 @@ p {
   align-items: center;
   justify-content: center;
   gap: var(--space-6);
-  padding: 6rem var(--space-6) var(--space-10);
+  padding: 6rem var(--space-6) var(--space-12);
   overflow-y: auto;
   opacity: 0;
   pointer-events: none;
@@ -2530,7 +2530,7 @@ h1 em, h2 em, h3 em {
 
   .footer__top {
     grid-template-columns: 1fr;
-    gap: calc(var(--space-10) * 3);
+    gap: calc(var(--space-12) * 3);
   }
 
   .footer__bottom {
