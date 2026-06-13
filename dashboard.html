@@ -4982,20 +4982,29 @@ Respond ONLY with valid JSON array, no other text:
  }
  function previewCsImg(input, previewId, urlInputId){
   var file = input.files[0]; if(!file) return;
-  if(file.size > 3*1024*1024){ alert('Image must be under 3 MB.'); input.value=''; return; }
   var u = document.getElementById(urlInputId);
   if(u){ u.value=''; u.setAttribute('data-uploading','1'); u.placeholder='Uploading…'; }
-  var ext = (file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'') || 'jpg';
   var reader = new FileReader();
   reader.onload = function(e){
-   var dataUrl = e.target.result;
-   showCsImgPreview(previewId, dataUrl);
-   // Send the image as JSON to our own domain — the exact request type as the
-   // saves that work for you. The server stores it and returns the public URL.
-   fetch('/api/cs-upload', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ data: dataUrl, type: file.type||'image/jpeg', ext: ext }) })
-    .then(function(r){ if(!r.ok){ return r.text().then(function(t){ throw new Error('HTTP '+r.status+(t?(' — '+t.slice(0,160)):'')); }); } return r.json(); })
-    .then(function(d){ if(!d || !d.url) throw new Error('no url returned'); if(u){ u.value = d.url; u.removeAttribute('data-uploading'); u.placeholder=''; } if(typeof csToast==='function') csToast('Image uploaded ✓'); })
-    .catch(function(err){ if(u){ u.removeAttribute('data-uploading'); u.placeholder='Upload failed — try again'; } alert('Image upload failed: ' + ((err&&err.message)||'network/blocked')); });
+   var img = new Image();
+   img.onerror = function(){ if(u){ u.removeAttribute('data-uploading'); u.placeholder='Upload failed — try again'; } alert('Could not read that image. Try a JPG or PNG.'); };
+   img.onload = function(){
+    // Shrink + compress in the browser so a small file uploads fast.
+    var maxW = 1600;
+    var scale = Math.min(1, maxW / (img.width || maxW));
+    var w = Math.max(1, Math.round((img.width||maxW) * scale));
+    var h = Math.max(1, Math.round((img.height||maxW) * scale));
+    var canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    var dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+    showCsImgPreview(previewId, dataUrl);
+    fetch('/api/cs-upload', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ data: dataUrl, type:'image/jpeg', ext:'jpg' }) })
+     .then(function(r){ if(!r.ok){ return r.text().then(function(t){ throw new Error('HTTP '+r.status+(t?(' — '+t.slice(0,160)):'')); }); } return r.json(); })
+     .then(function(d){ if(!d || !d.url) throw new Error('no url returned'); if(u){ u.value = d.url; u.removeAttribute('data-uploading'); u.placeholder=''; } if(typeof csToast==='function') csToast('Image uploaded ✓'); })
+     .catch(function(err){ if(u){ u.removeAttribute('data-uploading'); u.placeholder='Upload failed — try again'; } alert('Image upload failed: ' + ((err&&err.message)||'network/blocked')); });
+   };
+   img.src = e.target.result;
   };
   reader.readAsDataURL(file);
  }
