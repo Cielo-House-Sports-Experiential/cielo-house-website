@@ -4982,14 +4982,26 @@ Respond ONLY with valid JSON array, no other text:
  }
  function previewCsImg(input, previewId, urlInputId){
   var file = input.files[0]; if(!file) return;
+  if(file.size > 10*1024*1024){ alert('Image must be under 10 MB.'); input.value=''; return; }
+  // instant local preview
   var reader = new FileReader();
-  reader.onload = function(e){ showCsImgPreview(previewId, e.target.result); var u=document.getElementById(urlInputId); if(u) u.value = e.target.result; };
+  reader.onload = function(e){ showCsImgPreview(previewId, e.target.result); };
   reader.readAsDataURL(file);
+  // upload to Supabase Storage and store ONLY the public URL (base64 in the row
+  // exceeds the request size limit and the save silently fails)
+  var u = document.getElementById(urlInputId);
+  if(u){ u.value=''; u.setAttribute('data-uploading','1'); u.placeholder='Uploading…'; }
+  var ext = (file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'') || 'jpg';
+  var path = 'case-studies/' + Date.now() + '-' + Math.random().toString(36).slice(2,8) + '.' + ext;
+  fetch(CS_SB+'/storage/v1/object/'+path, { method:'POST', headers:{ apikey:CS_SK, Authorization:'Bearer '+(window._edmToken||CS_SK), 'Content-Type':file.type||'image/jpeg', 'x-upsert':'true' }, body:file })
+   .then(function(r){ if(!r.ok) throw new Error('upload'); if(u){ u.value = CS_SB+'/storage/v1/object/public/'+path; u.removeAttribute('data-uploading'); u.placeholder=''; } if(typeof csToast==='function') csToast('Image uploaded ✓'); })
+   .catch(function(){ if(u){ u.removeAttribute('data-uploading'); u.placeholder='Upload failed — try again'; } alert('Image upload failed. Please try again.'); });
  }
 
  function saveCsOverride(){
   var slug = csV('cs-f-slug').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
   if(!slug){ alert('Please enter a slug (URL name), e.g. boost-mobile-gold-coast-500.'); return; }
+  if(document.querySelector('#cs-f-cardimg-url[data-uploading], #cs-f-heroimg-url[data-uploading]')){ alert('An image is still uploading — give it a second, then Save.'); return; }
   var isNew = !csEditingId;
   var existing = csEditingId ? (csData.find(function(c){ return String(c.id)===String(csEditingId); })||{}) : {};
   var stats = [];
