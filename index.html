@@ -3,6 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Scheduled go-live fallback: from 9:00am AEST Mon 15 June 2026, send visitors to the live site. -->
+  <script>
+    (function () {
+      var goLive = new Date('2026-06-15T09:00:00+10:00').getTime();
+      if (Date.now() >= goLive) { window.location.replace('/home.html'); }
+    })();
+  </script>
   <title>Coming Soon | Cielo House Sports &amp; Experiential</title>
   <meta name="description" content="Cielo House Sports and Experiential. Our new digital house is on the way. Follow us on Instagram and LinkedIn." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
