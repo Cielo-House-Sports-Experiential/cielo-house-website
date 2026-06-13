@@ -85,10 +85,14 @@
  <section class="page-hero" aria-label="Case study hero">
  <div class="page-hero__inner">
  <div style="margin-bottom:1rem;">
- <span class="work-tag">CASE STUDY | EXPERIENTIAL ACTIVATIONS</span>
+ <span class="work-tag" id="cs-hero-tag">CASE STUDY | EXPERIENTIAL ACTIVATIONS</span>
  </div>
- <h1 class="page-hero__title">Boost Mobile at the Gold Coast 500</h1>
- <p class="page-hero__lead">Client: Boost Mobile | Event: Gold Coast 500 | Activation type: Sports venue activation and fan engagement | Delivered by: Cielo House</p>
+ <h1 class="page-hero__title" id="cs-title">Boost Mobile at the Gold Coast 500</h1>
+ <div class="page-hero__lead case-meta-lines">
+ <p style="margin:0 0 0.55rem;"><strong>Client:</strong> <span id="cs-client">Boost Mobile</span></p>
+ <p style="margin:0 0 0.55rem;"><strong>Event:</strong> <span id="cs-event">Boost Mobile Gold Coast 500</span></p>
+ <p style="margin:0;"><strong>Event type:</strong> <span id="cs-event-type">Sports venue activation and fan engagement</span></p>
+ </div>
  </div>
  </section>
 
@@ -141,23 +145,23 @@
  <div class="meta-card">
  <div class="meta-row">
  <span class="meta-label">Client</span>
- <span class="meta-value">Boost Mobile</span>
+ <span class="meta-value" id="cs-meta-client">Boost Mobile</span>
  </div>
  <div class="meta-row">
  <span class="meta-label">Event</span>
- <span class="meta-value">Supercars Gold Coast 500</span>
+ <span class="meta-value" id="cs-meta-event">Boost Mobile Gold Coast 500</span>
  </div>
  <div class="meta-row">
  <span class="meta-label">Location</span>
- <span class="meta-value">Surfers Paradise, Gold Coast QLD</span>
+ <span class="meta-value" id="cs-meta-location">Surfers Paradise, Gold Coast QLD</span>
  </div>
  <div class="meta-row">
  <span class="meta-label">Year</span>
- <span class="meta-value">2025</span>
+ <span class="meta-value" id="cs-meta-year">2025</span>
  </div>
  <div class="meta-row">
  <span class="meta-label">Services Delivered</span>
- <span class="meta-value">Brand Activation · Brand Ambassador Staffing · Event Production · Content Creation</span>
+ <span class="meta-value" id="cs-meta-services">Brand Activation · Brand Ambassador Staffing · Event Production · Content Creation</span>
  </div>
  </div>
 
@@ -186,8 +190,8 @@
 
  <section class="section cta-section" style="background:var(--color-midnight);margin-top:5rem;">
  <div class="container" style="text-align:center;">
- <h2 class="section-title" style="color:white;" data-animate>Activate at the Next Gold Coast Event</h2>
- <p style="color:rgba(255,255,255,0.7);max-width:520px;margin:0 auto 2.5rem;" data-animate>Cielo House carries established relationships and on-the-ground access at Gold Coast sporting properties. If your brand is activating in this market, start with a brief.</p>
+ <h2 class="section-title" style="color:white;" data-animate id="cs-cta-title">Activate at the Next Gold Coast Event</h2>
+ <p style="color:rgba(255,255,255,0.7);max-width:520px;margin:0 auto 2.5rem;" data-animate id="cs-cta-body">Cielo House carries established relationships and on-the-ground access at Gold Coast sporting properties. If your brand is activating in this market, start with a brief.</p>
  <a href="https://bookings.cloud.microsoft/bookwithme/user/09c4fcda6e43449fbb5fa48dacc5b8df%40cielohouse.com.au/meetingtype/SBPjwa8KpUm0AltusmmcvA2?anonymous&ismsaljsauthenabled" onclick="if(typeof gtag!=='undefined')gtag('event','schedule_call',{event_category:'CTA',event_label:document.title});" target="_blank" rel="noopener noreferrer" class="btn btn--primary btn--lg" data-animate>Schedule a Briefing Call</a>
  </div>
  </section>
@@ -214,8 +218,6 @@
  </footer>
 
  <script src="../js/main.js" defer></script>
- <script>
- (function(){try{var d=(JSON.parse(localStorage.getItem('ch_cs_overrides')||'{}')||{})['boost-mobile-gold-coast-500'];if(!d)return;if(d.heroImage)document.getElementById('cs-hero-image').src=d.heroImage;if(d.lead)document.getElementById('cs-lead').innerHTML=d.lead;if(d.brief)document.getElementById('cs-brief').innerHTML=d.brief;if(d.delivered)document.getElementById('cs-delivered').innerHTML=d.delivered;if(d.quote)document.getElementById('cs-quote').textContent=d.quote;if(d.attribution)document.getElementById('cs-attribution').textContent=d.attribution;if(d.stat1n)document.getElementById('cs-stat1n').textContent=d.stat1n;if(d.stat1d)document.getElementById('cs-stat1d').textContent=d.stat1d;if(d.stat2n)document.getElementById('cs-stat2n').textContent=d.stat2n;if(d.stat2d)document.getElementById('cs-stat2d').textContent=d.stat2d;if(d.stat3n)document.getElementById('cs-stat3n').textContent=d.stat3n;if(d.stat3d)document.getElementById('cs-stat3d').textContent=d.stat3d;}catch(e){}})();
- </script>
+ <script src="../js/case-study.js"></script>
 </body>
 </html>
