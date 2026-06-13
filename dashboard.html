@@ -906,18 +906,6 @@
     </div>
    </div>
 
-   <div class="modal-section">Bottom CTA</div>
-   <div class="form">
-    <div class="form-group">
-     <label class="form-label">CTA Heading</label>
-     <input class="form-input" id="cs-f-ctatitle" placeholder="e.g. Activate at the Next Gold Coast Event" />
-    </div>
-    <div class="form-group">
-     <label class="form-label">CTA Text</label>
-     <textarea class="form-textarea" id="cs-f-ctabody" rows="2" placeholder="Short CTA paragraph..."></textarea>
-    </div>
-   </div>
-
    <div class="modal-section">Card (Work Page)</div>
    <div class="form">
     <div class="form-row">
@@ -4634,8 +4622,6 @@ Respond ONLY with valid JSON array, no other text:
   csSet('cs-f-herotag', cs.hero_tag);
   csSet('cs-f-title', cs.title);
   csSet('cs-f-eventtype', cs.event_type);
-  csSet('cs-f-ctatitle', cs.cta_title);
-  csSet('cs-f-ctabody', cs.cta_body);
   csSet('cs-f-cardtitle', cs.card_title);
   csSet('cs-f-cardtag', cs.card_tag);
   csSet('cs-f-cardimg-url', cs.card_image);
@@ -4713,8 +4699,6 @@ Respond ONLY with valid JSON array, no other text:
    meta_location: csV('cs-f-location'),
    meta_year: csV('cs-f-year'),
    meta_services: csV('cs-f-services'),
-   cta_title: csV('cs-f-ctatitle'),
-   cta_body: csV('cs-f-ctabody'),
    updated_at: new Date().toISOString()
   };
   fetch(CS_SB+'/rest/v1/case_studies?on_conflict=slug', {
