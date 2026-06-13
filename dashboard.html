@@ -3252,8 +3252,26 @@
  function _sbH(){return{'Content-Type':'application/json','apikey':_SK,'Authorization':'Bearer '+_SK};}
  function sbSync(p){
    if(!p||!p.title)return;
-   var body={title:p.title,slug:p.slug||(p.title.toLowerCase().replace(/[^a-z0-9]+/g,'-')),category:p.category||'',status:p.status||'Draft',date:p.date||null,excerpt:p.excerpt||'',image:p.image||null,views:p.views||0,content:p.content||'',seo_title:p.seoTitle||'',meta_description:p.seoDesc||'',focus_keyword:p.focusKeyword||'',tags:p.tags||[]};
-   fetch(_SB+'/rest/v1/blog_posts?on_conflict=slug',{method:'POST',headers:Object.assign({},_sbH(),{'Prefer':'resolution=merge-duplicates,return=representation'}),body:JSON.stringify(body)}).then(function(r){return r.json();}).then(function(d){if(Array.isArray(d)&&d[0]&&d[0].id){var posts=getPosts();posts.forEach(function(q){if(q.slug===d[0].slug)q.sbId=d[0].id;});savePosts(posts);}}).catch(function(){});
+   var body={title:p.title,slug:p.slug||(p.title.toLowerCase().replace(/[^a-z0-9]+/g,'-')),category:p.category||'',status:p.status||'Draft',date:p.date||null,image:p.image||null,views:p.views||0,tags:p.tags||[]};
+   // SAFETY: only write content/meta/excerpt when they actually have a value.
+   // Omitting an empty field means the upsert keeps the existing Supabase value,
+   // so a save can never blank content/meta that's already there.
+   if(p.content && String(p.content).trim()) body.content = p.content;
+   if(p.excerpt && String(p.excerpt).trim()) body.excerpt = p.excerpt;
+   if(p.seoTitle && String(p.seoTitle).trim()) body.seo_title = p.seoTitle;
+   if(p.seoDesc && String(p.seoDesc).trim()) body.meta_description = p.seoDesc;
+   if(p.focusKeyword && String(p.focusKeyword).trim()) body.focus_keyword = p.focusKeyword;
+   fetch(_SB+'/rest/v1/blog_posts?on_conflict=slug',{method:'POST',headers:Object.assign({},_sbH(),{'Prefer':'resolution=merge-duplicates,return=representation'}),body:JSON.stringify(body)})
+     .then(function(r){return r.json();})
+     .then(function(d){
+       if(Array.isArray(d)&&d[0]&&d[0].id){
+         var posts=getPosts();posts.forEach(function(q){if(q.slug===d[0].slug)q.sbId=d[0].id;});savePosts(posts);
+         // Read-back verify: if we sent content but the row came back empty, warn loudly.
+         if(body.content && (!d[0].content || !String(d[0].content).trim())){
+           alert('Warning: this post did not save its content. Nothing was overwritten — try saving again.');
+         }
+       }
+     }).catch(function(){ alert('Could not save to the website. Check your connection and save again — your work is still here.'); });
  }
  function sbDel(slug){
    if(!slug)return;
@@ -3266,14 +3284,11 @@
  function getPosts() { return JSON.parse(localStorage.getItem('ch_blog_posts') || '[]'); }
  function savePosts(p) { localStorage.setItem('ch_blog_posts', JSON.stringify(p)); }
 
- /* Sync all Published posts to Supabase on first load (one-time bootstrap) */
+ /* DISABLED: the old bulk-push of localStorage -> Supabase could overwrite good
+    content with a stale/empty localStorage copy (this is what blanked the posts).
+    Supabase is the source of truth — blogLoadFromSB pulls from it below. */
  (function sbBootstrap(){
-   if(localStorage.getItem('ch_sb_synced')==='1')return;
-   var posts=getPosts().filter(function(p){return p.status==='Published';});
-   if(!posts.length)return;
-   var done=0;
-   posts.forEach(function(p){ sbSync(p); done++; });
-   if(done>0){ localStorage.setItem('ch_sb_synced','1'); }
+   localStorage.setItem('ch_sb_synced','1');
  })();
 
  /* Pull all posts FROM Supabase into the dashboard (Supabase is the source of truth) */
