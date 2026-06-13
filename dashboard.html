@@ -266,6 +266,7 @@
  <button class="nav-btn" data-panel="events">Events Calendar</button>
  <button class="nav-btn" data-panel="blog">Blog Posts</button>
  <button class="nav-btn" data-panel="casestudies">Case Studies</button>
+ <button class="nav-btn" data-panel="team">Team</button>
  <div class="sidebar__label">Content</div>
  <button class="nav-btn" data-panel="testimonials">Testimonials</button>
  <button class="nav-btn" data-panel="faq">FAQ</button>
@@ -1034,6 +1035,72 @@
    <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:2rem;flex-wrap:wrap;">
     <button class="btn btn-secondary" onclick="resetCsOverride()" style="background:#f4f6fa;color:#555;border:1.5px solid #dde2f0;">Revert Changes</button>
     <button class="btn btn-primary" onclick="saveCsOverride()">Save Changes</button>
+   </div>
+  </div>
+ </div>
+
+ <!-- ===== TEAM ===== -->
+ <div class="panel" id="panel-team">
+  <h1 class="page-title">Team</h1>
+  <p class="page-sub">Manage the Meet the Team section on the About page. Saves to Supabase and goes live instantly.</p>
+  <div id="team-grid" style="display:grid;gap:1rem;"></div>
+ </div>
+
+ <!-- TEAM EDIT MODAL -->
+ <div class="modal-overlay" id="team-modal" onclick="if(event.target===this)closeTeamModal()">
+  <div class="modal-box" style="max-width:680px;">
+   <button class="modal-close" onclick="closeTeamModal()">×</button>
+   <div class="modal-title" id="team-modal-title">Edit Team Member</div>
+   <p class="modal-sub" id="team-modal-sub"></p>
+
+   <div class="modal-section">Details</div>
+   <div class="form">
+    <div class="form-row">
+     <div class="form-group"><label class="form-label">Name</label><input class="form-input" id="tm-f-name" placeholder="e.g. Britt Niven" /></div>
+     <div class="form-group"><label class="form-label">Role</label><input class="form-input" id="tm-f-role" placeholder="e.g. Managing Director" /></div>
+    </div>
+    <div class="form-group"><label class="form-label">Sort Order</label><input class="form-input" id="tm-f-order" type="number" placeholder="1" /></div>
+   </div>
+
+   <div class="modal-section">Photos</div>
+   <div class="form">
+    <div class="form-group">
+     <label class="form-label">Main Photo</label>
+     <div style="display:flex;gap:0.75rem;align-items:flex-start;flex-wrap:wrap;">
+      <img id="tm-f-primary-preview" src="" alt="" style="width:90px;height:120px;object-fit:cover;border-radius:6px;border:1px solid #dde2f0;display:none;" />
+      <div style="flex:1;min-width:200px;">
+       <input class="form-input" id="tm-f-primary-url" placeholder="Image URL or upload below" style="margin-bottom:0.5rem;" />
+       <input type="file" id="tm-f-primary-file" accept="image/*" style="font-size:0.8rem;" onchange="previewTmImg(this,'tm-f-primary-preview','tm-f-primary-url')" />
+      </div>
+     </div>
+    </div>
+    <div class="form-group">
+     <label class="form-label">Hover Photo (optional second photo shown on hover)</label>
+     <div style="display:flex;gap:0.75rem;align-items:flex-start;flex-wrap:wrap;">
+      <img id="tm-f-hover-preview" src="" alt="" style="width:90px;height:120px;object-fit:cover;border-radius:6px;border:1px solid #dde2f0;display:none;" />
+      <div style="flex:1;min-width:200px;">
+       <input class="form-input" id="tm-f-hover-url" placeholder="Leave blank for no hover effect" style="margin-bottom:0.5rem;" />
+       <input type="file" id="tm-f-hover-file" accept="image/*" style="font-size:0.8rem;" onchange="previewTmImg(this,'tm-f-hover-preview','tm-f-hover-url')" />
+      </div>
+     </div>
+    </div>
+   </div>
+
+   <div class="modal-section">Fun Facts</div>
+   <div class="form">
+    <div class="form-row">
+     <div class="form-group"><label class="form-label">Hometown</label><input class="form-input" id="tm-f-hometown" /></div>
+     <div class="form-group"><label class="form-label">Brand</label><input class="form-input" id="tm-f-brand" /></div>
+    </div>
+    <div class="form-row">
+     <div class="form-group"><label class="form-label">Food</label><input class="form-input" id="tm-f-food" /></div>
+     <div class="form-group"><label class="form-label">Dream Event</label><input class="form-input" id="tm-f-dream" /></div>
+    </div>
+   </div>
+
+   <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1.5rem;">
+    <button class="btn btn-secondary" onclick="closeTeamModal()" style="background:#f4f6fa;color:#555;border:1.5px solid #dde2f0;">Cancel</button>
+    <button class="btn btn-primary" onclick="saveTeamMember()">Save Member</button>
    </div>
   </div>
  </div>
@@ -4724,6 +4791,82 @@ Respond ONLY with valid JSON array, no other text:
 
  csLoad();
 
+ // ===================== TEAM (Supabase — separate table, no localStorage) =====================
+ var TM_SB = CS_SB, TM_SK = CS_SK;
+ function _tmH(){ return { 'Content-Type':'application/json', 'apikey':TM_SK, 'Authorization':'Bearer '+TM_SK }; }
+ var teamData = [];
+ var tmEditingId = null;
+
+ function teamLoad(){
+  var grid = document.getElementById('team-grid');
+  fetch(TM_SB+'/rest/v1/team_members?select=*&order=sort_order.asc', { headers:_tmH() })
+   .then(function(r){ return r.ok ? r.json() : []; })
+   .then(function(rows){ teamData = rows || []; renderTeamGrid(); })
+   .catch(function(){ if(grid) grid.innerHTML = '<p style="color:#c0392b;font-size:0.85rem;">Could not load team from Supabase.</p>'; });
+ }
+
+ function renderTeamGrid(){
+  var grid = document.getElementById('team-grid'); if(!grid) return;
+  var add = '<button onclick="openTeamModal(null)" style="margin-bottom:1.25rem;padding:0.6rem 1.2rem;border-radius:8px;background:#2B317B;color:#fff;font-size:0.82rem;font-weight:600;border:none;cursor:pointer;">+ Add Team Member</button>';
+  if(!teamData.length){ grid.innerHTML = add + '<p style="font-size:0.85rem;color:#888;">No team members yet.</p>'; return; }
+  grid.innerHTML = add + teamData.map(function(m){
+   var img = m.photo_primary || '';
+   return '<div style="background:#fff;border-radius:10px;box-shadow:0 1px 8px rgba(0,0,0,.07);display:flex;align-items:center;gap:1.25rem;padding:1rem 1.5rem;margin-bottom:0.85rem;">'
+    + '<div style="width:60px;height:78px;border-radius:6px;overflow:hidden;flex-shrink:0;background:#eef0f8;">' + (img ? '<img src="'+csEsc(img)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'"/>' : '') + '</div>'
+    + '<div style="flex:1;min-width:0;"><div style="font-weight:600;color:#2B317B;font-size:.95rem;">'+csEsc(m.name||'')+(m.published===false?' · Hidden':'')+'</div><div style="font-size:.8rem;color:#888;">'+csEsc(m.role||'')+'</div></div>'
+    + '<div style="display:flex;gap:.5rem;flex-shrink:0;">'
+    + '<button onclick="openTeamModal(\''+m.id+'\')" style="padding:.45rem 1rem;border-radius:6px;background:#2B317B;color:#fff;font-size:.78rem;font-weight:600;border:none;cursor:pointer;">Edit</button>'
+    + '<button onclick="deleteTeamMember(\''+m.id+'\',\''+csEsc(m.name)+'\')" style="padding:.45rem .8rem;border-radius:6px;background:#fff;color:#c0392b;font-size:.78rem;font-weight:600;border:1.5px solid #f0c0c0;cursor:pointer;">Delete</button>'
+    + '</div></div>';
+  }).join('');
+ }
+
+ function tmShowPreview(id, src){ var i=document.getElementById(id); if(!i) return; if(src){ i.src=src; i.style.display='block'; } else { i.style.display='none'; i.src=''; } }
+ function previewTmImg(input, previewId, urlId){ var f=input.files[0]; if(!f) return; var r=new FileReader(); r.onload=function(e){ tmShowPreview(previewId, e.target.result); var u=document.getElementById(urlId); if(u) u.value=e.target.result; }; r.readAsDataURL(f); }
+
+ function openTeamModal(id){
+  tmEditingId = id || null;
+  var m = id ? (teamData.find(function(c){ return String(c.id)===String(id); }) || {}) : {};
+  var isNew = !id;
+  document.getElementById('team-modal-title').textContent = isNew ? 'Add Team Member' : ('Edit: ' + (m.name||''));
+  document.getElementById('team-modal-sub').textContent = isNew ? 'Saves to Supabase, live on the About page instantly.' : (m.role||'');
+  csSet('tm-f-name', m.name); csSet('tm-f-role', m.role);
+  csSet('tm-f-order', m.sort_order==null ? (teamData.length+1) : m.sort_order);
+  csSet('tm-f-primary-url', m.photo_primary); tmShowPreview('tm-f-primary-preview', m.photo_primary);
+  csSet('tm-f-hover-url', m.photo_hover); tmShowPreview('tm-f-hover-preview', m.photo_hover);
+  csSet('tm-f-hometown', m.hometown); csSet('tm-f-brand', m.fav_brand); csSet('tm-f-food', m.fav_food); csSet('tm-f-dream', m.dream_event);
+  var pf=document.getElementById('tm-f-primary-file'); if(pf) pf.value=''; var hf=document.getElementById('tm-f-hover-file'); if(hf) hf.value='';
+  document.getElementById('team-modal').style.display='block';
+ }
+ function closeTeamModal(){ document.getElementById('team-modal').style.display='none'; tmEditingId=null; }
+
+ function saveTeamMember(){
+  var name = csV('tm-f-name'); if(!name){ alert('Please enter a name.'); return; }
+  var row = {
+   name: name, role: csV('tm-f-role'),
+   sort_order: parseInt(csV('tm-f-order'),10) || 0, published: true,
+   photo_primary: csV('tm-f-primary-url'), photo_hover: csV('tm-f-hover-url') || null,
+   hometown: csV('tm-f-hometown'), fav_brand: csV('tm-f-brand'), fav_food: csV('tm-f-food'), dream_event: csV('tm-f-dream'),
+   updated_at: new Date().toISOString()
+  };
+  var method, url;
+  if(tmEditingId){ method='PATCH'; url=TM_SB+'/rest/v1/team_members?id=eq.'+tmEditingId; }
+  else { method='POST'; url=TM_SB+'/rest/v1/team_members'; }
+  fetch(url, { method:method, headers: Object.assign({}, _tmH(), { 'Prefer':'return=representation' }), body: JSON.stringify(row) })
+   .then(function(r){ return r.text().then(function(t){ return { ok:r.ok, t:t }; }); })
+   .then(function(res){ if(!res.ok) throw new Error(res.t || 'Save failed'); teamLoad(); closeTeamModal(); csToast('Saved ✓ — live on the About page'); })
+   .catch(function(e){ alert('Save failed: ' + e.message); });
+ }
+
+ function deleteTeamMember(id, name){
+  if(!confirm('Remove "'+name+'" from the team?')) return;
+  fetch(TM_SB+'/rest/v1/team_members?id=eq.'+id, { method:'DELETE', headers:_tmH() })
+   .then(function(r){ if(!r.ok && r.status!==204 && r.status!==200) throw new Error('Delete failed ('+r.status+')'); teamLoad(); csToast('Removed ✓'); })
+   .catch(function(e){ alert(e.message); });
+ }
+
+ teamLoad();
+
  function showCsToast(msg) {
   var t = document.createElement('div');
   t.textContent = msg;
@@ -4736,6 +4879,7 @@ Respond ONLY with valid JSON array, no other text:
  document.querySelectorAll('.nav-btn[data-panel]').forEach(function(btn) {
   btn.addEventListener('click', function() {
    if (btn.getAttribute('data-panel') === 'casestudies') { csLoad(); }
+   if (btn.getAttribute('data-panel') === 'team') { teamLoad(); }
   });
  });
 
