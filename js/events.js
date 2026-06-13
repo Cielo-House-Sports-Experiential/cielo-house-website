@@ -60,7 +60,8 @@ function loadEvents() {
   fetch(EVENTS_SB + '/rest/v1/site_events?select=title,location,start_date,end_date,photo&order=start_date.asc&limit=4', { headers: { apikey: EVENTS_SK, Authorization: 'Bearer ' + EVENTS_SK } })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (rows) {
-      if (!rows || !rows.length) { renderEvents(FALLBACK_EVENTS.slice(0, 4)); return; }
+      if (rows === null) { renderEvents(FALLBACK_EVENTS.slice(0, 4)); return; } // fetch failed — show fallback
+      // Whatever the database holds is the truth, including an empty list.
       renderEvents(rows.map(function (e) {
         return { title: e.title, location: e.location, start: e.start_date, end: e.end_date, photo: e.photo };
       }));
@@ -72,7 +73,10 @@ function loadEvents() {
 function renderEvents(events) {
   var grid = document.getElementById('events-grid');
   if (!grid) return;
-  if (!events || !events.length) events = FALLBACK_EVENTS.slice(0, 4);
+  events = events || [];
+  var section = document.getElementById('whats-on');
+  if (!events.length) { grid.innerHTML = ''; if (section) section.style.display = 'none'; return; }
+  if (section) section.style.display = '';
   grid.setAttribute('data-count', events.length);
 
   grid.innerHTML = events.map(function(ev, i) {
