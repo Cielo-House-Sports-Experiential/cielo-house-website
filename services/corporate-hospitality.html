@@ -218,7 +218,7 @@
  <svg viewBox="0 0 16 16" fill="none" width="14" height="14" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
  </a>
  </div>
- <div class="work-grid">
+ <div class="work-grid" id="service-cases">
  <article class="work-card" data-animate>
  <img
  src="../images/our-work/coates-formula-1-australian-grand-prix.jpg"
@@ -382,6 +382,31 @@
  </div>
  </footer>
 
+ <script>
+ /* Latest Work — live from the dashboard. Shows every case study ticked
+    "Show on the Premium Hospitality page". Static cards above are a no-JS fallback. */
+ (function () {
+   var SB = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
+   var SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
+   var grid = document.getElementById('service-cases');
+   if (!grid) return;
+   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+   function rel(p) { return !p ? '' : (/^https?:\/\//.test(p) ? p : '../' + p); }
+   fetch(SB + '/rest/v1/case_studies?published=eq.true&show_on_hospitality=eq.true&select=slug,card_tag,card_title,card_image,card_image_alt,card_link&order=sort_order.asc', { headers: { apikey: SK, Authorization: 'Bearer ' + SK } })
+     .then(function (r) { return r.ok ? r.json() : null; })
+     .then(function (rows) {
+       if (!rows || !rows.length) return;
+       grid.innerHTML = rows.map(function (c) {
+         var link = rel(c.card_link || ('work/' + c.slug + '.html'));
+         return '<a href="' + esc(link) + '" class="work-card">'
+           + '<div class="work-card__img-wrap"><img src="' + esc(rel(c.card_image)) + '" alt="' + esc(c.card_image_alt || c.card_title) + '" class="work-card__img" loading="lazy"/></div>'
+           + '<div class="work-card__content"><span class="work-card__tag">' + esc(c.card_tag) + '</span><h3 class="work-card__title">' + esc(c.card_title) + '</h3></div>'
+           + '<div class="work-card__arrow" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" width="16" height="16"><path d="M3 13L13 3M13 3H6M13 3v7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>'
+           + '</a>';
+       }).join('');
+     }).catch(function () {});
+ })();
+ </script>
  <script src="../js/main.js" defer></script>
 <script src="/tracking.js"></script>
 </body>
