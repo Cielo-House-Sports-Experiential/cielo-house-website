@@ -319,5 +319,41 @@
 
  <script src="js/main.js" defer></script>
 <script src="/tracking.js"></script>
+<script>
+/* Team grid from Supabase (team_members). Static cards above are the SEO/no-JS
+   fallback; DB rows replace them. Same Supabase + anon key, separate table, no localStorage. */
+(function () {
+  var SB = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
+  var SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
+  var grid = document.querySelector('.team-grid');
+  if (!grid) return;
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function fact(label, v, gold){ return v ? '<span style="font-size:0.75rem; color:var(--color-'+(gold?'gold); font-weight:600;':'mid-grey);')+'">'+esc(label)+': '+esc(v)+'</span>' : ''; }
+  fetch(SB + '/rest/v1/team_members?published=eq.true&select=*&order=sort_order.asc', { headers: { apikey: SK, Authorization: 'Bearer ' + SK } })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (rows) {
+      if (!rows || !rows.length) return; // keep static fallback
+      grid.innerHTML = rows.map(function (m) {
+        var alt = esc((m.name || '') + ' ' + (m.role || '') + ', Cielo House');
+        var imgs;
+        if (m.photo_hover) {
+          imgs = '<div class="team-card__img team-card__img--hover">'
+            + '<img class="team-photo team-photo--primary" src="' + esc(m.photo_primary) + '" alt="' + alt + '" loading="lazy"/>'
+            + '<img class="team-photo team-photo--hover" src="' + esc(m.photo_hover) + '" alt="' + alt + '" loading="lazy"/>'
+            + '</div>';
+        } else {
+          imgs = '<div class="team-card__img"><img src="' + esc(m.photo_primary) + '" alt="' + alt + '" loading="lazy"/></div>';
+        }
+        return '<div class="team-card">' + imgs
+          + '<h3 class="team-card__name">' + esc(m.name) + '</h3>'
+          + '<p class="team-card__role">' + esc(m.role) + '</p>'
+          + '<div style="margin-top:0.75rem; display:flex; flex-direction:column; gap:0.25rem;">'
+          + fact('Hometown', m.hometown) + fact('Brand', m.fav_brand) + fact('Food', m.fav_food) + fact('Dream Event', m.dream_event, true)
+          + '</div></div>';
+      }).join('');
+    })
+    .catch(function () {});
+})();
+</script>
 </body>
 </html>
