@@ -857,6 +857,67 @@
    <div class="modal-title" id="cs-modal-title">Edit Case Study</div>
    <p class="modal-sub" id="cs-modal-sub"></p>
 
+   <div class="modal-section">Settings</div>
+   <div class="form">
+    <div class="form-row">
+     <div class="form-group">
+      <label class="form-label">Slug (URL name)</label>
+      <input class="form-input" id="cs-f-slug" placeholder="e.g. boost-mobile-gold-coast-500" />
+     </div>
+     <div class="form-group">
+      <label class="form-label">Sort Order</label>
+      <input class="form-input" id="cs-f-order" type="number" placeholder="1" />
+     </div>
+    </div>
+    <div class="form-row">
+     <div class="form-group">
+      <label class="form-label">Filter Category</label>
+      <select class="form-select" id="cs-f-category">
+       <option value="activation">Brand Activation</option>
+       <option value="hospitality">Premium Hospitality</option>
+       <option value="activation hospitality">Both</option>
+      </select>
+     </div>
+     <div class="form-group">
+      <label class="form-label">Featured (large card)</label>
+      <select class="form-select" id="cs-f-featured">
+       <option value="false">No</option>
+       <option value="true">Yes</option>
+      </select>
+     </div>
+    </div>
+   </div>
+
+   <div class="modal-section">Detail Page Header</div>
+   <div class="form">
+    <div class="form-row">
+     <div class="form-group">
+      <label class="form-label">Hero Tag (small label)</label>
+      <input class="form-input" id="cs-f-herotag" placeholder="e.g. CASE STUDY | EXPERIENTIAL ACTIVATIONS" />
+     </div>
+     <div class="form-group">
+      <label class="form-label">Page Title (H1)</label>
+      <input class="form-input" id="cs-f-title" placeholder="e.g. Boost Mobile at the Gold Coast 500" />
+     </div>
+    </div>
+    <div class="form-group">
+     <label class="form-label">Event Type</label>
+     <input class="form-input" id="cs-f-eventtype" placeholder="e.g. Sports venue activation and fan engagement" />
+    </div>
+   </div>
+
+   <div class="modal-section">Bottom CTA</div>
+   <div class="form">
+    <div class="form-group">
+     <label class="form-label">CTA Heading</label>
+     <input class="form-input" id="cs-f-ctatitle" placeholder="e.g. Activate at the Next Gold Coast Event" />
+    </div>
+    <div class="form-group">
+     <label class="form-label">CTA Text</label>
+     <textarea class="form-textarea" id="cs-f-ctabody" rows="2" placeholder="Short CTA paragraph..."></textarea>
+    </div>
+   </div>
+
    <div class="modal-section">Card (Work Page)</div>
    <div class="form">
     <div class="form-row">
@@ -983,7 +1044,7 @@
    </div>
 
    <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:2rem;flex-wrap:wrap;">
-    <button class="btn btn-secondary" onclick="resetCsOverride()" style="background:#f4f6fa;color:#555;border:1.5px solid #dde2f0;">Reset to Default</button>
+    <button class="btn btn-secondary" onclick="resetCsOverride()" style="background:#f4f6fa;color:#555;border:1.5px solid #dde2f0;">Revert Changes</button>
     <button class="btn btn-primary" onclick="saveCsOverride()">Save Changes</button>
    </div>
   </div>
@@ -4507,212 +4568,177 @@ Respond ONLY with valid JSON array, no other text:
      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg> Refresh with AI';
    }
  }
- // ── CASE STUDIES ──────────────────────────────────────────────
- var CS_KEY = 'ch_cs_overrides';
- var CS_CARD_IMGS_KEY = 'ch_cs_card_imgs';
+ // ===================== CASE STUDIES (Supabase — separate table, no localStorage) =====================
+ var CS_SB = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
+ var CS_SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
+ function _csH(){ return { 'Content-Type':'application/json', 'apikey':CS_SK, 'Authorization':'Bearer '+CS_SK }; }
+ var csData = [];
+ var csEditingId = null;
 
- var caseStudies = [
-  { slug:'boost-mobile-gold-coast-500',        title:'Boost Mobile Gold Coast 500',                    tag:'Experiential Activation',  client:'Boost Mobile',  event:'Gold Coast 500 Supercars',          year:'2025', page:'work/boost-mobile-gold-coast-500.html' },
-  { slug:'coates-vip-hospitality',             title:'Coates F1 Australian Grand Prix',                tag:'Corporate Hospitality',      client:'Coates',        event:'F1 Australian Grand Prix',          year:'2026', page:'work/coates-vip-hospitality.html' },
-  { slug:'chiko-bathurst-supercars-2025',      title:'Chiko at the Bathurst 1000',                     tag:'Experiential Activation',  client:'Chiko',         event:'Bathurst 1000 Supercars',           year:'2025', page:'work/chiko-bathurst-supercars-2025.html' },
-  { slug:'coates-bathurst-supercars-2025',     title:'Coates Bathurst 1000',                           tag:'Corporate Hospitality',      client:'Coates',        event:'Bathurst 1000 Supercars',           year:'2025', page:'work/coates-bathurst-supercars-2025.html' },
-  { slug:'chiko-bathurst-competition-2025',    title:'Chiko Bathurst National Competition',            tag:'Consumer Promotion',       client:'Chiko',         event:'Bathurst 1000 National Competition', year:'2025', page:'work/chiko-bathurst-competition-2025.html' },
-  { slug:'boost-mobile-gold-coast-content-2025', title:'Boost Mobile Gold Coast 500 — Broadcast Content', tag:'Content Production',   client:'Boost Mobile',  event:'Gold Coast 500 Supercars',          year:'2025', page:'work/boost-mobile-gold-coast-content-2025.html' },
-  { slug:'boost-mobile-wsl-gold-coast-2026',  title:'Boost Mobile WSL Gold Coast Pro',                tag:'Experiential Activation',  client:'Boost Mobile',  event:'WSL Gold Coast Pro',                year:'2026', page:'work/boost-mobile-wsl-gold-coast-2026.html' },
-  { slug:'mophie-wsl-gold-coast-2026',         title:'Mophie WSL Gold Coast Pro',                      tag:'Experiential Activation',  client:'Mophie',        event:'WSL Bonsoy Gold Coast Pro',         year:'2026', page:'work/mophie-wsl-gold-coast-2026.html' }
- ];
+ function csEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+ function csV(id){ var e=document.getElementById(id); return e?String(e.value||'').trim():''; }
+ function csSet(id,v){ var e=document.getElementById(id); if(e) e.value = (v==null?'':v); }
 
- var csCurrentSlug = null;
-
- function getCsOverrides() {
-  try { return JSON.parse(localStorage.getItem(CS_KEY) || '{}'); } catch(e) { return {}; }
- }
- function getCsCardImgs() {
-  try { return JSON.parse(localStorage.getItem(CS_CARD_IMGS_KEY) || '{}'); } catch(e) { return {}; }
+ function csToast(msg){
+  var t = document.getElementById('cs-toast');
+  if(!t){ t = document.createElement('div'); t.id='cs-toast'; t.style.cssText='position:fixed;bottom:24px;right:24px;background:#2B317B;color:#fff;padding:0.85rem 1.4rem;border-radius:8px;font-size:0.85rem;font-weight:600;box-shadow:0 8px 28px rgba(0,0,0,0.25);z-index:99999;'; document.body.appendChild(t); }
+  t.textContent = msg; t.style.display='block';
+  clearTimeout(window._csToastT); window._csToastT = setTimeout(function(){ t.style.display='none'; }, 2800);
  }
 
- function renderCsGrid() {
-  var overrides = getCsOverrides();
-  var cardImgs  = getCsCardImgs();
+ function csLoad(){
   var grid = document.getElementById('cs-grid');
-  if (!grid) return;
-  grid.innerHTML = caseStudies.map(function(cs) {
-   var ov = overrides[cs.slug] || {};
-   var cardImg = ov.cardImageData || cardImgs[cs.slug] || ov.heroImage || '';
-   var hasImg = !!cardImg;
-   var isEdited = Object.keys(ov).length > 0;
-   return '<div style="background:#fff;border-radius:10px;box-shadow:0 1px 8px rgba(0,0,0,.07);display:flex;align-items:center;gap:1.25rem;padding:1.25rem 1.5rem;">' +
-    '<div style="width:100px;height:66px;border-radius:6px;overflow:hidden;flex-shrink:0;background:#eef0f8;display:flex;align-items:center;justify-content:center;">' +
-     (hasImg ? '<img src="'+cardImg+'" style="width:100%;height:100%;object-fit:cover;" />' : '<span style="font-size:0.7rem;color:#bbb;text-align:center;padding:0.25rem;">No image<br>uploaded</span>') +
-    '</div>' +
-    '<div style="flex:1;min-width:0;">' +
-     '<div style="font-size:0.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#668DC6;margin-bottom:.2rem;">'+cs.tag+'</div>' +
-     '<div style="font-weight:600;color:#2B317B;font-size:.925rem;line-height:1.35;margin-bottom:.25rem;">'+cs.title+'</div>' +
-     '<div style="font-size:.78rem;color:#aaa;">'+cs.client+' · '+cs.event+' · '+cs.year+'</div>' +
-    '</div>' +
-    '<div style="display:flex;gap:.5rem;flex-shrink:0;">' +
-     '<a href="'+cs.page+'" target="_blank" style="display:inline-flex;align-items:center;gap:.3rem;padding:.45rem .9rem;border-radius:6px;background:#f4f6fa;color:#555;font-size:.78rem;font-weight:600;text-decoration:none;border:1.5px solid #dde2f0;">View</a>' +
-     '<button onclick="openCsModal(\''+cs.slug+'\')" style="padding:.45rem 1rem;border-radius:6px;background:#2B317B;color:#fff;font-size:.78rem;font-weight:600;border:none;cursor:pointer;">Edit</button>' +
-     (isEdited ? '<span style="width:8px;height:8px;border-radius:50%;background:#27ae60;display:inline-block;align-self:center;" title="Has overrides"></span>' : '') +
-    '</div>' +
-   '</div>';
+  fetch(CS_SB+'/rest/v1/case_studies?select=*&order=sort_order.asc', { headers:_csH() })
+   .then(function(r){ return r.ok ? r.json() : []; })
+   .then(function(rows){ csData = rows || []; renderCsGrid(); })
+   .catch(function(){ if(grid) grid.innerHTML = '<p style="color:#c0392b;font-size:0.85rem;">Could not load case studies from Supabase.</p>'; });
+ }
+
+ function renderCsGrid(){
+  var grid = document.getElementById('cs-grid');
+  if(!grid) return;
+  var add = '<button onclick="openCsModal(null)" style="margin-bottom:1.25rem;padding:0.6rem 1.2rem;border-radius:8px;background:#2B317B;color:#fff;font-size:0.82rem;font-weight:600;border:none;cursor:pointer;">+ Add New Case Study</button>';
+  if(!csData.length){ grid.innerHTML = add + '<p style="font-size:0.85rem;color:#888;">No case studies yet. Add your first one.</p>'; return; }
+  grid.innerHTML = add + csData.map(function(cs){
+   var img = cs.card_image || cs.hero_image || '';
+   var view = cs.card_link || ('work/'+cs.slug+'.html');
+   return '<div style="background:#fff;border-radius:10px;box-shadow:0 1px 8px rgba(0,0,0,.07);display:flex;align-items:center;gap:1.25rem;padding:1.25rem 1.5rem;margin-bottom:0.85rem;">'
+    + '<div style="width:100px;height:66px;border-radius:6px;overflow:hidden;flex-shrink:0;background:#eef0f8;display:flex;align-items:center;justify-content:center;">'
+    + (img ? '<img src="'+csEsc(img)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'" />' : '<span style="font-size:0.7rem;color:#bbb;">No image</span>')
+    + '</div>'
+    + '<div style="flex:1;min-width:0;">'
+    + '<div style="font-size:0.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#668DC6;margin-bottom:.2rem;">'+csEsc(cs.card_tag||'')+(cs.featured?' · Featured':'')+(cs.published===false?' · Hidden':'')+'</div>'
+    + '<div style="font-weight:600;color:#2B317B;font-size:.925rem;line-height:1.35;margin-bottom:.25rem;">'+csEsc(cs.card_title||cs.title||cs.slug)+'</div>'
+    + '<div style="font-size:.78rem;color:#aaa;">'+csEsc((cs.client||'')+' · '+(cs.event||'')+' · '+(cs.meta_year||''))+'</div>'
+    + '</div>'
+    + '<div style="display:flex;gap:.5rem;flex-shrink:0;">'
+    + '<a href="'+csEsc(view)+'" target="_blank" style="padding:.45rem .9rem;border-radius:6px;background:#f4f6fa;color:#555;font-size:.78rem;font-weight:600;text-decoration:none;border:1.5px solid #dde2f0;">View</a>'
+    + '<button onclick="openCsModal(\''+cs.id+'\')" style="padding:.45rem 1rem;border-radius:6px;background:#2B317B;color:#fff;font-size:.78rem;font-weight:600;border:none;cursor:pointer;">Edit</button>'
+    + '<button onclick="deleteCs(\''+cs.id+'\',\''+csEsc(cs.slug)+'\')" style="padding:.45rem .8rem;border-radius:6px;background:#fff;color:#c0392b;font-size:.78rem;font-weight:600;border:1.5px solid #f0c0c0;cursor:pointer;">Delete</button>'
+    + '</div>'
+   + '</div>';
   }).join('');
  }
 
- function openCsModal(slug) {
-  csCurrentSlug = slug;
-  var cs = caseStudies.find(function(c){ return c.slug === slug; });
-  var overrides = getCsOverrides();
-  var ov = overrides[slug] || {};
-  var cardImgs = getCsCardImgs();
-
-  document.getElementById('cs-modal-title').textContent = 'Edit: ' + cs.title;
-  document.getElementById('cs-modal-sub').textContent = cs.client + ' · ' + cs.event + ' · ' + cs.year;
-
-  // Card fields
-  document.getElementById('cs-f-cardtitle').value = ov.cardTitle || cs.title;
-  document.getElementById('cs-f-cardtag').value   = ov.cardTag   || cs.tag;
-
-  // Card image
-  var cardImgVal = ov.cardImageData || cardImgs[slug] || '';
-  document.getElementById('cs-f-cardimg-url').value = cardImgVal.startsWith('data:') ? '' : cardImgVal;
-  showCsImgPreview('cs-f-cardimg-preview', cardImgVal);
-
-  // Hero image
-  var heroVal = ov.heroImage || '';
-  document.getElementById('cs-f-heroimg-url').value = heroVal.startsWith('data:') ? '' : heroVal;
-  showCsImgPreview('cs-f-heroimg-preview', heroVal);
-
-  // Content
-  document.getElementById('cs-f-lead').value        = ov.lead        || '';
-  document.getElementById('cs-f-brief').value       = ov.brief       || '';
-  document.getElementById('cs-f-delivered').value   = ov.delivered   || '';
-  document.getElementById('cs-f-quote').value       = ov.quote       || '';
-  document.getElementById('cs-f-attribution').value = ov.attribution || '';
-
-  // Stats
-  document.getElementById('cs-f-stat1n').value = ov.stat1n || '';
-  document.getElementById('cs-f-stat1d').value = ov.stat1d || '';
-  document.getElementById('cs-f-stat2n').value = ov.stat2n || '';
-  document.getElementById('cs-f-stat2d').value = ov.stat2d || '';
-  document.getElementById('cs-f-stat3n').value = ov.stat3n || '';
-  document.getElementById('cs-f-stat3d').value = ov.stat3d || '';
-
-  // Meta
-  document.getElementById('cs-f-client').value   = ov.client   || cs.client;
-  document.getElementById('cs-f-event').value    = ov.event    || cs.event;
-  document.getElementById('cs-f-location').value = ov.location || '';
-  document.getElementById('cs-f-year').value     = ov.year     || cs.year;
-  document.getElementById('cs-f-services').value = ov.services || '';
-
-  // Clear file inputs
-  document.getElementById('cs-f-cardimg-file').value = '';
-  document.getElementById('cs-f-heroimg-file').value = '';
-
-  document.getElementById('cs-modal').style.display = 'block';
+ function openCsModal(id){
+  csEditingId = id || null;
+  var cs = id ? (csData.find(function(c){ return String(c.id)===String(id); }) || {}) : {};
+  var isNew = !id;
+  document.getElementById('cs-modal-title').textContent = isNew ? 'Add New Case Study' : ('Edit: ' + (cs.card_title||cs.title||cs.slug||''));
+  document.getElementById('cs-modal-sub').textContent = isNew ? 'Saves to Supabase and goes live on the website immediately.' : ((cs.client||'')+' · '+(cs.event||'')+' · '+(cs.meta_year||''));
+  csSet('cs-f-slug', cs.slug);
+  var slugEl = document.getElementById('cs-f-slug'); if(slugEl) slugEl.readOnly = !isNew;
+  csSet('cs-f-order', cs.sort_order==null ? (csData.length+1) : cs.sort_order);
+  var catEl=document.getElementById('cs-f-category'); if(catEl) catEl.value = cs.category || 'activation';
+  var featEl=document.getElementById('cs-f-featured'); if(featEl) featEl.value = cs.featured ? 'true' : 'false';
+  csSet('cs-f-herotag', cs.hero_tag);
+  csSet('cs-f-title', cs.title);
+  csSet('cs-f-eventtype', cs.event_type);
+  csSet('cs-f-ctatitle', cs.cta_title);
+  csSet('cs-f-ctabody', cs.cta_body);
+  csSet('cs-f-cardtitle', cs.card_title);
+  csSet('cs-f-cardtag', cs.card_tag);
+  csSet('cs-f-cardimg-url', cs.card_image);
+  showCsImgPreview('cs-f-cardimg-preview', cs.card_image);
+  csSet('cs-f-heroimg-url', cs.hero_image);
+  showCsImgPreview('cs-f-heroimg-preview', cs.hero_image);
+  csSet('cs-f-lead', cs.lead);
+  csSet('cs-f-brief', cs.brief);
+  csSet('cs-f-delivered', cs.delivered);
+  csSet('cs-f-quote', cs.quote);
+  csSet('cs-f-attribution', cs.attribution);
+  var st = Array.isArray(cs.stats) ? cs.stats : [];
+  csSet('cs-f-stat1n',(st[0]||{}).n); csSet('cs-f-stat1d',(st[0]||{}).d);
+  csSet('cs-f-stat2n',(st[1]||{}).n); csSet('cs-f-stat2d',(st[1]||{}).d);
+  csSet('cs-f-stat3n',(st[2]||{}).n); csSet('cs-f-stat3d',(st[2]||{}).d);
+  csSet('cs-f-client', cs.client);
+  csSet('cs-f-event', cs.event);
+  csSet('cs-f-location', cs.meta_location);
+  csSet('cs-f-year', cs.meta_year);
+  csSet('cs-f-services', cs.meta_services);
+  var cf=document.getElementById('cs-f-cardimg-file'); if(cf) cf.value='';
+  var hf=document.getElementById('cs-f-heroimg-file'); if(hf) hf.value='';
+  document.getElementById('cs-modal').style.display='block';
  }
 
- function closeCsModal() {
-  document.getElementById('cs-modal').style.display = 'none';
-  csCurrentSlug = null;
- }
+ function closeCsModal(){ document.getElementById('cs-modal').style.display='none'; csEditingId=null; }
 
- function showCsImgPreview(previewId, src) {
+ function showCsImgPreview(previewId, src){
   var img = document.getElementById(previewId);
-  if (src) { img.src = src; img.style.display = 'block'; }
-  else { img.style.display = 'none'; img.src = ''; }
+  if(!img) return;
+  if(src){ img.src = src; img.style.display='block'; } else { img.style.display='none'; img.src=''; }
  }
-
- function previewCsImg(input, previewId, urlInputId) {
-  var file = input.files[0];
-  if (!file) return;
+ function previewCsImg(input, previewId, urlInputId){
+  var file = input.files[0]; if(!file) return;
   var reader = new FileReader();
-  reader.onload = function(e) {
-   showCsImgPreview(previewId, e.target.result);
-   document.getElementById(urlInputId).value = '';
-  };
+  reader.onload = function(e){ showCsImgPreview(previewId, e.target.result); var u=document.getElementById(urlInputId); if(u) u.value = e.target.result; };
   reader.readAsDataURL(file);
  }
 
- function saveCsOverride() {
-  if (!csCurrentSlug) return;
-  var overrides = getCsOverrides();
-  var cardImgs  = getCsCardImgs();
-  var ov = overrides[csCurrentSlug] || {};
-
-  // Card image — file upload takes priority, then URL field
-  var cardFile = document.getElementById('cs-f-cardimg-file').files[0];
-  var cardImgUrl = document.getElementById('cs-f-cardimg-url').value.trim();
-
-  // Hero image
-  var heroFile = document.getElementById('cs-f-heroimg-file').files[0];
-  var heroImgUrl = document.getElementById('cs-f-heroimg-url').value.trim();
-
-  function finishSave(cardData, heroData) {
-   if (cardData) { cardImgs[csCurrentSlug] = cardData; localStorage.setItem(CS_CARD_IMGS_KEY, JSON.stringify(cardImgs)); ov.cardImageData = cardData; }
-   else if (cardImgUrl) { ov.cardImageData = cardImgUrl; }
-
-   if (heroData) { ov.heroImage = heroData; }
-   else if (heroImgUrl) { ov.heroImage = heroImgUrl; }
-
-   ov.cardTitle   = document.getElementById('cs-f-cardtitle').value.trim();
-   ov.cardTag     = document.getElementById('cs-f-cardtag').value.trim();
-   ov.lead        = document.getElementById('cs-f-lead').value.trim();
-   ov.brief       = document.getElementById('cs-f-brief').value.trim();
-   ov.delivered   = document.getElementById('cs-f-delivered').value.trim();
-   ov.quote       = document.getElementById('cs-f-quote').value.trim();
-   ov.attribution = document.getElementById('cs-f-attribution').value.trim();
-   ov.stat1n      = document.getElementById('cs-f-stat1n').value.trim();
-   ov.stat1d      = document.getElementById('cs-f-stat1d').value.trim();
-   ov.stat2n      = document.getElementById('cs-f-stat2n').value.trim();
-   ov.stat2d      = document.getElementById('cs-f-stat2d').value.trim();
-   ov.stat3n      = document.getElementById('cs-f-stat3n').value.trim();
-   ov.stat3d      = document.getElementById('cs-f-stat3d').value.trim();
-   ov.client      = document.getElementById('cs-f-client').value.trim();
-   ov.event       = document.getElementById('cs-f-event').value.trim();
-   ov.location    = document.getElementById('cs-f-location').value.trim();
-   ov.year        = document.getElementById('cs-f-year').value.trim();
-   ov.services    = document.getElementById('cs-f-services').value.trim();
-
-   overrides[csCurrentSlug] = ov;
-   localStorage.setItem(CS_KEY, JSON.stringify(overrides));
-   renderCsGrid();
-   closeCsModal();
-   showCsToast('Case study saved ✓');
-  }
-
-  // Read files if uploaded
-  if (cardFile && heroFile) {
-   var rCard = new FileReader(), rHero = new FileReader(), cardData, heroData;
-   rCard.onload = function(e) { cardData = e.target.result; if(heroData !== undefined) finishSave(cardData, heroData); };
-   rHero.onload = function(e) { heroData = e.target.result; if(cardData !== undefined) finishSave(cardData, heroData); };
-   rCard.readAsDataURL(cardFile); rHero.readAsDataURL(heroFile);
-  } else if (cardFile) {
-   var r = new FileReader();
-   r.onload = function(e) { finishSave(e.target.result, null); };
-   r.readAsDataURL(cardFile);
-  } else if (heroFile) {
-   var r2 = new FileReader();
-   r2.onload = function(e) { finishSave(null, e.target.result); };
-   r2.readAsDataURL(heroFile);
-  } else {
-   finishSave(null, null);
-  }
+ function saveCsOverride(){
+  var slug = csV('cs-f-slug').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+  if(!slug){ alert('Please enter a slug (URL name), e.g. boost-mobile-gold-coast-500.'); return; }
+  var isNew = !csEditingId;
+  var existing = csEditingId ? (csData.find(function(c){ return String(c.id)===String(csEditingId); })||{}) : {};
+  var stats = [];
+  [['cs-f-stat1n','cs-f-stat1d'],['cs-f-stat2n','cs-f-stat2d'],['cs-f-stat3n','cs-f-stat3d']].forEach(function(p){
+   var n=csV(p[0]), d=csV(p[1]); if(n||d) stats.push({ n:n, d:d });
+  });
+  var cardTitle = csV('cs-f-cardtitle');
+  var cardLink = existing.card_link || (isNew ? ('work/case-study.html?slug='+slug) : ('work/'+slug+'.html'));
+  var row = {
+   slug: slug,
+   sort_order: parseInt(csV('cs-f-order'),10) || 0,
+   published: true,
+   featured: document.getElementById('cs-f-featured').value === 'true',
+   category: document.getElementById('cs-f-category').value || 'activation',
+   card_tag: csV('cs-f-cardtag'),
+   card_title: cardTitle,
+   card_image: csV('cs-f-cardimg-url'),
+   card_image_alt: cardTitle,
+   card_link: cardLink,
+   hero_tag: csV('cs-f-herotag'),
+   title: csV('cs-f-title') || cardTitle,
+   client: csV('cs-f-client'),
+   event: csV('cs-f-event'),
+   event_type: csV('cs-f-eventtype'),
+   hero_image: csV('cs-f-heroimg-url'),
+   hero_image_alt: cardTitle,
+   lead: csV('cs-f-lead'),
+   brief: csV('cs-f-brief'),
+   delivered: csV('cs-f-delivered'),
+   quote: csV('cs-f-quote'),
+   attribution: csV('cs-f-attribution'),
+   stats: stats,
+   meta_location: csV('cs-f-location'),
+   meta_year: csV('cs-f-year'),
+   meta_services: csV('cs-f-services'),
+   cta_title: csV('cs-f-ctatitle'),
+   cta_body: csV('cs-f-ctabody'),
+   updated_at: new Date().toISOString()
+  };
+  fetch(CS_SB+'/rest/v1/case_studies?on_conflict=slug', {
+   method:'POST',
+   headers: Object.assign({}, _csH(), { 'Prefer':'resolution=merge-duplicates,return=representation' }),
+   body: JSON.stringify(row)
+  }).then(function(r){ return r.json().then(function(d){ return { ok:r.ok, d:d }; }); })
+   .then(function(res){
+    if(!res.ok) throw new Error((res.d && res.d.message) || 'Save failed');
+    csLoad(); closeCsModal(); csToast('Saved ✓ — live on the website');
+   })
+   .catch(function(e){ alert('Save failed: ' + e.message); });
  }
 
- function resetCsOverride() {
-  if (!csCurrentSlug) return;
-  if (!confirm('Reset "' + csCurrentSlug + '" to its default hardcoded content? This cannot be undone.')) return;
-  var overrides = getCsOverrides();
-  var cardImgs  = getCsCardImgs();
-  delete overrides[csCurrentSlug];
-  delete cardImgs[csCurrentSlug];
-  localStorage.setItem(CS_KEY, JSON.stringify(overrides));
-  localStorage.setItem(CS_CARD_IMGS_KEY, JSON.stringify(cardImgs));
-  renderCsGrid();
-  closeCsModal();
-  showCsToast('Reset to default ✓');
+ function resetCsOverride(){ if(csEditingId) openCsModal(csEditingId); else closeCsModal(); }
+
+ function deleteCs(id, slug){
+  if(!confirm('Delete "'+slug+'"? This removes it from the website work page.')) return;
+  fetch(CS_SB+'/rest/v1/case_studies?slug=eq.'+encodeURIComponent(slug), { method:'DELETE', headers:_csH() })
+   .then(function(r){ if(!r.ok && r.status!==204 && r.status!==200) throw new Error('Delete failed ('+r.status+')'); csLoad(); csToast('Deleted ✓'); })
+   .catch(function(e){ alert(e.message); });
  }
+
+ csLoad();
 
  function showCsToast(msg) {
   var t = document.createElement('div');
@@ -4725,7 +4751,7 @@ Respond ONLY with valid JSON array, no other text:
  // Render grid when case studies tab is opened
  document.querySelectorAll('.nav-btn[data-panel]').forEach(function(btn) {
   btn.addEventListener('click', function() {
-   if (btn.getAttribute('data-panel') === 'casestudies') { renderCsGrid(); }
+   if (btn.getAttribute('data-panel') === 'casestudies') { csLoad(); }
   });
  });
 

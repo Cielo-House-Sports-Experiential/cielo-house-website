@@ -10,7 +10,12 @@
   var SB = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
   var SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
 
-  var slug = (location.pathname.split('/').pop() || '').replace(/\.html$/, '');
+  // Slug from ?slug= (dynamic case-study.html template) or the page filename.
+  var qs = new URLSearchParams(location.search);
+  var slug = qs.get('slug') || (location.pathname.split('/').pop() || '').replace(/\.html$/, '');
+  if (!slug || slug === 'case-study') {
+    slug = qs.get('slug') || '';
+  }
   if (!slug) return;
 
   function setText(id, val) {
