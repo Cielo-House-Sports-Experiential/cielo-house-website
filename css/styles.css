@@ -2530,7 +2530,7 @@ h1 em, h2 em, h3 em {
 
   .footer__top {
     grid-template-columns: 1fr;
-    gap: calc(var(--space-12) * 1.5);
+    gap: calc(var(--space-12) * 0.75);
   }
 
   .footer__bottom {
