@@ -26,6 +26,33 @@
    }).catch(function () { go(); });
  })();
  </script>
+ <script>
+ /* SAFETY NET: the moment the dashboard loads, snapshot EVERYTHING in this
+    browser's localStorage into Supabase (dashboard_backups). Append-only insert —
+    it can never overwrite or delete anything you did. Runs before any other
+    dashboard code so your work is captured first. */
+ (function dashboardAutoBackup() {
+   try {
+     var all = {};
+     for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); all[k] = localStorage.getItem(k); }
+     if (!Object.keys(all).length) return;
+     var SB = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
+     var SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
+     fetch(SB + '/rest/v1/dashboard_backups', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: SK, Authorization: 'Bearer ' + SK, Prefer: 'return=minimal' }, body: JSON.stringify({ label: 'auto-on-load', data: all }) })
+       .then(function (r) {
+         if (!r.ok) return;
+         document.addEventListener('DOMContentLoaded', function () {
+           var t = document.createElement('div');
+           t.textContent = '✓ Today’s work backed up to Supabase';
+           t.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;background:#1a7a40;color:#fff;padding:0.7rem 1.1rem;border-radius:8px;font:600 0.8rem Poppins,sans-serif;z-index:99999;box-shadow:0 4px 20px rgba(0,0,0,0.25);';
+           document.body.appendChild(t);
+           setTimeout(function () { t.style.transition = 'opacity .4s'; t.style.opacity = '0'; setTimeout(function () { t.remove(); }, 400); }, 4000);
+         });
+       })
+       .catch(function () {});
+   } catch (e) {}
+ })();
+ </script>
  <meta charset="UTF-8" />
  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
  <title>Admin Dashboard Cielo House</title>
@@ -3026,20 +3053,48 @@
  localStorage.setItem('ch_blog_posts', JSON.stringify(seed));
  })();
 
- // Events seed from live website data if never set
- (function seedEvents() {
- if (localStorage.getItem('ch_events') !== null) return; // already seeded or user has data
- var seed = [
- { title: 'Formula 1 Qatar Airways Australian Grand Prix 2026', location: 'Melbourne, VIC', start: '2026-03-06', end: '2026-03-08', photo: 'images/events-calendar/formula-1-australian-grand-prix/GP26-79.jpg', notes: '' },
- { title: 'Australian Boardriders Battle', location: 'Gold Coast, QLD', start: '2026-03-07', end: '2026-03-08', photo: 'images/events-calendar/australian-boardriders-battle/BoardRiders26-97.jpg', notes: '' },
- { title: 'WSL Rip Curl Pro Bells Beach', location: 'Melbourne, VIC', start: '2026-04-01', end: '2026-04-11', photo: 'images/events-calendar/wsl-rip-curl-bells-beach/wsl-bells-beach.jpg', notes: '' },
- { title: 'Boost Mobile Gold Coast 500', location: 'Gold Coast, QLD', start: '2026-10-24', end: '2026-10-26', photo: 'images/events-calendar/boost-mobile-gold-coast-500/BoostGC500-21.jpg', notes: '' },
- ];
- localStorage.setItem('ch_events', JSON.stringify(seed));
- })();
-
- function getEvts() { return JSON.parse(localStorage.getItem('ch_events') || '[]'); }
- function saveEvts(e) { localStorage.setItem('ch_events', JSON.stringify(e)); }
+ // Events live in Supabase (site_events) — no localStorage. An in-memory cache
+ // keeps the existing synchronous render code working; every save pushes to
+ // Supabase so the live website (every device) updates.
+ var EVT_SB = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
+ var EVT_SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
+ var EVT_H = { 'Content-Type': 'application/json', apikey: EVT_SK, Authorization: 'Bearer ' + EVT_SK };
+ var _evts = [];
+ function getEvts() { return _evts; }
+ function evtsLoadFromSB(cb) {
+   fetch(EVT_SB + '/rest/v1/site_events?select=title,location,start_date,end_date,photo,notes&order=start_date.asc', { headers: EVT_H })
+     .then(function (r) { return r.ok ? r.json() : []; })
+     .then(function (rows) {
+       _evts = (rows || []).map(function (e) { return { title: e.title, location: e.location, start: e.start_date, end: e.end_date, photo: e.photo, notes: e.notes || '' }; });
+       if (cb) cb();
+     })
+     .catch(function () { if (cb) cb(); });
+ }
+ function saveEvts(e) {
+   _evts = e;
+   // Replace-all sync: clear the table, then insert the current set in order.
+   fetch(EVT_SB + '/rest/v1/site_events?id=not.is.null', { method: 'DELETE', headers: EVT_H })
+     .then(function () {
+       if (!e.length) return;
+       var payload = e.map(function (ev, i) { return { title: ev.title, location: ev.location || null, start_date: ev.start || null, end_date: ev.end || null, photo: ev.photo || null, notes: ev.notes || null, sort_order: i }; });
+       return fetch(EVT_SB + '/rest/v1/site_events', { method: 'POST', headers: Object.assign({}, EVT_H, { Prefer: 'return=minimal' }), body: JSON.stringify(payload) });
+     })
+     .catch(function () { alert('Could not save events to the website. Check your connection and try again.'); });
+ }
+ // SAFE one-way migration: events you edited live in this browser's localStorage —
+ // that is the source of truth. Show them and push them UP to Supabase. The local
+ // copy is NEVER deleted; it stays as a backup. We only ever write upward.
+ function evtsInit(cb) {
+   var legacy = null;
+   try { legacy = JSON.parse(localStorage.getItem('ch_events') || 'null'); } catch (e) {}
+   if (legacy && legacy.length) {
+     _evts = legacy;
+     if (cb) cb();
+     saveEvts(legacy); // push your copy up; localStorage left intact
+   } else {
+     evtsLoadFromSB(cb);
+   }
+ }
 
  // --- Monthly Calendar ---
  var calDate = new Date();
@@ -3105,7 +3160,7 @@
  }
  document.getElementById('cal-prev').addEventListener('click', function() { calDate.setMonth(calDate.getMonth() - 1); renderCal(); });
  document.getElementById('cal-next').addEventListener('click', function() { calDate.setMonth(calDate.getMonth() + 1); renderCal(); });
- renderCal();
+ evtsLoadFromSB(function () { renderCal(); if (typeof renderEvts === 'function') renderEvts(); });
 
  // --- Photo Upload ---
  var photoData = '';
@@ -4496,21 +4551,29 @@
    { id:18, name:'Mick',     company:'AME Group',           role:'', highlight:"Thank you for your help in making it so epic!", body:"What a day! Thank you for your help in making it so epic!", visible:true },
  ];
 
- function tGetAll() {
-   var stored = localStorage.getItem(T_KEY);
-   if (!stored) return null;
-   try { return JSON.parse(stored); } catch(e) { return null; }
+ // Testimonials live in Supabase (testimonials table) — no localStorage. The
+ // in-memory cache uses sequential ids for the edit/delete UI; saves replace the
+ // whole table so the live website updates on every device.
+ var _tcache = null;
+ function tGetAll() { return _tcache; }
+ function tLoadFromSB(cb) {
+   fetch(_SB + '/rest/v1/testimonials?select=name,company,role,highlight,body,visible&order=sort_order.asc', { headers: _sbH() })
+     .then(function (r) { return r.ok ? r.json() : []; })
+     .then(function (rows) {
+       _tcache = (rows || []).map(function (t, i) { return { id: i + 1, name: t.name, company: t.company, role: t.role || '', highlight: t.highlight || '', body: t.body, visible: t.visible !== false }; });
+       if (cb) cb();
+     })
+     .catch(function () { if (cb) cb(); });
  }
-
  function tSaveAll(data) {
-   localStorage.setItem(T_KEY, JSON.stringify(data));
-   tSyncToSite(data);
- }
-
- /* Write visible testimonials back to localStorage so index.html can read them */
- function tSyncToSite(data) {
-   var visible = (data || []).filter(function(t){ return t.visible !== false; });
-   localStorage.setItem('ch_testimonials_live', JSON.stringify(visible));
+   _tcache = data;
+   fetch(_SB + '/rest/v1/testimonials?id=not.is.null', { method: 'DELETE', headers: _sbH() })
+     .then(function () {
+       if (!data.length) return;
+       var payload = data.map(function (t, i) { return { name: t.name, company: t.company || null, role: t.role || null, highlight: t.highlight || null, body: t.body, visible: t.visible !== false, sort_order: i }; });
+       return fetch(_SB + '/rest/v1/testimonials', { method: 'POST', headers: Object.assign({}, _sbH(), { Prefer: 'return=minimal' }), body: JSON.stringify(payload) });
+     })
+     .catch(function () { alert('Could not save testimonials to the website. Check your connection and try again.'); });
  }
 
  function tNextId(data) {
@@ -4627,13 +4690,20 @@
    tRender();
  }
 
- /* Seed on first load */
+ /* First render. SAFE one-way migration: if this browser holds the testimonials
+    you edited (localStorage), THAT is the source of truth — show it and push it
+    UP to Supabase. Your local copy is never deleted; it stays as a backup. We
+    only ever write upward, never overwrite your work. */
  (function tInit() {
-   if (!localStorage.getItem(T_KEY)) {
-     localStorage.setItem(T_KEY, JSON.stringify(T_SEED));
-     tSyncToSite(T_SEED);
+   var legacy = null;
+   try { legacy = JSON.parse(localStorage.getItem('ch_testimonials') || 'null'); } catch (e) {}
+   if (legacy && legacy.length) {
+     _tcache = legacy.map(function (t, i) { return { id: t.id || (i + 1), name: t.name, company: t.company, role: t.role || '', highlight: t.highlight || '', body: t.body, visible: t.visible !== false }; });
+     tRender();
+     tSaveAll(_tcache); // push your copy up to Supabase; localStorage is left intact
+   } else {
+     tLoadFromSB(tRender);
    }
-   tRender();
  })();
 
  /* ── FAQ Manager ── */
@@ -5295,6 +5365,7 @@ Respond ONLY with valid JSON array, no other text:
    if (btn.getAttribute('data-panel') === 'subscribers') { subsLoadFromSB(); }
    if (btn.getAttribute('data-panel') === 'blog') { blogLoadFromSB(); }
    if (btn.getAttribute('data-panel') === 'edm') { edmBackToList(); edmLoad(); }
+   if (btn.getAttribute('data-panel') === 'events') { evtsLoadFromSB(function () { renderEvts(); renderCal(); }); }
   });
  });
 
