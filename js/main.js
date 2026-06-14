@@ -163,33 +163,9 @@ if ('IntersectionObserver' in window && statNumbers.length) {
  statNumbers.forEach(el => counterObserver.observe(el));
 }
 
-/* --- Contact Form Handling --- */
-const contactForm = document.querySelector('.contact-form form');
-
-if (contactForm) {
- contactForm.addEventListener('submit', (e) => {
- e.preventDefault();
-
- const btn = contactForm.querySelector('[type="submit"]');
- const originalText = btn.textContent;
-
- btn.textContent = 'Sending…';
- btn.disabled = true;
-
- // Replace with your form endpoint (e.g. Webflow Forms, Formspree, etc.)
- setTimeout(() => {
- btn.textContent = 'Message Sent ✓';
- btn.style.backgroundColor = '#2d7a3a';
- contactForm.reset();
-
- setTimeout(() => {
- btn.textContent = originalText;
- btn.disabled = false;
- btn.style.backgroundColor = '';
- }, 4000);
- }, 1200);
- });
-}
+/* Contact form handling lives on contact.html (real Web3Forms submit). The old
+   placeholder handler here was dead code (faked success, no endpoint) and has
+   been removed so it can't double-bind to the live enquiry form. */
 
 /* --- Smooth scroll for anchor links --- */
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
