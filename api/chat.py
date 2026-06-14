@@ -78,6 +78,18 @@ class handler(BaseHTTPRequestHandler):
         self._cors()
         self.end_headers()
 
+    def do_GET(self):
+        # The dashboard reads the bot's built-in knowledge (system prompt) and
+        # model so the admin can see exactly what's baked in. Same-origin only.
+        if not _origin_ok(self.headers):
+            self.send_response(403); self._cors(); self.send_header('Content-Type', 'application/json'); self.end_headers()
+            self.wfile.write(json.dumps({'error': 'forbidden'}).encode()); return
+        self.send_response(200)
+        self._cors()
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps({'system': SYSTEM_PROMPT, 'model': 'claude-opus-4-5', 'max_tokens': 400}).encode())
+
     def do_POST(self):
         if not _origin_ok(self.headers):
             self.send_response(403)

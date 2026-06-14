@@ -285,12 +285,18 @@ if (heroBg && window.innerWidth > 768) {
  // ── Visibility gated by the dashboard toggle (Supabase). Hidden until
  //    confirmed enabled, so OFF is the safe default. ──
  container.style.display = 'none';
+ var cwKnowledge = null;
  (function () {
  var SB = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
  var SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
  fetch(SB + '/rest/v1/chat_widget_settings?id=eq.main&select=enabled', { headers: { apikey: SK, Authorization: 'Bearer ' + SK } })
  .then(function (r) { return r.ok ? r.json() : null; })
  .then(function (rows) { if (rows && rows[0] && rows[0].enabled === true) container.style.display = ''; })
+ .catch(function () {});
+ // Load the editable knowledge base from Supabase so every visitor's chat uses it.
+ fetch(SB + '/rest/v1/chat_knowledge?id=eq.main&select=profile,qas,extra', { headers: { apikey: SK, Authorization: 'Bearer ' + SK } })
+ .then(function (r) { return r.ok ? r.json() : null; })
+ .then(function (rows) { var d = rows && rows[0]; if (d) cwKnowledge = { profile: d.profile || '', qas: Array.isArray(d.qas) ? d.qas : [], extra: d.extra || '' }; })
  .catch(function () {});
  })();
 
@@ -451,7 +457,9 @@ if (heroBg && window.innerWidth > 768) {
  }
 
  function getKnowledge() {
- try { return JSON.parse(localStorage.getItem('ch_ai_knowledge') || 'null'); } catch (e) { return null; }
+ // Loaded from Supabase (chat_knowledge) on widget init - shared across all
+ // visitors, set in the dashboard's Chatbot Back-End section.
+ return cwKnowledge;
  }
 
  function sendMessage() {

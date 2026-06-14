@@ -1412,8 +1412,24 @@
 
  <!-- ===== AI KNOWLEDGE ===== -->
  <div class="panel" id="panel-aiknowledge">
- <h1 class="page-title">AI Knowledge Base</h1>
- <p class="page-sub">Everything in this section is fed directly to the Cielo AI chat on the website. Keep it updated to ensure accurate, on-brand answers.</p>
+ <h1 class="page-title">Chatbot Back-End</h1>
+ <p class="page-sub">Everything the website chatbot knows and how it works. The knowledge you set here saves to Supabase and is used by the live chat for every visitor.</p>
+
+ <div class="card">
+ <div class="card-title">How the chatbot works</div>
+ <p style="font-size:0.82rem;color:#555;line-height:1.75;margin:0;">
+ The website chatbot (&ldquo;Talk with Cielo House&rdquo;) is an AI assistant powered by Claude (Anthropic). When a visitor asks a question it answers from two sources:<br>
+ <strong>1. Built-in knowledge</strong> &mdash; a fixed brief about Cielo House baked into the system (shown below, read-only).<br>
+ <strong>2. Your knowledge base</strong> &mdash; the Company Profile, Q&amp;A pairs and Additional Context you set further down.<br><br>
+ It only appears on the website when the <strong>Chat Widget</strong> toggle is <strong>ON</strong> (it is currently OFF). It will not invent pricing or facts beyond what it is given, and it ends answers with a next step such as booking a call.
+ </p>
+ </div>
+
+ <div class="card">
+ <div class="card-title">Built-in knowledge <span style="font-weight:400;color:#aaa;font-size:0.75rem;margin-left:0.5rem;">read-only &mdash; what the bot always knows</span></div>
+ <p style="font-size:0.78rem;color:#888;margin-bottom:0.75rem;">This is baked into the chatbot's code. To change it, ask me &mdash; everything below is what you can edit yourself.</p>
+ <pre id="aik-builtin" style="white-space:pre-wrap;font-size:0.78rem;line-height:1.6;color:#444;background:#f8f9ff;border:1px solid #eef0f8;border-radius:8px;padding:1rem;max-height:340px;overflow:auto;margin:0;">Loading…</pre>
+ </div>
 
  <div class="card">
  <div class="card-title">Company Profile</div>
@@ -4538,14 +4554,29 @@
  var AIK_KEY = 'ch_ai_knowledge';
 
  function aikLoad() {
- var data = JSON.parse(localStorage.getItem(AIK_KEY) || '{}');
+ // Built-in knowledge (the bot's system prompt) from the chat function.
+ fetch('/api/chat?t=' + Date.now())
+ .then(function (r) { return r.ok ? r.json() : null; })
+ .then(function (d) { document.getElementById('aik-builtin').textContent = (d && d.system) ? d.system : '(Could not load right now — refresh to retry.)'; })
+ .catch(function () { document.getElementById('aik-builtin').textContent = '(Could not load right now.)'; });
+ // Editable knowledge from Supabase (shared, used by the live chat for everyone).
+ fetch(_SB + '/rest/v1/chat_knowledge?id=eq.main&select=profile,qas,extra', { headers: _sbH() })
+ .then(function (r) { return r.ok ? r.json() : []; })
+ .then(function (rows) {
+ var data = (rows && rows[0]) || {};
+ // One-time safety: if Supabase is empty but you'd saved knowledge in this
+ // browser before, pre-fill it so you can Save it to Supabase (then it's shared).
+ var empty = !data.profile && !data.extra && !(Array.isArray(data.qas) && data.qas.length);
+ if (empty) { try { var ls = JSON.parse(localStorage.getItem('ch_ai_knowledge') || 'null'); if (ls) data = ls; } catch (e) {} }
  document.getElementById('aik-profile').value = data.profile || '';
  document.getElementById('aik-extra').value = data.extra || '';
- var qas = data.qas || [];
+ var qas = Array.isArray(data.qas) ? data.qas : [];
  var list = document.getElementById('aik-qa-list');
  list.innerHTML = '';
- if (qas.length === 0) qas = [{ q: '', a: '' }]; // start with one empty row
+ if (qas.length === 0) qas = [{ q: '', a: '' }];
  qas.forEach(function (pair, idx) { aikAddRow(pair.q, pair.a, idx); });
+ })
+ .catch(function () { var list = document.getElementById('aik-qa-list'); list.innerHTML = ''; aikAddRow('', ''); });
  }
 
  function aikAddRow(q, a, idx) {
@@ -4583,16 +4614,21 @@
  var a = row.querySelector('.aik-a').value.trim();
  if (q || a) qas.push({ q: q, a: a });
  });
- var data = {
+ var payload = {
+ id: 'main',
  profile: document.getElementById('aik-profile').value.trim(),
  extra: document.getElementById('aik-extra').value.trim(),
  qas: qas,
- updated: new Date().toISOString()
+ updated_at: new Date().toISOString()
  };
- localStorage.setItem(AIK_KEY, JSON.stringify(data));
- var msg = document.getElementById('aik-saved-msg');
- msg.style.display = 'inline';
- setTimeout(function () { msg.style.display = 'none'; }, 4000);
+ fetch(_SB + '/rest/v1/chat_knowledge?on_conflict=id', {
+ method: 'POST',
+ headers: Object.assign({}, _sbH(), { 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
+ body: JSON.stringify(payload)
+ }).then(function (r) {
+ if (r.ok) { var msg = document.getElementById('aik-saved-msg'); msg.style.display = 'inline'; setTimeout(function () { msg.style.display = 'none'; }, 4000); }
+ else { alert('Could not save the knowledge base — make sure you are still logged in.'); }
+ }).catch(function () { alert('Could not save — check your connection and try again.'); });
  });
 
  aikLoad();
