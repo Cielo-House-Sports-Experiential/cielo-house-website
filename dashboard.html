@@ -3339,9 +3339,12 @@
  }
  window._whenAuthed(function(){
    _hydrateSecrets().then(function(){
-     // Keys are back in localStorage now — refresh analytics + AI features.
+     // Keys are back in localStorage — re-run analytics + AI checks so any
+     // "key needed" message clears on its own.
+     try { if (typeof _fillKeyFields === 'function') _fillKeyFields(); } catch(e){}
      try { if (typeof loadAnalytics === 'function') loadAnalytics(); } catch(e){}
      try { if (localStorage.getItem('ch_ga_refresh_token') && typeof syncGoogleData === 'function') syncGoogleData(false); } catch(e){}
+     try { if ((localStorage.getItem('ch_key_openai') || localStorage.getItem('ch_key_gemini') || localStorage.getItem('ch_key_perplexity')) && typeof runAiChecks === 'function') runAiChecks(true); } catch(e){}
    });
    setInterval(_saveSecrets, 30000);
  });
