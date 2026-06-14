@@ -36,18 +36,33 @@
   <button id="go">Upload &amp; Save</button>
   <div id="status"></div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
   var SB='https://nkabuhbkuzcxajzrlenj.supabase.co';
   var SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
-  var H={apikey:SK,Authorization:'Bearer '+SK};
-  function log(step,message,extra){ try{ fetch(SB+'/rest/v1/client_logs',{method:'POST',headers:Object.assign({},H,{'Content-Type':'application/json','Prefer':'return=minimal'}),body:JSON.stringify({step:step,message:String(message||''),ua:navigator.userAgent,extra:extra||null})}); }catch(e){} }
-  log('page-load','opened uploader');
+  var ADMIN=['britt@cielohouse.com.au','giovana@cielohouse.com.au','connect@cielohouse.com.au'];
+  var TOKEN=null;
+  // Admin-only uploader: it writes to case_studies, so it must hold a logged-in
+  // admin session. Without one, bounce to the login page.
+  var _auth = (typeof supabase!=='undefined') ? supabase.createClient(SB, SK, { auth:{ detectSessionInUrl:true, persistSession:true } }) : null;
+  function H(){ return { apikey:SK, Authorization:'Bearer '+(TOKEN||SK) }; }
+  function log(step,message,extra){ try{ fetch(SB+'/rest/v1/client_logs',{method:'POST',headers:Object.assign({},H(),{'Content-Type':'application/json','Prefer':'return=minimal'}),body:JSON.stringify({step:step,message:String(message||''),ua:navigator.userAgent,extra:extra||null})}); }catch(e){} }
   var sel=document.getElementById('cs'), st=document.getElementById('status'), go=document.getElementById('go');
-  fetch(SB+'/rest/v1/case_studies?select=id,card_title&order=sort_order.asc',{headers:H})
-    .then(function(r){return r.json();})
-    .then(function(rows){ sel.innerHTML=''; (rows||[]).forEach(function(c){ var o=document.createElement('option'); o.value=c.id; o.textContent=c.card_title||c.id; sel.appendChild(o); }); })
-    .catch(function(){ sel.innerHTML='<option>Could not load — refresh</option>'; });
+
+  function start(){
+    log('page-load','opened uploader');
+    fetch(SB+'/rest/v1/case_studies?select=id,card_title&order=sort_order.asc',{headers:H()})
+      .then(function(r){return r.json();})
+      .then(function(rows){ sel.innerHTML=''; (rows||[]).forEach(function(c){ var o=document.createElement('option'); o.value=c.id; o.textContent=c.card_title||c.id; sel.appendChild(o); }); })
+      .catch(function(){ sel.innerHTML='<option>Could not load — refresh</option>'; });
+  }
+  if(!_auth){ window.location.replace('login.html'); return; }
+  _auth.auth.getSession().then(function(res){
+    var s=res.data.session;
+    if(!(s&&s.user&&ADMIN.indexOf((s.user.email||'').toLowerCase())>=0)){ window.location.replace('login.html'); return; }
+    TOKEN=s.access_token; start();
+  }).catch(function(){ window.location.replace('login.html'); });
 
   go.onclick=function(){
     var file=document.getElementById('file').files[0];
@@ -69,10 +84,10 @@
         try{URL.revokeObjectURL(objUrl);}catch(e){}
         var pv=document.getElementById('preview'); pv.src=dataUrl; pv.style.display='block';
         log('resized', w+'x'+h+' b64len='+dataUrl.length);
-        fetch('/api/cs-upload?t='+Date.now(),{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:dataUrl,type:'image/jpeg',ext:'jpg'})})
+        fetch('/api/cs-upload?t='+Date.now(),{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(TOKEN||'')},body:JSON.stringify({data:dataUrl,type:'image/jpeg',ext:'jpg'})})
           .then(function(r){ log('upload-resp','HTTP '+r.status); return r.json().then(function(d){ if(!r.ok) throw new Error(d.error||('HTTP '+r.status)); return d; }); })
           .then(function(d){ if(!d.url) throw new Error('no url'); log('upload-ok', d.url); var patch={}; patch[slot]=d.url;
-            return fetch(SB+'/rest/v1/case_studies?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:Object.assign({},H,{'Content-Type':'application/json','Prefer':'return=representation'}),body:JSON.stringify(patch)}); })
+            return fetch(SB+'/rest/v1/case_studies?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:Object.assign({},H(),{'Content-Type':'application/json','Prefer':'return=representation'}),body:JSON.stringify(patch)}); })
           .then(function(r){ log('patch-resp','HTTP '+r.status); return r.json().then(function(d){ if(!r.ok) throw new Error('save failed'); return d; }); })
           .then(function(){ go.disabled=false; st.style.color='#1a7a40'; st.textContent='✓ Saved and live. Refresh the work / service page to see it.'; log('saved','done'); })
           .catch(function(err){ go.disabled=false; st.style.color='#c0392b'; st.textContent='Failed: '+((err&&err.message)||'error'); log('ERROR', (err&&err.message)||'error'); });

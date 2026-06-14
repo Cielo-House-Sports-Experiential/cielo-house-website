@@ -14,6 +14,22 @@ import os, json, urllib.request, urllib.error, time, uuid, base64
 SB = os.environ.get('SUPABASE_URL', '')
 SR = os.environ.get('SUPABASE_SERVICE_ROLE_KEY', '')
 BUCKET = 'case-studies'
+ADMIN = {'britt@cielohouse.com.au', 'giovana@cielohouse.com.au', 'connect@cielohouse.com.au'}
+
+
+def verify_admin(auth_header):
+    """Only an allow-listed admin (verified Supabase access token) may upload."""
+    if not auth_header or not auth_header.startswith('Bearer '):
+        return None
+    token = auth_header.split(' ', 1)[1]
+    try:
+        req = urllib.request.Request(SB + '/auth/v1/user', headers={'apikey': SR, 'Authorization': 'Bearer ' + token})
+        with urllib.request.urlopen(req, timeout=10) as r:
+            u = json.loads(r.read().decode())
+        email = (u.get('email') or '').lower()
+        return email if email in ADMIN else None
+    except Exception:
+        return None
 
 
 class handler(BaseHTTPRequestHandler):
@@ -30,10 +46,12 @@ class handler(BaseHTTPRequestHandler):
         self.send_response(204)
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type, x-ext')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, x-ext, Authorization')
         self.end_headers()
 
     def do_POST(self):
+        if not verify_admin(self.headers.get('Authorization')):
+            return self._json(401, {'error': 'unauthorised'})
         try:
             n = int(self.headers.get('Content-Length') or 0)
             if n <= 0:

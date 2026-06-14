@@ -13,11 +13,31 @@
      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo',
      { auth: { detectSessionInUrl: true, persistSession: true } });
    window._sbAuth = _sb;
+   /* Keep the live admin access token in one place so every write below goes
+      out as the logged-in admin (role: authenticated), NOT the public anon key.
+      onAuthStateChange fires TOKEN_REFRESHED, so this stays fresh past 1 hour. */
+   window._authToken = null;
+   window._authWaiters = [];
+   /* Run a callback once we hold the admin token (or right away if we already do).
+      Every initial dashboard READ goes through this so drafts + internal tables
+      always load as the admin, never as the (now read-restricted) public role. */
+   window._whenAuthed = function (cb) { if (window._authToken) { cb(); } else { window._authWaiters.push(cb); } };
+   function _setTok(tok) {
+     window._authToken = tok || null;
+     if (tok) {
+       window._edmToken = tok;
+       var ws = window._authWaiters.splice(0);
+       ws.forEach(function (f) { try { f(); } catch (e) {} });
+     }
+   }
+   _sb.auth.onAuthStateChange(function (_evt, session) {
+     if (session && session.access_token) { window._edmEmail = session.user && session.user.email; _setTok(session.access_token); }
+   });
    _sb.auth.getSession().then(function (res) {
      var s = res.data.session;
      if (s && s.user && ADMIN.indexOf((s.user.email || '').toLowerCase()) >= 0) {
        sessionStorage.setItem('ch_auth', 'true');
-       window._edmToken = s.access_token; window._edmEmail = s.user.email;
+       window._edmEmail = s.user.email; _setTok(s.access_token);
        if (window.history && window.location.hash) { history.replaceState(null, '', window.location.pathname + window.location.search); }
        ok();
      } else {
@@ -27,18 +47,19 @@
  })();
  </script>
  <script>
- /* SAFETY NET: the moment the dashboard loads, snapshot EVERYTHING in this
-    browser's localStorage into Supabase (dashboard_backups). Append-only insert —
-    it can never overwrite or delete anything you did. Runs before any other
-    dashboard code so your work is captured first. */
+ /* SAFETY NET: the moment the dashboard loads, snapshot localStorage into
+    Supabase (dashboard_backups). Append-only insert. Now writes as the logged-in
+    admin (the table is locked to admins), and NEVER backs up API keys / tokens. */
  (function dashboardAutoBackup() {
    try {
+     var SENSITIVE = /^ch_key_|^gh_|api[_-]?key|access[_-]?token|token$|_token|secret|password/i;
      var all = {};
-     for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); all[k] = localStorage.getItem(k); }
+     for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (SENSITIVE.test(k)) continue; all[k] = localStorage.getItem(k); }
      if (!Object.keys(all).length) return;
      var SB = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
      var SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
-     fetch(SB + '/rest/v1/dashboard_backups', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: SK, Authorization: 'Bearer ' + SK, Prefer: 'return=minimal' }, body: JSON.stringify({ label: 'auto-on-load', data: all }) })
+     function run(token) {
+     fetch(SB + '/rest/v1/dashboard_backups', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: SK, Authorization: 'Bearer ' + token, Prefer: 'return=minimal' }, body: JSON.stringify({ label: 'auto-on-load', data: all }) })
        .then(function (r) {
          if (!r.ok) return;
          document.addEventListener('DOMContentLoaded', function () {
@@ -50,6 +71,9 @@
          });
        })
        .catch(function () {});
+     }
+     /* back up once the admin session is ready */
+     var iv = setInterval(function () { if (window._whenAuthed) { clearInterval(iv); window._whenAuthed(function () { run(window._authToken); }); } }, 100);
    } catch (e) {}
  })();
  </script>
@@ -3069,11 +3093,11 @@
  // Supabase so the live website (every device) updates.
  var EVT_SB = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
  var EVT_SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
- var EVT_H = { 'Content-Type': 'application/json', apikey: EVT_SK, Authorization: 'Bearer ' + EVT_SK };
+ function EVT_H() { return { 'Content-Type': 'application/json', apikey: EVT_SK, Authorization: 'Bearer ' + (window._authToken || EVT_SK) }; }
  var _evts = [];
  function getEvts() { return _evts; }
  function evtsLoadFromSB(cb) {
-   fetch(EVT_SB + '/rest/v1/site_events?select=title,location,start_date,end_date,photo,notes&order=start_date.asc', { headers: EVT_H })
+   fetch(EVT_SB + '/rest/v1/site_events?select=title,location,start_date,end_date,photo,notes&order=start_date.asc', { headers: EVT_H() })
      .then(function (r) { return r.ok ? r.json() : []; })
      .then(function (rows) {
        _evts = (rows || []).map(function (e) { return { title: e.title, location: e.location, start: e.start_date, end: e.end_date, photo: e.photo, notes: e.notes || '' }; });
@@ -3084,11 +3108,11 @@
  function saveEvts(e) {
    _evts = e;
    // Replace-all sync: clear the table, then insert the current set in order.
-   fetch(EVT_SB + '/rest/v1/site_events?id=not.is.null', { method: 'DELETE', headers: EVT_H })
+   fetch(EVT_SB + '/rest/v1/site_events?id=not.is.null', { method: 'DELETE', headers: EVT_H() })
      .then(function () {
        if (!e.length) return;
        var payload = e.map(function (ev, i) { return { title: ev.title, location: ev.location || null, start_date: ev.start || null, end_date: ev.end || null, photo: ev.photo || null, notes: ev.notes || null, sort_order: i }; });
-       return fetch(EVT_SB + '/rest/v1/site_events', { method: 'POST', headers: Object.assign({}, EVT_H, { Prefer: 'return=minimal' }), body: JSON.stringify(payload) });
+       return fetch(EVT_SB + '/rest/v1/site_events', { method: 'POST', headers: Object.assign({}, EVT_H(), { Prefer: 'return=minimal' }), body: JSON.stringify(payload) });
      })
      .catch(function () { alert('Could not save events to the website. Check your connection and try again.'); });
  }
@@ -3249,7 +3273,7 @@
  /* ── Blog ── */
  /* ── Supabase sync ── */
  var _SB='https://nkabuhbkuzcxajzrlenj.supabase.co',_SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
- function _sbH(){return{'Content-Type':'application/json','apikey':_SK,'Authorization':'Bearer '+_SK};}
+ function _sbH(){return{'Content-Type':'application/json','apikey':_SK,'Authorization':'Bearer '+(window._authToken||_SK)};}
  function sbSync(p){
    if(!p||!p.title)return;
    var body={title:p.title,slug:p.slug||(p.title.toLowerCase().replace(/[^a-z0-9]+/g,'-')),category:p.category||'',status:p.status||'Draft',date:p.date||null,image:p.image||null,views:p.views||0,tags:p.tags||[]};
@@ -3306,7 +3330,7 @@
       if(typeof renderPosts==='function') renderPosts();
     }).catch(function(){});
  }
- blogLoadFromSB();
+ window._whenAuthed(blogLoadFromSB);
 
  function blogUpdateStats() {
    var posts = getPosts();
@@ -4001,7 +4025,7 @@
      var w = Math.max(1, Math.round((img.width||maxW) * scale)), h = Math.max(1, Math.round((img.height||maxW) * scale));
      var cv = document.createElement('canvas'); cv.width = w; cv.height = h; cv.getContext('2d').drawImage(img, 0, 0, w, h);
      var dataUrl = cv.toDataURL('image/jpeg', 0.85);
-     fetch('/api/cs-upload?t=' + Date.now(), { method:'POST', cache:'no-store', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ data: dataUrl, type:'image/jpeg', ext:'jpg' }) })
+     fetch('/api/cs-upload?t=' + Date.now(), { method:'POST', cache:'no-store', headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+(window._authToken||'') }, body: JSON.stringify({ data: dataUrl, type:'image/jpeg', ext:'jpg' }) })
        .then(function(r){ if(!r.ok){ return r.text().then(function(t){ throw new Error('HTTP '+r.status); }); } return r.json(); })
        .then(function(d){ if(!d || !d.url) throw new Error('no url'); try{URL.revokeObjectURL(objUrl);}catch(x){} if(typeof csToast==='function') csToast('Image uploaded ✓'); onUrl(d.url); })
        .catch(function(){ try{URL.revokeObjectURL(objUrl);}catch(x){} alert('Image upload failed. Please try again.'); if(onFail)onFail(); });
@@ -4918,7 +4942,7 @@ Respond ONLY with valid JSON array, no other text:
  // ===================== CASE STUDIES (Supabase — separate table, no localStorage) =====================
  var CS_SB = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
  var CS_SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
- function _csH(){ return { 'Content-Type':'application/json', 'apikey':CS_SK, 'Authorization':'Bearer '+CS_SK }; }
+ function _csH(){ return { 'Content-Type':'application/json', 'apikey':CS_SK, 'Authorization':'Bearer '+(window._authToken||CS_SK) }; }
  var csData = [];
  var csEditingId = null;
 
@@ -5035,7 +5059,7 @@ Respond ONLY with valid JSON array, no other text:
     var dataUrl = canvas.toDataURL('image/jpeg', 0.82);
     try{URL.revokeObjectURL(objUrl);}catch(e){}
     showCsImgPreview(previewId, dataUrl);
-    fetch('/api/cs-upload?t='+Date.now(), { method:'POST', cache:'no-store', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ data: dataUrl, type:'image/jpeg', ext:'jpg' }) })
+    fetch('/api/cs-upload?t='+Date.now(), { method:'POST', cache:'no-store', headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+(window._authToken||'') }, body: JSON.stringify({ data: dataUrl, type:'image/jpeg', ext:'jpg' }) })
      .then(function(r){ if(!r.ok){ return r.text().then(function(t){ throw new Error('HTTP '+r.status+(t?(' — '+t.slice(0,160)):'')); }); } return r.json(); })
      .then(function(d){ if(!d || !d.url) throw new Error('no url returned'); if(u){ u.value = d.url; u.removeAttribute('data-uploading'); u.placeholder=''; } if(typeof csToast==='function') csToast('Image uploaded ✓'); })
      .catch(function(err){ if(u){ u.removeAttribute('data-uploading'); u.placeholder='Upload failed — try again'; } alert('Image upload failed: ' + ((err&&err.message)||'network/blocked')); });
@@ -5108,11 +5132,11 @@ Respond ONLY with valid JSON array, no other text:
    .catch(function(e){ alert(e.message); });
  }
 
- csLoad();
+ window._whenAuthed(csLoad);
 
  // ===================== TEAM (Supabase — separate table, no localStorage) =====================
  var TM_SB = CS_SB, TM_SK = CS_SK;
- function _tmH(){ return { 'Content-Type':'application/json', 'apikey':TM_SK, 'Authorization':'Bearer '+TM_SK }; }
+ function _tmH(){ return { 'Content-Type':'application/json', 'apikey':TM_SK, 'Authorization':'Bearer '+(window._authToken||TM_SK) }; }
  var teamData = [];
  var tmEditingId = null;
 
@@ -5184,10 +5208,10 @@ Respond ONLY with valid JSON array, no other text:
    .catch(function(e){ alert(e.message); });
  }
 
- teamLoad();
+ window._whenAuthed(teamLoad);
 
  // ===================== CHAT WIDGET SETTINGS (Supabase) =====================
- function _cwH(){ return { 'Content-Type':'application/json', 'apikey':CS_SK, 'Authorization':'Bearer '+CS_SK }; }
+ function _cwH(){ return { 'Content-Type':'application/json', 'apikey':CS_SK, 'Authorization':'Bearer '+(window._authToken||CS_SK) }; }
  function cwcfgRender(enabled){
   var cb=document.getElementById('cwcfg-toggle'), st=document.getElementById('cwcfg-status'), tr=document.getElementById('cwcfg-track'), kn=document.getElementById('cwcfg-knob');
   if(!cb) return;
@@ -5210,7 +5234,7 @@ Respond ONLY with valid JSON array, no other text:
    .then(function(r){ if(!r.ok) throw new Error('save failed'); csToast(val?'Chat widget turned ON':'Chat widget turned OFF'); })
    .catch(function(e){ alert('Could not save: '+e.message); cwcfgLoad(); });
  }
- cwcfgLoad();
+ window._whenAuthed(cwcfgLoad);
 
  /* ===== EMAIL (EDM) ===== */
  var _edmCur = null, _edmSecs = [];

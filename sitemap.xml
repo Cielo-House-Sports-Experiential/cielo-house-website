@@ -35,11 +35,6 @@
 
   <!-- Services -->
   <url>
-    <loc>https://www.cielohouse.com.au/services/experiential-activations.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
     <loc>https://www.cielohouse.com.au/services/corporate-hospitality.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
@@ -83,11 +78,6 @@
   </url>
 
   <!-- Blog Posts -->
-  <url>
-    <loc>https://www.cielohouse.com.au/blog/ai-and-experiential-marketing-trends-defining-2026</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.7</priority>
-  </url>
   <url>
     <loc>https://www.cielohouse.com.au/blog/experiential-marketing-how-to-create-and-measure-real-brand-impact</loc>
     <changefreq>yearly</changefreq>

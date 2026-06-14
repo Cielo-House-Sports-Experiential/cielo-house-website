@@ -10,6 +10,22 @@ from http.server import BaseHTTPRequestHandler
 
 ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
 
+# Public concierge endpoint: lock it to requests coming from the Cielo House site
+# so it can't be called from anywhere to burn through the paid Anthropic key.
+ALLOWED_ORIGINS = {
+    'https://www.cielohouse.com.au',
+    'https://cielohouse.com.au',
+}
+
+
+def _origin_ok(headers):
+    origin = (headers.get('Origin') or '').rstrip('/')
+    if origin:
+        return origin in ALLOWED_ORIGINS
+    # Some browsers omit Origin on same-origin POSTs; fall back to Referer host.
+    ref = headers.get('Referer') or ''
+    return any(ref.startswith(o) for o in ALLOWED_ORIGINS)
+
 SYSTEM_PROMPT = """You are the Cielo House AI concierge — a warm, knowledgeable, and polished assistant for Cielo House, Australia's premier sports event activation and premium hospitality agency.
 
 Your role is to answer enquiries from potential clients in a professional, engaging, and concise way. You represent the Cielo House brand: premium, founder-led, and built for sport.
@@ -63,6 +79,13 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_POST(self):
+        if not _origin_ok(self.headers):
+            self.send_response(403)
+            self._cors()
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({'error': 'forbidden'}).encode())
+            return
         try:
             length = int(self.headers.get('Content-Length', 0))
             body = json.loads(self.rfile.read(length))
@@ -114,7 +137,9 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({'error': str(e)}).encode())
 
     def _cors(self):
-        self.send_header('Access-Control-Allow-Origin', '*')
+        origin = (self.headers.get('Origin') or '').rstrip('/')
+        allow = origin if origin in ALLOWED_ORIGINS else 'https://www.cielohouse.com.au'
+        self.send_header('Access-Control-Allow-Origin', allow)
         self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
 
