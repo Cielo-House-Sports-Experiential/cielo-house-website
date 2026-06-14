@@ -6,9 +6,29 @@ POST /api/chat
 
 import os
 import json
+import urllib.request
 from http.server import BaseHTTPRequestHandler
 
 ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
+
+# Supabase (public anon read) to load the admin-edited bot knowledge.
+SUPABASE_URL = os.environ.get('SUPABASE_URL', 'https://nkabuhbkuzcxajzrlenj.supabase.co')
+SUPABASE_ANON = os.environ.get('SUPABASE_ANON_KEY', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo')
+
+
+def get_stored_prompt():
+    """The admin-edited built-in knowledge from Supabase, or '' if none set."""
+    try:
+        req = urllib.request.Request(
+            SUPABASE_URL + '/rest/v1/chat_knowledge?id=eq.main&select=system_prompt',
+            headers={'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON})
+        with urllib.request.urlopen(req, timeout=5) as r:
+            rows = json.loads(r.read().decode())
+        if rows and (rows[0].get('system_prompt') or '').strip():
+            return rows[0]['system_prompt']
+    except Exception:
+        pass
+    return ''
 
 # Public concierge endpoint: lock it to requests coming from the Cielo House site
 # so it can't be called from anywhere to burn through the paid Anthropic key.
@@ -88,7 +108,8 @@ class handler(BaseHTTPRequestHandler):
         self._cors()
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
-        self.wfile.write(json.dumps({'system': SYSTEM_PROMPT, 'model': 'claude-opus-4-5', 'max_tokens': 400}).encode())
+        effective = get_stored_prompt() or SYSTEM_PROMPT
+        self.wfile.write(json.dumps({'system': effective, 'is_custom': bool(get_stored_prompt()), 'model': 'claude-opus-4-5', 'max_tokens': 400}).encode())
 
     def do_POST(self):
         if not _origin_ok(self.headers):
@@ -107,7 +128,8 @@ class handler(BaseHTTPRequestHandler):
                 raise ValueError('No messages')
 
             import anthropic
-            system = SYSTEM_PROMPT
+            # Use the admin-edited built-in knowledge if set, else the default.
+            system = get_stored_prompt() or SYSTEM_PROMPT
 
             knowledge = body.get('knowledge')
             if knowledge and isinstance(knowledge, dict):
@@ -124,7 +146,7 @@ class handler(BaseHTTPRequestHandler):
                 if knowledge.get('extra'):
                     additions.append('ADDITIONAL CONTEXT:\n' + knowledge['extra'])
                 if additions:
-                    system = SYSTEM_PROMPT + '\n\n' + '\n\n'.join(additions)
+                    system = system + '\n\n' + '\n\n'.join(additions)
 
             client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
             response = client.messages.create(
