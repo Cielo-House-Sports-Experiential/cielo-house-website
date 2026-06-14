@@ -2143,6 +2143,27 @@
  }
 
  // ── PERMANENT REFRESH: uses stored refresh_token via fetch — zero popups ──
+ // Call a Google API through our server proxy (browser CORS is blocked for the
+ // Analytics/Search Console APIs). Returns a fetch-like object so callers don't
+ // change: { ok, status, json() }.
+ async function gapiFetch(url, opts) {
+   opts = opts || {};
+   var token = '';
+   try { if (opts.headers && opts.headers.Authorization) token = String(opts.headers.Authorization).replace('Bearer ', ''); } catch (e) {}
+   var bodyObj = null;
+   try { bodyObj = opts.body ? JSON.parse(opts.body) : null; } catch (e) { bodyObj = null; }
+   var resp = await fetch('/api/google-proxy', {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json' },
+     body: JSON.stringify({ token: token, url: url, method: opts.method || 'GET', body: bodyObj })
+   });
+   var d = {};
+   try { d = await resp.json(); } catch (e) { d = {}; }
+   var status = (d && typeof d.status === 'number') ? d.status : resp.status;
+   var payload = (d && 'body' in d) ? d.body : d;
+   return { ok: status >= 200 && status < 300, status: status, json: function () { return Promise.resolve(payload); } };
+ }
+
  async function refreshAccessToken() {
    var rt  = localStorage.getItem('ch_ga_refresh_token');
    var cid = localStorage.getItem('ch_google_client_id');
@@ -2301,7 +2322,7 @@
 
  // ── GA4 Realtime: active users + page views last 30 min ──────────────────
  async function fetchGA4Realtime(token, propId) {
-   var r = await fetch('https://analyticsdata.googleapis.com/v1beta/properties/' + propId + ':runRealtimeReport', {
+   var r = await gapiFetch('https://analyticsdata.googleapis.com/v1beta/properties/' + propId + ':runRealtimeReport', {
      method: 'POST',
      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
      body: JSON.stringify({
@@ -2316,7 +2337,7 @@
  }
 
  async function fetchGA4PageViews28d(token, propId) {
-   var r = await fetch('https://analyticsdata.googleapis.com/v1beta/properties/' + propId + ':runReport', {
+   var r = await gapiFetch('https://analyticsdata.googleapis.com/v1beta/properties/' + propId + ':runReport', {
      method: 'POST',
      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
      body: JSON.stringify({
@@ -2521,7 +2542,7 @@
  }
 
  async function fetchGA4Properties(token) {
-   var r = await fetch('https://analyticsadmin.googleapis.com/v1beta/accountSummaries', {
+   var r = await gapiFetch('https://analyticsadmin.googleapis.com/v1beta/accountSummaries', {
      headers: { 'Authorization': 'Bearer ' + token }
    });
    var data = await r.json();
@@ -2587,7 +2608,7 @@
  }
 
  async function fetchGA4Report(token, propId) {
-   var r = await fetch('https://analyticsdata.googleapis.com/v1beta/properties/' + propId + ':runReport', {
+   var r = await gapiFetch('https://analyticsdata.googleapis.com/v1beta/properties/' + propId + ':runReport', {
      method: 'POST',
      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
      body: JSON.stringify({
@@ -2608,7 +2629,7 @@
  }
 
  async function fetchGA4Events(token, propId) {
-   var r = await fetch('https://analyticsdata.googleapis.com/v1beta/properties/' + propId + ':runReport', {
+   var r = await gapiFetch('https://analyticsdata.googleapis.com/v1beta/properties/' + propId + ':runReport', {
      method: 'POST',
      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
      body: JSON.stringify({
@@ -2627,14 +2648,14 @@
    var end = new Date(); end.setDate(end.getDate() - 3); // GSC has ~3 day lag
    var start = new Date(end); start.setDate(start.getDate() - 28);
    var fmt = function(d) { return d.toISOString().split('T')[0]; };
-   var r = await fetch('https://www.googleapis.com/webmasters/v3/sites/' + encodeURIComponent('sc-domain:cielohouse.com.au') + '/searchAnalytics/query', {
+   var r = await gapiFetch('https://www.googleapis.com/webmasters/v3/sites/' + encodeURIComponent('sc-domain:cielohouse.com.au') + '/searchAnalytics/query', {
      method: 'POST',
      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
      body: JSON.stringify({ startDate: fmt(start), endDate: fmt(end), dimensions: ['query'], rowLimit: 5 })
    });
    if (!r.ok) {
      // Try with full URL if domain property fails
-     var r2 = await fetch('https://www.googleapis.com/webmasters/v3/sites/' + encodeURIComponent('https://www.cielohouse.com.au/') + '/searchAnalytics/query', {
+     var r2 = await gapiFetch('https://www.googleapis.com/webmasters/v3/sites/' + encodeURIComponent('https://www.cielohouse.com.au/') + '/searchAnalytics/query', {
        method: 'POST',
        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
        body: JSON.stringify({ startDate: fmt(start), endDate: fmt(end), dimensions: ['query'], rowLimit: 5 })
