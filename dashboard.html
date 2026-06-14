@@ -2149,10 +2149,10 @@
    var sec = localStorage.getItem('ch_google_client_secret');
    if (!rt || !cid || !sec) return null;
    try {
-     var r = await fetch('https://oauth2.googleapis.com/token', {
+     var r = await fetch('/api/google-token', {
        method: 'POST',
-       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-       body: new URLSearchParams({ grant_type:'refresh_token', refresh_token:rt, client_id:cid, client_secret:sec })
+       headers: { 'Content-Type': 'application/json' },
+       body: JSON.stringify({ mode:'refresh', refresh_token:rt, client_id:cid, client_secret:sec })
      });
      var d = await r.json();
      if (!d.access_token) {
@@ -2211,10 +2211,10 @@
          }
          try {
            var redirectUri = 'postmessage';
-           var r = await fetch('https://oauth2.googleapis.com/token', {
+           var r = await fetch('/api/google-token', {
              method: 'POST',
-             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-             body: new URLSearchParams({ code: resp.code, client_id: cid, client_secret: sec, redirect_uri: redirectUri, grant_type: 'authorization_code' })
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify({ mode: 'code', code: resp.code, client_id: cid, client_secret: sec, redirect_uri: redirectUri })
            });
            var d = await r.json();
            if (!d.access_token) {
