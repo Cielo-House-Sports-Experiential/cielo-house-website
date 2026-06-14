@@ -680,9 +680,12 @@ window.cieloSubscribe = function (form, source) {
   if (!email) return false;
   var SB = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
   var SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
-  fetch(SB + '/rest/v1/subscribers?on_conflict=email', {
+  // Plain insert (no upsert): the subscriber list is no longer anon-readable, so
+  // the on-conflict upsert path is blocked by RLS. A duplicate email just returns
+  // a harmless 409 that we ignore — the UI still confirms.
+  fetch(SB + '/rest/v1/subscribers', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'apikey': SK, 'Authorization': 'Bearer ' + SK, 'Prefer': 'resolution=ignore-duplicates,return=minimal' },
+    headers: { 'Content-Type': 'application/json', 'apikey': SK, 'Authorization': 'Bearer ' + SK, 'Prefer': 'return=minimal' },
     body: JSON.stringify({ email: email, source: source || 'website' })
   }).catch(function () {});
   if (btn) btn.textContent = 'Subscribed ✓';
