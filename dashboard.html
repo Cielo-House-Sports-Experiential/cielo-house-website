@@ -3311,6 +3311,36 @@
  /* ── Supabase sync ── */
  var _SB='https://nkabuhbkuzcxajzrlenj.supabase.co',_SK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
  function _sbH(){return{'Content-Type':'application/json','apikey':_SK,'Authorization':'Bearer '+(window._authToken||_SK)};}
+
+ // ── Dashboard secrets (AI keys, GitHub token, Google creds) live in Supabase
+ //    now (admin-only), not just localStorage, so they survive a cache clear and
+ //    work across devices. Hydrate localStorage from Supabase on load; mirror
+ //    any new keys back every 30s. ──
+ var _SECRET_KEYS = ['ch_key_openai','ch_key_perplexity','ch_key_gemini','ch_key_github','ch_google_client_id','ch_google_client_secret','ch_ga_refresh_token'];
+ function _hydrateSecrets(){
+   return fetch(_SB + '/rest/v1/dashboard_secrets?id=eq.main&select=vals', { headers: _sbH() })
+     .then(function(r){ return r.ok ? r.json() : []; })
+     .then(function(rows){
+       var vals = (rows && rows[0] && rows[0].vals) || {};
+       Object.keys(vals).forEach(function(k){ if (vals[k]) localStorage.setItem(k, vals[k]); });
+       return vals;
+     }).catch(function(){ return {}; });
+ }
+ function _saveSecrets(){
+   if(!window._authToken) return;
+   var vals = {};
+   _SECRET_KEYS.forEach(function(k){ var v = localStorage.getItem(k); if (v) vals[k] = v; });
+   if(!Object.keys(vals).length) return;
+   fetch(_SB + '/rest/v1/dashboard_secrets?on_conflict=id', { method:'POST', headers: Object.assign({}, _sbH(), { 'Prefer':'resolution=merge-duplicates,return=minimal' }), body: JSON.stringify({ id:'main', vals: vals, updated_at: new Date().toISOString() }) }).catch(function(){});
+ }
+ window._whenAuthed(function(){
+   _hydrateSecrets().then(function(){
+     // Keys are back in localStorage now — refresh analytics + AI features.
+     try { if (typeof loadAnalytics === 'function') loadAnalytics(); } catch(e){}
+     try { if (localStorage.getItem('ch_ga_refresh_token') && typeof syncGoogleData === 'function') syncGoogleData(false); } catch(e){}
+   });
+   setInterval(_saveSecrets, 30000);
+ });
  function sbSync(p){
    if(!p||!p.title)return;
    var body={title:p.title,slug:p.slug||(p.title.toLowerCase().replace(/[^a-z0-9]+/g,'-')),category:p.category||'',status:p.status||'Draft',date:p.date||null,image:p.image||null,views:p.views||0,tags:p.tags||[]};
