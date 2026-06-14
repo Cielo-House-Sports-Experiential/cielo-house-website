@@ -1762,12 +1762,15 @@
  function closeModal() { document.getElementById('stats-modal').style.display = 'none'; }
 
  // ===================== AI API KEYS =====================
+ function _fillKeyFields() {
+   var s = function(id, k){ var el = document.getElementById(id); if (el) el.value = localStorage.getItem(k) || ''; };
+   s('key-openai','ch_key_openai'); s('key-perplexity','ch_key_perplexity'); s('key-gemini','ch_key_gemini'); s('key-github','ch_key_github');
+ }
  function openAiKeys() {
-   document.getElementById('key-openai').value      = localStorage.getItem('ch_key_openai') || '';
-   document.getElementById('key-perplexity').value  = localStorage.getItem('ch_key_perplexity') || '';
-   document.getElementById('key-gemini').value      = localStorage.getItem('ch_key_gemini') || '';
-   document.getElementById('key-github').value      = localStorage.getItem('ch_key_github') || '';
    document.getElementById('ai-keys-modal').style.display = 'block';
+   _fillKeyFields(); // show whatever's local immediately…
+   // …then always refresh from Supabase (the real store) so they're never missing.
+   if (typeof _hydrateSecrets === 'function') { _hydrateSecrets().then(_fillKeyFields); }
  }
  function closeAiKeys() { document.getElementById('ai-keys-modal').style.display = 'none'; }
  function saveAiKeys() {
@@ -1779,6 +1782,7 @@
    if (pk) localStorage.setItem('ch_key_perplexity', pk);
    if (gk) localStorage.setItem('ch_key_gemini', gk);
    if (gh) localStorage.setItem('ch_key_github', gh);
+   if (typeof _saveSecrets === 'function') _saveSecrets();
    closeAiKeys();
    runAiChecks(true);
  }
