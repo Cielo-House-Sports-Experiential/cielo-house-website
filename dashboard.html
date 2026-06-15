@@ -470,12 +470,12 @@
        <div style="font-size:0.68rem;color:#aaa;">queries with mention</div>
      </div>
      <div style="background:#fafbff;border:1px solid #eef0f8;border-radius:8px;padding:0.65rem 0.85rem;text-align:center;">
-       <div style="font-size:0.72rem;font-weight:700;color:#888;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:0.2rem;">ChatGPT <span style="color:#c8a04a;font-weight:600;">Key needed</span></div>
+       <div style="font-size:0.72rem;font-weight:700;color:#888;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:0.2rem;">ChatGPT <span id="cgpt-key-status" style="color:#c8a04a;font-weight:600;">Key needed</span></div>
        <div style="font-size:1.5rem;font-weight:700;color:#2B317B;" id="cgpt-score-summary">--</div>
        <div style="font-size:0.68rem;color:#aaa;">queries with mention</div>
      </div>
      <div style="background:#fafbff;border:1px solid #eef0f8;border-radius:8px;padding:0.65rem 0.85rem;text-align:center;">
-       <div style="font-size:0.72rem;font-weight:700;color:#888;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:0.2rem;">Perplexity <span style="color:#c8a04a;font-weight:600;">Key needed</span></div>
+       <div style="font-size:0.72rem;font-weight:700;color:#888;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:0.2rem;">Perplexity <span id="plex-key-status" style="color:#c8a04a;font-weight:600;">Key needed</span></div>
        <div style="font-size:1.5rem;font-weight:700;color:#2B317B;" id="plex-score-summary">--</div>
        <div style="font-size:0.68rem;color:#aaa;">queries with mention</div>
      </div>
@@ -2759,6 +2759,12 @@
    if (gemSumEl) gemSumEl.textContent = gemR.length ? gemMentions + '/' + gemR.length : '--';
    if (cgptSumEl) cgptSumEl.textContent = cgptR.length ? cgptMentions + '/' + cgptR.length : '--';
    if (plexSumEl) plexSumEl.textContent = plexR.length ? plexMentions + '/' + plexR.length : '--';
+   // Reflect whether the keys are actually present (the label was hardcoded to
+   // "Key needed" and never cleared, which made the keys look gone).
+   var cgptKeyEl = document.getElementById('cgpt-key-status');
+   if (cgptKeyEl) { var hasOk = !!localStorage.getItem('ch_key_openai'); cgptKeyEl.textContent = hasOk ? 'Connected' : 'Key needed'; cgptKeyEl.style.color = hasOk ? '#27ae60' : '#c8a04a'; }
+   var plexKeyEl = document.getElementById('plex-key-status');
+   if (plexKeyEl) { var hasPk = !!localStorage.getItem('ch_key_perplexity'); plexKeyEl.textContent = hasPk ? 'Connected' : 'Key needed'; plexKeyEl.style.color = hasPk ? '#27ae60' : '#c8a04a'; }
 
    // Render query results table
    var resultsEl = document.getElementById('ai-query-results');
