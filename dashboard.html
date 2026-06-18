@@ -3707,12 +3707,10 @@
        document.getElementById('blog-edit-id').value = i;
        document.getElementById('blog-title').value = p.title || '';
        document.getElementById('blog-category').value = p.category || 'Events';
-       // Pre-fill the publish time: from scheduledAt if set, else (for an
-       // already-published post) from its date so re-saving keeps it live.
+       // Pre-fill the publish date+time from the post's saved schedule so it is
+       // always visible on edit and never lost on re-save.
        var _se = document.getElementById('blog-schedule-at');
-       if (p.scheduledAt) { _se.value = _toLocalDT(p.scheduledAt); }
-       else if (p.status === 'Published' && p.date) { _se.value = _toLocalDT(p.date + 'T09:00'); }
-       else { _se.value = ''; }
+       _se.value = p.scheduledAt ? _toLocalDT(p.scheduledAt) : '';
        document.getElementById('blog-date').value = p.date || '';
        document.getElementById('blog-excerpt').value = p.excerpt || '';
        document.getElementById('blog-content').innerHTML = p.content || '';
@@ -3755,7 +3753,8 @@
  // (local time, 'YYYY-MM-DDTHH:mm').
  function _toLocalDT(iso){
    if(!iso) return '';
-   var d = new Date(iso);
+   // Handle both ISO ("...T..Z"/"+00:00") and the space form ("YYYY-MM-DD HH:MM:SS+00").
+   var d = new Date(String(iso).trim().replace(' ', 'T'));
    if(isNaN(d.getTime())) return '';
    return new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,16);
  }
@@ -3769,18 +3768,27 @@
    var tagsArr = rawTags ? rawTags.split(',').map(function(t){ return t.trim(); }).filter(Boolean) : [];
    var slugVal = document.getElementById('blog-slug').value.trim() || blogMakeSlug(title);
 
-   // PUBLISH RULE: Save never publishes on its own.
-   //  - no publish time  -> Draft (saved, NOT live)
-   //  - future time      -> Scheduled (goes live automatically at that time)
-   //  - now / past time  -> Published (you deliberately chose to go live now)
+   // PUBLISH RULE:
+   //  - future publish time  -> Scheduled (auto-publishes at that time)
+   //  - now / past time       -> Published
+   //  - field left as-is/blank on an existing post -> KEEP its current schedule
+   //    and status. A set schedule is never reset unless the time is changed,
+   //    and editing a live post never unpublishes it.
+   var existing = (editId !== '') ? posts[parseInt(editId)] : null;
    var schedRaw = document.getElementById('blog-schedule-at').value;
-   var scheduledIso = null, newStatus = 'Draft';
+   var scheduledIso = null, newStatus = null;
    if (schedRaw) {
      var sd = new Date(schedRaw);
      if (!isNaN(sd.getTime())) {
        scheduledIso = sd.toISOString();
        newStatus = sd.getTime() > Date.now() ? 'Scheduled' : 'Published';
      }
+   }
+   if (newStatus === null) {
+     // No valid publish time in the field: preserve whatever the post already had.
+     if (existing && existing.scheduledAt) { scheduledIso = existing.scheduledAt; newStatus = existing.status || 'Scheduled'; }
+     else if (existing && existing.status) { newStatus = existing.status; }
+     else { newStatus = 'Draft'; }
    }
    var articleDate = document.getElementById('blog-date').value || (scheduledIso ? scheduledIso.slice(0,10) : '');
 
