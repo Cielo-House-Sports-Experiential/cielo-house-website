@@ -44,6 +44,23 @@
        go();
      }
    }).catch(function () { go(); });
+
+   /* KEEP THE TOKEN FRESH FOR EVERY WRITE. Access tokens expire after ~1 hour;
+      a stale token makes EVERY save in the dashboard (blog, events, secrets,
+      content studio) silently fail RLS and look like it "didn't save". Browsers
+      throttle background timers, so we refresh on a timer AND every time the tab
+      regains focus / becomes visible - i.e. right before someone clicks Save. */
+   function _refreshTok() {
+     try {
+       _sb.auth.getSession().then(function (res) {
+         var s = res && res.data && res.data.session;
+         if (s && s.access_token) { _setTok(s.access_token); }
+       }).catch(function () {});
+     } catch (e) {}
+   }
+   setInterval(_refreshTok, 4 * 60 * 1000);
+   window.addEventListener('focus', _refreshTok);
+   document.addEventListener('visibilitychange', function () { if (!document.hidden) _refreshTok(); });
  })();
  </script>
  <script>
@@ -3354,8 +3371,17 @@
    });
    setInterval(_saveSecrets, 30000);
  });
- function sbSync(p){
-   if(!p||!p.title)return;
+ // Returns true ONLY when the post is confirmed saved in Supabase. Any failure
+ // is surfaced loudly (never silent) and returns false, so a post can never look
+ // saved while actually being lost.
+ async function sbSync(p){
+   if(!p||!p.title)return false;
+   // Always use a FRESH access token. Tokens expire after ~1 hour; a stale one
+   // makes the write silently fail RLS, which is what made saved posts vanish.
+   // getSession() refreshes it if needed.
+   var token = window._authToken;
+   try { if(window._sbAuth){ var s = await window._sbAuth.auth.getSession(); if(s && s.data && s.data.session && s.data.session.access_token){ token = s.data.session.access_token; window._authToken = token; } } } catch(e){}
+   if(!token){ alert('You are signed out, so the post could NOT be saved to the website. Refresh the page and log in again, then click Save - your text is still here.'); return false; }
    var body={title:p.title,slug:p.slug||(p.title.toLowerCase().replace(/[^a-z0-9]+/g,'-')),category:p.category||'',status:p.status||'Draft',date:p.date||null,image:p.image||null,views:p.views||0,tags:p.tags||[]};
    // SAFETY: only write content/meta/excerpt when they actually have a value.
    // Omitting an empty field means the upsert keeps the existing Supabase value,
@@ -3365,17 +3391,33 @@
    if(p.seoTitle && String(p.seoTitle).trim()) body.seo_title = p.seoTitle;
    if(p.seoDesc && String(p.seoDesc).trim()) body.meta_description = p.seoDesc;
    if(p.focusKeyword && String(p.focusKeyword).trim()) body.focus_keyword = p.focusKeyword;
-   fetch(_SB+'/rest/v1/blog_posts?on_conflict=slug',{method:'POST',headers:Object.assign({},_sbH(),{'Prefer':'resolution=merge-duplicates,return=representation'}),body:JSON.stringify(body)})
-     .then(function(r){return r.json();})
-     .then(function(d){
-       if(Array.isArray(d)&&d[0]&&d[0].id){
-         var posts=getPosts();posts.forEach(function(q){if(q.slug===d[0].slug)q.sbId=d[0].id;});savePosts(posts);
-         // Read-back verify: if we sent content but the row came back empty, warn loudly.
-         if(body.content && (!d[0].content || !String(d[0].content).trim())){
-           alert('Warning: this post did not save its content. Nothing was overwritten — try saving again.');
-         }
+   try {
+     var r = await fetch(_SB+'/rest/v1/blog_posts?on_conflict=slug',{method:'POST',headers:{'Content-Type':'application/json','apikey':_SK,'Authorization':'Bearer '+token,'Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify(body)});
+     if(!r.ok){
+       var errText = ''; try { errText = await r.text(); } catch(e){}
+       if(r.status===401||r.status===403){
+         alert('The post did NOT save - your login has expired. Refresh the page and log in again, then click Save. Your text is still here.');
+       } else {
+         alert('The post did NOT save (error '+r.status+'). Your text is still here - try Save again.\n\n'+errText.slice(0,200));
        }
-     }).catch(function(){ alert('Could not save to the website. Check your connection and save again — your work is still here.'); });
+       return false;
+     }
+     var d = await r.json();
+     if(Array.isArray(d)&&d[0]&&d[0].id){
+       var posts=getPosts();posts.forEach(function(q){if(q.slug===d[0].slug)q.sbId=d[0].id;});savePosts(posts);
+       // Read-back verify: if we sent content but the row came back empty, warn loudly.
+       if(body.content && (!d[0].content || !String(d[0].content).trim())){
+         alert('Warning: this post did not save its content. Nothing was overwritten - try saving again.');
+         return false;
+       }
+       return true;
+     }
+     alert('The post did not save as expected. Your text is still here - try Save again.');
+     return false;
+   } catch(e){
+     alert('Could not reach the website to save (connection). Your text is still here - try Save again.');
+     return false;
+   }
  }
  function sbDel(slug){
    if(!slug)return;
@@ -3400,13 +3442,21 @@
    return fetch(_SB+'/rest/v1/blog_posts?select=*&order=date.desc',{headers:_sbH()})
     .then(function(r){return r.ok?r.json():null;})
     .then(function(rows){
-      if(!rows||!rows.length)return;
+      // null = the pull failed (auth/network). Do NOT touch local storage - the
+      // old code wiped good posts here.
+      if(!rows)return;
       var posts=rows.map(function(r){return {
         title:r.title||'', slug:r.slug||'', category:r.category||'', status:r.status||'Published',
         date:r.date||'', excerpt:r.excerpt||'', image:r.image||'', content:r.content||'',
         views:r.views||0, sbId:r.id, seoTitle:r.seo_title||'', seoDesc:r.meta_description||'', focusKeyword:r.focus_keyword||'', tags:Array.isArray(r.tags)?r.tags:[]
       };});
-      savePosts(posts);
+      // PROTECT UNSAVED WORK: keep any local draft that never made it to Supabase
+      // (no sbId and its slug isn't in Supabase) so a failed save is never wiped
+      // by this reload. A post that HAS an sbId but is missing from Supabase was
+      // deleted elsewhere - do not resurrect it.
+      var sbSlugs={}; posts.forEach(function(p){ sbSlugs[p.slug]=1; });
+      var unsynced=getPosts().filter(function(p){ return p && !p.sbId && p.slug && !sbSlugs[p.slug]; });
+      savePosts(unsynced.concat(posts));
       if(typeof renderPosts==='function') renderPosts();
     }).catch(function(){});
  }
@@ -3668,7 +3718,7 @@
    updateBulkBar();
  }
 
- function blogSave() {
+ async function blogSave() {
    var title = document.getElementById('blog-title').value.trim();
    if (!title) { alert('Please enter a title.'); return; }
    var posts = getPosts();
@@ -3702,7 +3752,12 @@
      }
    }
    if (editId !== '') { posts[parseInt(editId)] = post; } else { posts.unshift(post); }
-   savePosts(posts); renderPosts(); sbSync(post);
+   savePosts(posts); renderPosts();
+   var saved = await sbSync(post);
+   // Only clear the form + show "Saved" once the post is CONFIRMED in Supabase.
+   // On failure sbSync has already explained why; keep the form populated so
+   // nothing is lost and she can hit Save again.
+   if (!saved) return;
    blogCancel();
    var msg = document.getElementById('blog-success'); msg.style.display = 'inline-block';
    setTimeout(function() { msg.style.display = 'none'; }, 2500);
