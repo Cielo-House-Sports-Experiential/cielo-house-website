@@ -678,18 +678,15 @@
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Status</label>
-          <select class="form-select" id="blog-status">
-            <option value="Published">Published</option>
-            <option value="Scheduled">Scheduled</option>
-            <option value="Draft">Draft</option>
-          </select>
+          <label class="form-label">Publish date &amp; time <span style="font-weight:400;color:#aaa;">(leave blank = save as draft)</span></label>
+          <input class="form-input" type="datetime-local" id="blog-schedule-at" />
         </div>
         <div class="form-group">
-          <label class="form-label">Date</label>
+          <label class="form-label">Article date <span style="font-weight:400;color:#aaa;">(shown on the post)</span></label>
           <input class="form-input" type="date" id="blog-date" />
         </div>
       </div>
+      <p style="font-size:0.78rem;color:#888;margin:-0.4rem 0 0.6rem;line-height:1.5;">Save never puts a post live. Leave the publish time blank to keep it as a draft, or set a date and time and it goes live by itself at that moment. Set a time in the past to publish now.</p>
 
       <div class="form-group">
         <label class="form-label">Excerpt</label>
@@ -3382,7 +3379,7 @@
    var token = window._authToken;
    try { if(window._sbAuth){ var s = await window._sbAuth.auth.getSession(); if(s && s.data && s.data.session && s.data.session.access_token){ token = s.data.session.access_token; window._authToken = token; } } } catch(e){}
    if(!token){ alert('You are signed out, so the post could NOT be saved to the website. Refresh the page and log in again, then click Save - your text is still here.'); return false; }
-   var body={title:p.title,slug:p.slug||(p.title.toLowerCase().replace(/[^a-z0-9]+/g,'-')),category:p.category||'',status:p.status||'Draft',date:p.date||null,image:p.image||null,views:p.views||0,tags:p.tags||[]};
+   var body={title:p.title,slug:p.slug||(p.title.toLowerCase().replace(/[^a-z0-9]+/g,'-')),category:p.category||'',status:p.status||'Draft',scheduled_at:p.scheduledAt||null,date:p.date||null,image:p.image||null,views:p.views||0,tags:p.tags||[]};
    // SAFETY: only write content/meta/excerpt when they actually have a value.
    // Omitting an empty field means the upsert keeps the existing Supabase value,
    // so a save can never blank content/meta that's already there.
@@ -3448,7 +3445,8 @@
       var posts=rows.map(function(r){return {
         title:r.title||'', slug:r.slug||'', category:r.category||'', status:r.status||'Published',
         date:r.date||'', excerpt:r.excerpt||'', image:r.image||'', content:r.content||'',
-        views:r.views||0, sbId:r.id, seoTitle:r.seo_title||'', seoDesc:r.meta_description||'', focusKeyword:r.focus_keyword||'', tags:Array.isArray(r.tags)?r.tags:[]
+        views:r.views||0, sbId:r.id, seoTitle:r.seo_title||'', seoDesc:r.meta_description||'', focusKeyword:r.focus_keyword||'', tags:Array.isArray(r.tags)?r.tags:[],
+        scheduledAt:r.scheduled_at||null
       };});
       // PROTECT UNSAVED WORK: keep any local draft that never made it to Supabase
       // (no sbId and its slug isn't in Supabase) so a failed save is never wiped
@@ -3679,7 +3677,12 @@
        document.getElementById('blog-edit-id').value = i;
        document.getElementById('blog-title').value = p.title || '';
        document.getElementById('blog-category').value = p.category || 'Events';
-       document.getElementById('blog-status').value = p.status || 'Published';
+       // Pre-fill the publish time: from scheduledAt if set, else (for an
+       // already-published post) from its date so re-saving keeps it live.
+       var _se = document.getElementById('blog-schedule-at');
+       if (p.scheduledAt) { _se.value = _toLocalDT(p.scheduledAt); }
+       else if (p.status === 'Published' && p.date) { _se.value = _toLocalDT(p.date + 'T09:00'); }
+       else { _se.value = ''; }
        document.getElementById('blog-date').value = p.date || '';
        document.getElementById('blog-excerpt').value = p.excerpt || '';
        document.getElementById('blog-content').innerHTML = p.content || '';
@@ -3718,20 +3721,45 @@
    updateBulkBar();
  }
 
+ // Convert an ISO/UTC timestamp to a <input type="datetime-local"> value
+ // (local time, 'YYYY-MM-DDTHH:mm').
+ function _toLocalDT(iso){
+   if(!iso) return '';
+   var d = new Date(iso);
+   if(isNaN(d.getTime())) return '';
+   return new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+ }
+
  async function blogSave() {
    var title = document.getElementById('blog-title').value.trim();
    if (!title) { alert('Please enter a title.'); return; }
    var posts = getPosts();
    var editId = document.getElementById('blog-edit-id').value;
-   var newStatus = document.getElementById('blog-status').value;
    var rawTags = document.getElementById('blog-tags').value;
    var tagsArr = rawTags ? rawTags.split(',').map(function(t){ return t.trim(); }).filter(Boolean) : [];
    var slugVal = document.getElementById('blog-slug').value.trim() || blogMakeSlug(title);
+
+   // PUBLISH RULE: Save never publishes on its own.
+   //  - no publish time  -> Draft (saved, NOT live)
+   //  - future time      -> Scheduled (goes live automatically at that time)
+   //  - now / past time  -> Published (you deliberately chose to go live now)
+   var schedRaw = document.getElementById('blog-schedule-at').value;
+   var scheduledIso = null, newStatus = 'Draft';
+   if (schedRaw) {
+     var sd = new Date(schedRaw);
+     if (!isNaN(sd.getTime())) {
+       scheduledIso = sd.toISOString();
+       newStatus = sd.getTime() > Date.now() ? 'Scheduled' : 'Published';
+     }
+   }
+   var articleDate = document.getElementById('blog-date').value || (scheduledIso ? scheduledIso.slice(0,10) : '');
+
    var post = {
      title:        title,
      category:     document.getElementById('blog-category').value,
      status:       newStatus,
-     date:         document.getElementById('blog-date').value,
+     scheduledAt:  scheduledIso,
+     date:         articleDate,
      excerpt:      document.getElementById('blog-excerpt').value.trim(),
      content:      document.getElementById('blog-content').innerHTML,
      image:        document.getElementById('blog-image').value,
@@ -3744,13 +3772,6 @@
      tags:         tagsArr,
      ogTitle:      document.getElementById('blog-og-title').value.trim()
    };
-   // Preserve scheduledAt if still Scheduled; carry it if editing
-   if (editId !== '') {
-     var existing = posts[parseInt(editId)];
-     if (newStatus === 'Scheduled' && existing && existing.scheduledAt) {
-       post.scheduledAt = existing.scheduledAt;
-     }
-   }
    if (editId !== '') { posts[parseInt(editId)] = post; } else { posts.unshift(post); }
    savePosts(posts); renderPosts();
    var saved = await sbSync(post);
@@ -3766,6 +3787,8 @@
  function blogCancel() {
    document.getElementById('blog-edit-id').value = '';
    document.getElementById('blog-title').value = '';
+   var _se = document.getElementById('blog-schedule-at'); if (_se) _se.value = '';
+   document.getElementById('blog-date').value = '';
    document.getElementById('blog-excerpt').value = '';
    document.getElementById('blog-content').innerHTML = '<p>Start writing your post here...</p>';
    document.getElementById('blog-image').value = '';
