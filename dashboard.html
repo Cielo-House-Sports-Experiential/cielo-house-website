@@ -3368,6 +3368,35 @@
    });
    setInterval(_saveSecrets, 30000);
  });
+
+ /* Mirror the remaining browser-only JSON blobs (FAQs, blog stats, dashboard
+    stats) to Supabase so NOTHING is local-only. Hydrate from Supabase on login,
+    then push on a timer and whenever the tab is left/closed. */
+ var _KV_KEYS = ['ch_faqs','ch_blog_perf','ch_stats'];
+ function _kvPushAll(){
+   if(!window._authToken) return;
+   _KV_KEYS.forEach(function(k){
+     var raw = localStorage.getItem(k); if(raw==null) return;
+     var v; try{ v = JSON.parse(raw); }catch(e){ v = raw; }
+     fetch(_SB+'/rest/v1/dashboard_kv?on_conflict=k',{method:'POST',headers:Object.assign({},_sbH(),{'Prefer':'resolution=merge-duplicates,return=minimal'}),body:JSON.stringify({k:k,v:v,updated_at:new Date().toISOString()})}).catch(function(){});
+   });
+ }
+ function _kvHydrate(){
+   return fetch(_SB+'/rest/v1/dashboard_kv?select=k,v',{headers:_sbH()})
+     .then(function(r){return r.ok?r.json():null;})
+     .then(function(rows){
+       if(!rows) return;
+       rows.forEach(function(row){
+         if(_KV_KEYS.indexOf(row.k)<0 || row.v==null) return;
+         localStorage.setItem(row.k, typeof row.v==='string'?row.v:JSON.stringify(row.v));
+       });
+       try{ if(typeof faqRenderEditor==='function') faqRenderEditor(); }catch(e){}
+       try{ if(typeof blogUpdateStats==='function') blogUpdateStats(); }catch(e){}
+     }).catch(function(){});
+ }
+ window._whenAuthed(function(){ _kvHydrate(); setInterval(_kvPushAll, 30000); });
+ window.addEventListener('focus', _kvPushAll);
+ document.addEventListener('visibilitychange', function(){ if(document.hidden) _kvPushAll(); });
  // Returns true ONLY when the post is confirmed saved in Supabase. Any failure
  // is surfaced loudly (never silent) and returns false, so a post can never look
  // saved while actually being lost.
@@ -3511,6 +3540,7 @@
      topViews:  parseInt(document.getElementById('bp-top-views').value) || 0,
    };
    localStorage.setItem('ch_blog_perf', JSON.stringify(perf));
+   if (typeof _kvPushAll === 'function') _kvPushAll();
    document.getElementById('blog-perf-modal').style.display = 'none';
    blogUpdateStats();
  }
@@ -5045,6 +5075,7 @@
  if (q || a) faqs.push({ q: q, a: a });
  });
  localStorage.setItem(FAQ_KEY, JSON.stringify(faqs));
+ if (typeof _kvPushAll === 'function') _kvPushAll();
  var msg = document.getElementById('faq-saved-msg');
  msg.style.display = 'inline';
  setTimeout(function(){ msg.style.display = 'none'; }, 4000);
