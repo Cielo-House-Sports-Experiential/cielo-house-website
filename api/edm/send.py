@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 SB = os.environ.get('SUPABASE_URL', '')
 SR = os.environ.get('SUPABASE_SERVICE_ROLE_KEY', '')
 RESEND = os.environ.get('RESEND_API_KEY', '')
+SCHED_TOKEN = os.environ.get('EDM_SCHEDULER_TOKEN', '')
 BASE = os.environ.get('EDM_TRACKING_BASE_URL', 'https://www.cielohouse.com.au')
 ADMIN = {'britt@cielohouse.com.au', 'giovana@cielohouse.com.au', 'connect@cielohouse.com.au'}
 FROM = 'Cielo House Experiential & Events <connect@cielohouse.com.au>'
@@ -56,7 +57,7 @@ def build_email(camp, sections, send_id, token):
     rows = []
     for sec in sections:
         imgtag = ('<img src="' + esc(sec.get('image_url') or '') + '" alt="' + esc(sec.get('image_alt') or '') +
-                  '" width="600" style="display:block;width:100%;max-width:600px;height:auto;border:0;" />')
+                  '" width="1200" style="display:block;width:100%;max-width:1200px;height:auto;border:0;" />')
         if sec.get('link_url'):
             href = BASE + '/api/edm/click?s=' + send_id + '&sec=' + sec['id']
             imgtag = '<a href="' + href + '" target="_blank">' + imgtag + '</a>'
@@ -77,8 +78,8 @@ def build_email(camp, sections, send_id, token):
             '<div style="display:none;max-height:0;overflow:hidden;opacity:0;">' + pre + '</div>'
             '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;">'
             '<tr><td align="center" style="padding:0;">'
-            '<table role="presentation" width="600" cellpadding="0" cellspacing="0" '
-            'style="width:600px;max-width:600px;background:#ffffff;">' + ''.join(rows) + footer +
+            '<table role="presentation" width="1200" cellpadding="0" cellspacing="0" '
+            'style="width:100%;max-width:1200px;background:#ffffff;">' + ''.join(rows) + footer +
             '</table></td></tr></table>' + pixel + '</body></html>')
     txt = [camp.get('preview_text') or camp.get('subject') or '']
     for sec in sections:
@@ -113,7 +114,8 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_POST(self):
-        if not verify_admin(self.headers.get('Authorization')):
+        sched = self.headers.get('X-Scheduler-Token') or ''
+        if not (verify_admin(self.headers.get('Authorization')) or (SCHED_TOKEN and sched == SCHED_TOKEN)):
             return self._json(401, {'error': 'unauthorised'})
         try:
             n = int(self.headers.get('Content-Length') or 0)

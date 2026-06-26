@@ -374,7 +374,7 @@
      <button class="btn btn-secondary btn-sm" onclick="showGoogleSetup()" id="google-setup-btn" style="font-size:0.78rem;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:-2px;"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> Google Setup</button>
    </div>
  </div>
- <p class="page-sub" id="analytics-sub">Connect your Google account below to pull live data automatically.</p>
+ <p class="page-sub" id="analytics-sub"></p>
 
  <!-- Google Connect Bar -->
  <div id="gbar" style="border-radius:10px;padding:0.85rem 1.1rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.85rem;flex-wrap:wrap;font-size:0.82rem;font-weight:600;">
@@ -567,7 +567,6 @@
  <!-- EVENTS -->
  <div class="panel" id="panel-events">
  <h1 class="page-title">Events Calendar</h1>
- <p class="page-sub">Manage upcoming sporting events. Add a photo, title, dates and location.</p>
 
  <!-- Monthly Calendar -->
  <div class="cal-wrap">
@@ -617,7 +616,6 @@
  <!-- BLOG -->
  <div class="panel" id="panel-blog">
   <h1 class="page-title">Blog Posts</h1>
-  <p class="page-sub">Create and manage posts. Saved locally in your browser.</p>
 
   <!-- Performance Overview -->
   <div class="card" style="margin-bottom:1.75rem;">
@@ -870,7 +868,6 @@
  <!-- ===== SUBSCRIBERS ===== -->
  <div class="panel" id="panel-subscribers">
    <h1 class="page-title">Subscribers</h1>
-   <p class="page-sub">Manage your mailing list. Add previous subscribers manually or in bulk.</p>
 
    <!-- Add subscriber -->
    <div class="card" style="margin-bottom:1.25rem;">
@@ -927,7 +924,6 @@
  <!-- CASE STUDIES -->
  <div class="panel" id="panel-casestudies">
   <h1 class="page-title">Case Studies</h1>
-  <p class="page-sub">Manage the content and images for all 8 case study cards and pages. Changes save to this browser instantly.</p>
 
   <div class="card" style="margin-bottom:1.5rem;padding:1.25rem 1.5rem;background:#f0f4ff;border-left:4px solid #668DC6;">
    <p style="font-size:0.82rem;color:#2B317B;line-height:1.6;margin:0;">
@@ -1142,7 +1138,6 @@
  <!-- ===== TEAM ===== -->
  <div class="panel" id="panel-team">
   <h1 class="page-title">Team</h1>
-  <p class="page-sub">Manage the Meet the Team section on the About page. Saves to Supabase and goes live instantly.</p>
   <div id="team-grid" style="display:grid;gap:1rem;"></div>
  </div>
 
@@ -1208,7 +1203,6 @@
  <!-- ===== CHAT WIDGET ===== -->
  <div class="panel" id="panel-chatwidget">
   <h1 class="page-title">Chat Widget</h1>
-  <p class="page-sub">Manage the "Talk with Cielo House" chat widget that appears on the website. Saves to Supabase, applies across the site within ~1 minute.</p>
   <div class="card" style="max-width:560px;">
    <div style="display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;">
     <div>
@@ -1234,7 +1228,6 @@
     <h1 class="page-title" style="margin-bottom:0;">EDM Platform</h1>
     <button class="btn btn-primary" onclick="edmNew()" style="font-size:0.78rem;padding:0.5rem 1.1rem;">+ New Email</button>
    </div>
-   <p class="page-sub">Build image-stack emails and send them from connect@cielohouse.com.au to your subscriber list. Opens, clicks and unsubscribes are tracked automatically.</p>
    <div class="metrics" style="grid-template-columns:repeat(3,1fr);margin-bottom:1.5rem;">
     <div class="metric"><div class="metric__label">Drafts</div><div class="metric__value" id="edm-stat-draft">0</div><div class="metric__sub">not yet sent</div></div>
     <div class="metric"><div class="metric__label">Sent</div><div class="metric__value" id="edm-stat-sent">0</div><div class="metric__sub">campaigns delivered</div></div>
@@ -1278,7 +1271,7 @@
         <input type="file" id="edm-sec-file" accept="image/png,image/jpeg,image/gif,image/webp" style="display:none;" onchange="edmAddSection(this)" />
        </label>
       </div>
-      <p style="font-size:0.76rem;color:#aaa;margin-top:-0.5rem;margin-bottom:1rem;">Stack the email as a set of full-width images (max 600px wide, under 5 MB each). Add a link to any image to make it clickable, and clicks are tracked per image.</p>
+      <p style="font-size:0.76rem;color:#aaa;margin-top:-0.5rem;margin-bottom:1rem;">Stack the email as a set of full-width images (max 1200px wide). Images sit flush on top of each other; use the arrows to reorder. Add a link to any image to make it clickable, and clicks are tracked per image.</p>
       <div id="edm-sections"><div class="empty">No images yet. Click “Add image” to start building.</div></div>
      </div>
 
@@ -1294,11 +1287,17 @@
        <div style="font-size:0.72rem;color:#aaa;margin-top:0.3rem;">Test copies are tagged [TEST] and are not tracked or counted.</div>
       </div>
       <hr style="border:none;border-top:1px solid #eef0f7;margin:1.25rem 0;" />
+      <div class="form-group">
+       <label class="form-label">Schedule for</label>
+       <input class="form-input" type="datetime-local" id="edm-schedule-at" onchange="edmSaveSchedule()" style="max-width:260px;" />
+       <div style="font-size:0.72rem;color:#aaa;margin-top:0.3rem;">Press <strong>Save</strong> to keep this as a draft without sending. Set a date and time, then press <strong>Schedule</strong> and it sends itself at that moment (Brisbane time).</div>
+      </div>
       <div style="display:flex;align-items:center;gap:0.9rem;flex-wrap:wrap;">
-       <button class="btn btn-primary" onclick="edmSendNow()" id="edm-send-btn">Send to all subscribers</button>
+       <button class="btn btn-secondary" onclick="edmSaveDraft()" id="edm-save-btn">Save</button>
+       <button class="btn btn-primary" onclick="edmSchedule()" id="edm-send-btn">Schedule</button>
        <span id="edm-send-msg" style="font-size:0.8rem;color:#27ae60;"></span>
       </div>
-      <div style="font-size:0.72rem;color:#aaa;margin-top:0.6rem;">Sends from <strong>connect@cielohouse.com.au</strong> to every subscribed contact, with a one-click unsubscribe footer. This cannot be undone.</div>
+      <div style="font-size:0.72rem;color:#aaa;margin-top:0.6rem;">Sends from <strong>connect@cielohouse.com.au</strong> to every subscribed contact at the scheduled time, with a one-click unsubscribe footer.</div>
      </div>
     </div>
 
@@ -1330,7 +1329,6 @@
      <h1 class="page-title" style="margin-bottom:0;">Testimonials</h1>
      <button class="btn btn-primary" onclick="tOpenAdd()" style="font-size:0.78rem;padding:0.5rem 1.1rem;">+ Add Testimonial</button>
    </div>
-   <p class="page-sub">Manage client testimonials shown in the homepage carousel. Changes save instantly and update the live website.</p>
 
    <!-- Stats bar -->
    <div class="metrics" style="grid-template-columns:repeat(3,1fr);margin-bottom:1.5rem;">
@@ -1407,7 +1405,6 @@
  <!-- ===== FAQ ===== -->
  <div class="panel" id="panel-faq">
  <h1 class="page-title">FAQ Manager</h1>
- <p class="page-sub">Edit the questions and answers shown in the FAQ section on the homepage. Changes save instantly and appear live on the website. Maximum 5 questions. Answers should be 280 480 characters for best Google search performance.</p>
 
  <div class="card" id="faq-editor-list"></div>
 
@@ -1427,7 +1424,6 @@
  <!-- ===== AI KNOWLEDGE ===== -->
  <div class="panel" id="panel-aiknowledge">
  <h1 class="page-title">Chatbot Back-End</h1>
- <p class="page-sub">Everything the website chatbot knows and how it works. The knowledge you set here saves to Supabase and is used by the live chat for every visitor.</p>
 
  <div class="card">
  <div class="card-title">How the chatbot works</div>
@@ -5476,15 +5472,18 @@ Respond ONLY with valid JSON array, no other text:
       var list=document.getElementById('edm-list');
       if(!rows.length){ list.innerHTML='<div class="empty">No emails yet. Click “+ New Email” to build your first one.</div>'; return; }
       list.innerHTML=rows.map(function(c){
-        var st=c.status==='sent'; var stats=c.stats||{};
-        var when=c.sent_at?('Sent '+edmDate(c.sent_at)):('Created '+edmDate(c.created_at));
-        var meta=st?((stats.sent||0)+' delivered'):'Draft';
+        var st=c.status; var isSent=st==='sent'; var isSched=st==='scheduled'; var isFail=st==='send_failed'; var stats=c.stats||{};
+        var pill=isSent?'Sent':(isSched?'Scheduled':(st==='sending'?'Sending':(isFail?'Failed':'Draft')));
+        var pillBg=isSent?'#e6f7ec':(isSched?'#eef0ff':(isFail?'#fdecea':'#eef0f7'));
+        var pillCol=isSent?'#1a7a40':(isFail?'#c0392b':'#2B317B');
+        var when=c.sent_at?('Sent '+edmDate(c.sent_at)):((isSched&&c.scheduled_at)?('Scheduled '+edmDate(c.scheduled_at)):('Created '+edmDate(c.created_at)));
+        var meta=isSent?((stats.sent||0)+' delivered'):pill;
         return '<div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0.85rem 0;border-bottom:1px solid #eef0f7;flex-wrap:wrap;">'
           +'<div style="min-width:200px;flex:1;"><div style="font-weight:600;color:#2B317B;">'+edmEsc(c.subject||'(no subject)')+'</div>'
           +'<div style="font-size:0.76rem;color:#aaa;">'+when+' · '+meta+'</div></div>'
           +'<div style="display:flex;gap:0.5rem;align-items:center;">'
-          +'<span style="font-size:0.66rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:0.2rem 0.6rem;border-radius:20px;background:'+(st?'#e6f7ec':'#eef0f7')+';color:'+(st?'#1a7a40':'#2B317B')+';">'+(st?'Sent':'Draft')+'</span>'
-          +'<button class="btn btn-secondary btn-sm" onclick="edmOpen(\''+c.id+'\')">'+(st?'View':'Edit')+'</button>'
+          +'<span style="font-size:0.66rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:0.2rem 0.6rem;border-radius:20px;background:'+pillBg+';color:'+pillCol+';">'+pill+'</span>'
+          +'<button class="btn btn-secondary btn-sm" onclick="edmOpen(\''+c.id+'\')">'+(isSent?'View':'Edit')+'</button>'
           +'</div></div>';
       }).join('');
     }).catch(function(){ document.getElementById('edm-list').innerHTML='<div class="empty">Could not load emails.</div>'; });
@@ -5517,10 +5516,11 @@ Respond ONLY with valid JSON array, no other text:
      document.getElementById('edm-preview').value=c.preview_text||'';
      document.getElementById('edm-b-title').textContent=c.subject||'Untitled email';
      var sent=c.status==='sent';
-     var badge=document.getElementById('edm-b-status');
-     badge.textContent=sent?'Sent':'Draft'; badge.style.background=sent?'#e6f7ec':'#eef0f7'; badge.style.color=sent?'#1a7a40':'#2B317B';
+     edmSetBadge(c.status||'draft');
+     var sch=document.getElementById('edm-schedule-at'); if(sch) sch.value=edmISOToLocal(c.scheduled_at);
      document.getElementById('edm-send-btn').style.display=sent?'none':'';
-     document.getElementById('edm-send-msg').textContent=sent?'This email has already been sent.':'';
+     var sv=document.getElementById('edm-save-btn'); if(sv) sv.style.display=sent?'none':'';
+     document.getElementById('edm-send-msg').textContent=sent?'This email has already been sent.':((c.status==='scheduled'&&c.scheduled_at)?('Scheduled for '+edmDate(c.scheduled_at)+'.'):'');
      edmRenderSections(); edmRenderPreview(); edmLoadStats(sent);
    }).catch(function(){ alert('Could not open email.'); });
  }
@@ -5584,7 +5584,6 @@ Respond ONLY with valid JSON array, no other text:
 
  function edmAddSection(input){
    var file=input.files[0]; if(!file) return;
-   if(file.size>5*1024*1024){ alert('Image must be under 5 MB.'); input.value=''; return; }
    if(!_edmCur){ alert('Create the email first.'); input.value=''; return; }
    var ext=(file.name.split('.').pop()||'png').toLowerCase().replace(/[^a-z0-9]/g,'')||'png';
    var path=_edmCur.id+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
@@ -5641,20 +5640,60 @@ Respond ONLY with valid JSON array, no other text:
     .catch(function(){ btn.disabled=false; btn.textContent='Send test'; alert('Could not send test.'); });
  }
 
- function edmSendNow(){
+ // Brisbane is UTC+10 year-round (no DST). Convert between the naive
+ // datetime-local input and a stored ISO timestamp using a fixed +10:00 offset.
+ function edmLocalToISO(v){ if(!v) return null; try{ return new Date(v+':00+10:00').toISOString(); }catch(e){ return null; } }
+ function edmISOToLocal(iso){ if(!iso) return ''; try{
+     var d=new Date(iso); var b=new Date(d.getTime()+10*3600000); var p=function(n){return(n<10?'0':'')+n;};
+     return b.getUTCFullYear()+'-'+p(b.getUTCMonth()+1)+'-'+p(b.getUTCDate())+'T'+p(b.getUTCHours())+':'+p(b.getUTCMinutes());
+   }catch(e){ return ''; } }
+
+ // Persist the picked schedule time immediately so it is never lost, without
+ // changing the draft/scheduled status.
+ function edmSaveSchedule(){
    if(!_edmCur) return;
-   if(!_edmSecs.length){ alert('Add at least one image before sending.'); return; }
+   var iso=edmLocalToISO(document.getElementById('edm-schedule-at').value);
+   _edmCur.scheduled_at=iso;
+   fetch(_SB+'/rest/v1/edm_campaigns?id=eq.'+_edmCur.id,{method:'PATCH',headers:Object.assign({},_sbH(),{'Prefer':'return=minimal'}),body:JSON.stringify({scheduled_at:iso})}).catch(function(){});
+ }
+
+ // Save = persist everything as a draft. Does NOT send.
+ function edmSaveDraft(){
+   if(!_edmCur) return;
+   edmSaveMeta(); edmSaveSchedule();
+   var patch={status:'draft'};
+   _edmCur.status='draft';
+   fetch(_SB+'/rest/v1/edm_campaigns?id=eq.'+_edmCur.id,{method:'PATCH',headers:Object.assign({},_sbH(),{'Prefer':'return=minimal'}),body:JSON.stringify(patch)})
+    .then(function(){ document.getElementById('edm-send-msg').textContent='Saved as draft.'; edmSetBadge('draft'); })
+    .catch(function(){ alert('Could not save.'); });
+ }
+
+ // Schedule = send by itself at the chosen date and time. The mini scheduler
+ // ticks every minute and sends any campaign whose time has arrived.
+ function edmSchedule(){
+   if(!_edmCur) return;
+   if(!_edmSecs.length){ alert('Add at least one image before scheduling.'); return; }
    var subject=document.getElementById('edm-subject').value.trim();
-   if(!subject){ alert('Add a subject line before sending.'); return; }
-   if(!confirm('Send “'+subject+'” to ALL subscribed contacts now?\n\nThis sends real emails and cannot be undone.')) return;
+   if(!subject){ alert('Add a subject line before scheduling.'); return; }
+   var iso=edmLocalToISO(document.getElementById('edm-schedule-at').value);
+   if(!iso){ alert('Pick a date and time to schedule for.'); return; }
+   if(new Date(iso).getTime()<=Date.now()){ alert('Pick a date and time in the future.'); return; }
+   if(!confirm('Schedule “'+subject+'” to send to ALL subscribed contacts at the selected time?')) return;
    edmSaveMeta();
-   var btn=document.getElementById('edm-send-btn'); btn.disabled=true; btn.textContent='Sending…';
-   fetch('/api/edm/send',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(window._edmToken||'')},body:JSON.stringify({campaign_id:_edmCur.id,mode:'now'})})
-    .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
-    .then(function(res){ btn.disabled=false; btn.textContent='Send to all subscribers';
-      if(res.ok&&res.j.ok){ document.getElementById('edm-send-msg').textContent='Sent to '+res.j.sent+' of '+res.j.recipients+' subscribers.'; edmOpen(_edmCur.id); }
-      else { alert('Could not send: '+((res.j&&res.j.error)||'unknown error')); } })
-    .catch(function(){ btn.disabled=false; btn.textContent='Send to all subscribers'; alert('Could not send.'); });
+   var btn=document.getElementById('edm-send-btn'); btn.disabled=true; btn.textContent='Scheduling…';
+   _edmCur.scheduled_at=iso; _edmCur.status='scheduled';
+   fetch(_SB+'/rest/v1/edm_campaigns?id=eq.'+_edmCur.id,{method:'PATCH',headers:Object.assign({},_sbH(),{'Prefer':'return=minimal'}),body:JSON.stringify({status:'scheduled',scheduled_at:iso})})
+    .then(function(r){ btn.disabled=false; btn.textContent='Schedule';
+      if(r.ok){ document.getElementById('edm-send-msg').textContent='Scheduled for '+edmDate(iso)+'.'; edmSetBadge('scheduled'); }
+      else { alert('Could not schedule.'); } })
+    .catch(function(){ btn.disabled=false; btn.textContent='Schedule'; alert('Could not schedule.'); });
+ }
+
+ function edmSetBadge(status){
+   var badge=document.getElementById('edm-b-status'); if(!badge) return;
+   if(status==='sent'){ badge.textContent='Sent'; badge.style.background='#e6f7ec'; badge.style.color='#1a7a40'; }
+   else if(status==='scheduled'){ badge.textContent='Scheduled'; badge.style.background='#eef0ff'; badge.style.color='#2B317B'; }
+   else { badge.textContent='Draft'; badge.style.background='#eef0f7'; badge.style.color='#2B317B'; }
  }
 
  (function(){
