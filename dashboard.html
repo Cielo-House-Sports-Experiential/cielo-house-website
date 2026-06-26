@@ -451,7 +451,7 @@
      <div style="font-weight:600;font-size:0.95rem;color:#222;">Search Performance on Google</div>
      <a href="https://search.google.com/search-console" target="_blank" rel="noopener" style="font-size:0.75rem;color:#668DC6;text-decoration:none;font-weight:600;">Open GSC <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline-block;vertical-align:-1px;margin-left:2px;"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>
    </div>
-   <div style="font-size:0.75rem;color:#999;margin-bottom:1.25rem;" id="google-period">Connect Google to load search data automatically</div>
+   <div style="font-size:0.75rem;color:#999;margin-bottom:1.25rem;" id="google-period"></div>
    <div class="search-grid">
      <div class="search-card"><div class="search-keyword" id="gq1-kw">--</div><div class="search-stats"><div><span>Impressions</span><strong id="gq1-imp">--</strong></div><div><span>Clicks</span><strong id="gq1-clk">--</strong></div><div><span>Position</span><strong id="gq1-pos">--</strong></div></div></div>
      <div class="search-card"><div class="search-keyword" id="gq2-kw">--</div><div class="search-stats"><div><span>Impressions</span><strong id="gq2-imp">--</strong></div><div><span>Clicks</span><strong id="gq2-clk">--</strong></div><div><span>Position</span><strong id="gq2-pos">--</strong></div></div></div>
@@ -464,7 +464,6 @@
    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem;flex-wrap:wrap;gap:0.4rem;">
      <div>
        <div style="font-weight:600;font-size:0.95rem;color:#222;">AI Answer Visibility</div>
-       <div style="font-size:0.74rem;color:#999;margin-top:0.1rem;">When people ask AI platforms about sports activation in Australia, does Cielo House appear?</div>
      </div>
      <div style="display:flex;gap:0.4rem;align-items:center;">
        <span style="font-size:0.72rem;color:#27ae60;font-weight:600;" id="ai-updated"></span>
@@ -515,7 +514,6 @@
    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
      <div>
        <div class="card-title" style="margin-bottom:0.1rem;">Visitor Activity</div>
-       <div style="font-size:0.74rem;color:#999;">Real journeys from your public site — pages visited, time spent, CTAs clicked.</div>
      </div>
      <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
        <div id="live-now-badge" style="display:none;align-items:center;gap:0.4rem;background:#f0fff4;border:1.5px solid #a3e6c0;border-radius:20px;padding:0.3rem 0.75rem;font-size:0.78rem;font-weight:700;color:#1a7a40;">
@@ -661,7 +659,7 @@
 
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">Views <span style="font-weight:400;color:#aaa;">(optional)</span></label>
+          <label class="form-label">Views</label>
           <input class="form-input" type="number" id="blog-views" placeholder="e.g. 9" min="0" />
         </div>
       </div>
@@ -676,15 +674,14 @@
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Publish date &amp; time <span style="font-weight:400;color:#aaa;">(leave blank = save as draft)</span></label>
+          <label class="form-label">Publish date &amp; time</label>
           <input class="form-input" type="datetime-local" id="blog-schedule-at" />
         </div>
         <div class="form-group">
-          <label class="form-label">Article date <span style="font-weight:400;color:#aaa;">(shown on the post)</span></label>
+          <label class="form-label">Article date</label>
           <input class="form-input" type="date" id="blog-date" />
         </div>
       </div>
-      <p style="font-size:0.78rem;color:#888;margin:-0.4rem 0 0.6rem;line-height:1.5;">Save never puts a post live. Leave the publish time blank to keep it as a draft, or set a date and time and it goes live by itself at that moment. Set a time in the past to publish now.</p>
 
       <div class="form-group">
         <label class="form-label">Excerpt</label>
@@ -721,14 +718,14 @@
 
           <!-- Meta Title -->
           <div class="form-group" style="margin-bottom:1rem;">
-            <label class="form-label">Meta Title <span style="color:#aaa;font-weight:400;">(shown in Google — 50–60 characters ideal)</span></label>
+            <label class="form-label">Meta Title</label>
             <input class="form-input" type="text" id="blog-seo-title" placeholder="e.g. Brand Activations at Sporting Events Australia | Cielo House" maxlength="80" oninput="seoUpdate()" />
             <div class="char-counter" id="seo-title-counter">0 / 60</div>
           </div>
 
           <!-- Meta Description -->
           <div class="form-group" style="margin-bottom:1rem;">
-            <label class="form-label">Meta Description <span style="color:#aaa;font-weight:400;">(shown in Google — 140–160 characters ideal)</span></label>
+            <label class="form-label">Meta Description</label>
             <textarea class="form-textarea" id="blog-seo-desc" rows="2" maxlength="200" placeholder="Write a compelling description that includes your focus keyword and tells readers exactly what this post covers." style="min-height:70px;" oninput="seoUpdate()"></textarea>
             <div class="char-counter" id="seo-desc-counter">0 / 160</div>
           </div>
@@ -736,14 +733,13 @@
           <div class="form-row">
             <!-- Focus Keyword -->
             <div class="form-group">
-              <label class="form-label">Focus Keyword <span style="color:#aaa;font-weight:400;">(primary target keyword)</span></label>
+              <label class="form-label">Focus Keyword</label>
               <input class="form-input" type="text" id="blog-focus-keyword" placeholder="e.g. brand activation Australia" oninput="seoUpdate()" />
-              <div style="font-size:0.7rem;color:#aaa;margin-top:0.2rem;">Should appear in title, description &amp; content.</div>
             </div>
 
             <!-- URL Slug -->
             <div class="form-group">
-              <label class="form-label">URL Slug <span style="color:#aaa;font-weight:400;">(auto-generated)</span></label>
+              <label class="form-label">URL Slug</label>
               <div style="display:flex;gap:0.4rem;align-items:center;">
                 <input class="form-input" type="text" id="blog-slug" placeholder="brand-activation-australia" oninput="seoUpdate()" style="font-family:monospace;font-size:0.82rem;" />
                 <button type="button" onclick="blogAutoSlug()" style="background:#f0f2f8;border:1.5px solid #dde2f0;border-radius:6px;padding:0.55rem 0.7rem;cursor:pointer;font-size:0.75rem;color:#2B317B;white-space:nowrap;font-family:'Poppins',sans-serif;" title="Re-generate from title">&#8635; Auto</button>
@@ -755,21 +751,20 @@
           <!-- Tags -->
           <div class="form-group">
             <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.35rem;">
-              <label class="form-label" style="margin-bottom:0;">Tags <span style="color:#aaa;font-weight:400;">(press Enter or comma to add · max 30)</span></label>
+              <label class="form-label" style="margin-bottom:0;">Tags</label>
               <button type="button" class="btn-ai" id="ai-tag-btn" onclick="aiGenerateTags()">&#10024; AI Generate Tags</button>
             </div>
             <input class="form-input" type="text" id="blog-tag-input" placeholder="Type a tag and press Enter…" onkeydown="blogTagKeydown(event)" onblur="blogTagAdd()" />
             <div class="tag-pills" id="blog-tag-pills"></div>
             <input type="hidden" id="blog-tags" value="" />
             <div style="display:flex;justify-content:space-between;margin-top:0.3rem;">
-              <span style="font-size:0.7rem;color:#aaa;">Tags help with SEO and discoverability. Aim for 5–15 tags.</span>
               <span class="tag-count" id="tag-count">0 / 30</span>
             </div>
           </div>
 
           <!-- Open Graph Title override -->
           <div class="form-group" style="margin-bottom:0;">
-            <label class="form-label">Social Share Title <span style="color:#aaa;font-weight:400;">(Open Graph — shown when shared on LinkedIn, Facebook, etc.)</span></label>
+            <label class="form-label">Social Share Title</label>
             <input class="form-input" type="text" id="blog-og-title" placeholder="Leave blank to use Meta Title" oninput="seoUpdate()" />
           </div>
 
@@ -889,7 +884,7 @@
      </div>
      <div style="margin-top:1.25rem;">
        <div class="form-group" style="margin-bottom:0.5rem;">
-         <label class="form-label">Bulk Import <span style="font-weight:400;color:#aaa;">(paste emails, one per line or comma-separated)</span></label>
+         <label class="form-label">Bulk Import</label>
          <textarea class="form-textarea" id="sub-bulk-input" rows="3" placeholder="email1@domain.com&#10;email2@domain.com"></textarea>
        </div>
        <div style="display:flex;gap:0.75rem;align-items:center;">
@@ -1022,7 +1017,6 @@
       <div style="flex:1;min-width:200px;">
        <input class="form-input" id="cs-f-cardimg-url" placeholder="Image URL or upload below" style="margin-bottom:0.5rem;" />
        <input type="file" id="cs-f-cardimg-file" accept="image/*" style="font-size:0.8rem;" onchange="previewCsImg(this,'cs-f-cardimg-preview','cs-f-cardimg-url')" />
-       <p style="font-size:0.72rem;color:#aaa;margin-top:0.25rem;">Upload replaces the card image on the work page</p>
       </div>
      </div>
     </div>
@@ -1215,7 +1209,6 @@
      <span id="cwcfg-knob" style="position:absolute;top:3px;left:3px;width:24px;height:24px;background:#fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,0.25);transition:transform .2s;"></span>
     </label>
    </div>
-   <p style="font-size:0.8rem;color:#aaa;margin-top:1rem;margin-bottom:0;">When off, the chat widget is hidden everywhere on the site. Text, messages and routing for the chat will be added here next.</p>
   </div>
  </div>
 
@@ -1257,7 +1250,7 @@
        <input class="form-input" id="edm-subject" placeholder="e.g. What's on at Cielo House this season" onblur="edmSaveMeta()" />
       </div>
       <div class="form-group" style="margin-bottom:0;">
-       <label class="form-label">Preview text <span style="color:#aaa;font-weight:400;">(the grey snippet shown after the subject in the inbox)</span></label>
+       <label class="form-label">Preview text</label>
        <input class="form-input" id="edm-preview" placeholder="A short teaser line…" onblur="edmSaveMeta()" />
       </div>
      </div>
@@ -1271,7 +1264,6 @@
         <input type="file" id="edm-sec-file" accept="image/png,image/jpeg,image/gif,image/webp" style="display:none;" onchange="edmAddSection(this)" />
        </label>
       </div>
-      <p style="font-size:0.76rem;color:#aaa;margin-top:-0.5rem;margin-bottom:1rem;">Stack the email as a set of full-width images (max 1200px wide). Images sit flush on top of each other; use the arrows to reorder. Add a link to any image to make it clickable, and clicks are tracked per image.</p>
       <div id="edm-sections"><div class="empty">No images yet. Click “Add image” to start building.</div></div>
      </div>
 
@@ -1284,20 +1276,17 @@
         <input class="form-input" id="edm-test-emails" placeholder="you@cielohouse.com.au, another@…" style="flex:1;min-width:200px;" />
         <button class="btn btn-secondary" onclick="edmTest()" id="edm-test-btn">Send test</button>
        </div>
-       <div style="font-size:0.72rem;color:#aaa;margin-top:0.3rem;">Test copies are tagged [TEST] and are not tracked or counted.</div>
       </div>
       <hr style="border:none;border-top:1px solid #eef0f7;margin:1.25rem 0;" />
       <div class="form-group">
        <label class="form-label">Schedule for</label>
        <input class="form-input" type="datetime-local" id="edm-schedule-at" onchange="edmSaveSchedule()" style="max-width:260px;" />
-       <div style="font-size:0.72rem;color:#aaa;margin-top:0.3rem;">Press <strong>Save</strong> to keep this as a draft without sending. Set a date and time, then press <strong>Schedule</strong> and it sends itself at that moment (Brisbane time).</div>
       </div>
       <div style="display:flex;align-items:center;gap:0.9rem;flex-wrap:wrap;">
        <button class="btn btn-secondary" onclick="edmSaveDraft()" id="edm-save-btn">Save</button>
        <button class="btn btn-primary" onclick="edmSchedule()" id="edm-send-btn">Schedule</button>
        <span id="edm-send-msg" style="font-size:0.8rem;color:#27ae60;"></span>
       </div>
-      <div style="font-size:0.72rem;color:#aaa;margin-top:0.6rem;">Sends from <strong>connect@cielohouse.com.au</strong> to every subscribed contact at the scheduled time, with a one-click unsubscribe footer.</div>
      </div>
     </div>
 
@@ -1369,9 +1358,8 @@
        </div>
 
        <div class="form-group">
-         <label class="form-label">Highlight <span style="color:#aaa;font-weight:400;">(bold pull-quote shown above the full review)</span></label>
+         <label class="form-label">Highlight</label>
          <input class="form-input" type="text" id="t-highlight" placeholder="e.g. Cielo House is the real deal" />
-         <div style="font-size:0.72rem;color:#aaa;margin-top:0.3rem;">Keep it under 80 characters for best display.</div>
        </div>
 
        <div class="form-group">
@@ -1381,7 +1369,7 @@
 
        <div class="form-row">
          <div class="form-group">
-           <label class="form-label">Role / Title <span style="color:#aaa;font-weight:400;">(optional)</span></label>
+           <label class="form-label">Role / Title</label>
            <input class="form-input" type="text" id="t-role" placeholder="e.g. Marketing Manager" />
          </div>
          <div class="form-group">
@@ -1436,27 +1424,23 @@
  </div>
 
  <div class="card">
- <div class="card-title">Built-in knowledge <span style="font-weight:400;color:#aaa;font-size:0.75rem;margin-left:0.5rem;">the bot's core brief &mdash; edit anything that's wrong</span></div>
- <p style="font-size:0.78rem;color:#888;margin-bottom:0.75rem;">This is the foundational brief the chatbot always uses (its role, your services, team, credentials, tone). Edit it freely, then click <strong>Save Knowledge Base</strong> at the bottom &mdash; the live chat uses your edited version.</p>
+ <div class="card-title">Built-in knowledge</div>
  <textarea id="aik-builtin" class="form-input" rows="18" style="width:100%;resize:vertical;font-size:0.8rem;line-height:1.6;">Loading…</textarea>
  </div>
 
  <div class="card">
  <div class="card-title">Company Profile</div>
- <p style="font-size:0.78rem;color:#888;margin-bottom:1rem;">Describe Cielo House in detail services, values, team, target clients, unique strengths. The AI uses this to answer general enquiries.</p>
  <textarea id="aik-profile" class="form-input" rows="8" placeholder="e.g. Cielo House is a Gold Coast-based sports event activation and premium hospitality agency founded by Britt Niven with 36+ years of experience. We specialise in experiential activations at major Australian sporting events (F1, Supercars, WSL surfing) and premium branded hospitality programmes. Our clients include Boost Mobile, Coates, and Mophie..." style="width:100%;resize:vertical;font-size:0.82rem;line-height:1.6;"></textarea>
  </div>
 
  <div class="card">
- <div class="card-title">Q &amp; A Pairs <span style="font-weight:400;color:#aaa;font-size:0.75rem;margin-left:0.5rem;"> Frequently asked questions the AI should know how to answer</span></div>
- <p style="font-size:0.78rem;color:#888;margin-bottom:1rem;">Add specific questions and ideal answers. The AI will use these as a reference when clients ask similar questions.</p>
+ <div class="card-title">Q &amp; A Pairs</div>
  <div id="aik-qa-list"></div>
  <button class="btn btn-secondary" id="aik-add-qa" style="margin-top:0.75rem;">+ Add Q&amp;A Pair</button>
  </div>
 
  <div class="card">
  <div class="card-title">Additional Context</div>
- <p style="font-size:0.78rem;color:#888;margin-bottom:1rem;">Anything else the AI should know upcoming events, special offers, current pricing guidance, what NOT to say, tone instructions, etc.</p>
  <textarea id="aik-extra" class="form-input" rows="5" placeholder="e.g. Do not discuss specific pricing. Always direct pricing questions to book a discovery call. We are currently booking for the 2026 event season. Our next major event is the F1 Australian Grand Prix in March 2026..." style="width:100%;resize:vertical;font-size:0.82rem;line-height:1.6;"></textarea>
  </div>
 
@@ -1503,11 +1487,11 @@
         <input class="form-input" id="rte-img-url" placeholder="https://..." />
       </div>
       <div class="form-group" style="margin-bottom:0.85rem;">
-        <label class="form-label">Alt Text <span style="color:#aaa;font-weight:400;">(required for SEO)</span></label>
+        <label class="form-label">Alt Text</label>
         <input class="form-input" id="rte-img-alt" placeholder="e.g. Cielo House activation at Gold Coast 500" />
       </div>
       <div class="form-group" style="margin-bottom:1.25rem;">
-        <label class="form-label">Caption <span style="color:#aaa;font-weight:400;">(optional)</span></label>
+        <label class="form-label">Caption</label>
         <input class="form-input" id="rte-img-caption" placeholder="e.g. Boost Mobile, Gold Coast 2026" />
       </div>
       <div style="display:flex;gap:0.75rem;">
@@ -1552,7 +1536,7 @@
       </div>
 
       <div class="form-group" style="margin-bottom:1.25rem;">
-        <label class="form-label">Caption <span style="color:#aaa;font-weight:400;">(optional)</span></label>
+        <label class="form-label">Caption</label>
         <input class="form-input" id="rte-video-caption" placeholder="e.g. Cielo House activation at Gold Coast 500" />
       </div>
       <div style="display:flex;gap:0.75rem;">
@@ -1599,7 +1583,7 @@
           <input class="form-input" type="date" id="sched-date" />
         </div>
         <div class="form-group">
-          <label class="form-label">Publish Time <span style="color:#aaa;font-weight:400;">(AEST)</span></label>
+          <label class="form-label">Publish Time</label>
           <input class="form-input" type="time" id="sched-time" value="09:00" />
         </div>
         <div style="background:#f8f9ff;border-radius:8px;padding:0.9rem 1rem;border-left:3px solid #2B317B;font-size:0.8rem;color:#555;line-height:1.6;" id="sched-preview-box" style="display:none;"></div>
@@ -5011,7 +4995,7 @@
  function faqRenderEditor() {
  var faqs = faqLoad();
  var container = document.getElementById('faq-editor-list');
- container.innerHTML = '<div class="card-title">Questions &amp; Answers <span style="font-weight:400;color:#aaa;font-size:0.75rem;margin-left:0.5rem;"> ' + FAQ_MAX + ' max · Answers: ' + FAQ_CHAR_MIN + ' ' + FAQ_CHAR_MAX + ' chars recommended for Google</span></div>';
+ container.innerHTML = '<div class="card-title">Questions &amp; Answers</div>';
 
  faqs.forEach(function(faq, idx) {
  var row = document.createElement('div');
@@ -5484,6 +5468,7 @@ Respond ONLY with valid JSON array, no other text:
           +'<div style="display:flex;gap:0.5rem;align-items:center;">'
           +'<span style="font-size:0.66rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:0.2rem 0.6rem;border-radius:20px;background:'+pillBg+';color:'+pillCol+';">'+pill+'</span>'
           +'<button class="btn btn-secondary btn-sm" onclick="edmOpen(\''+c.id+'\')">'+(isSent?'View':'Edit')+'</button>'
+          +'<button class="btn btn-secondary btn-sm" onclick="edmDelete(\''+c.id+'\')" style="color:#c0392b;">Delete</button>'
           +'</div></div>';
       }).join('');
     }).catch(function(){ document.getElementById('edm-list').innerHTML='<div class="empty">Could not load emails.</div>'; });
@@ -5494,6 +5479,15 @@ Respond ONLY with valid JSON array, no other text:
    _edmCur=null; _edmSecs=[];
    document.getElementById('edm-builder-view').style.display='none';
    document.getElementById('edm-list-view').style.display='block';
+ }
+
+ function edmDelete(id){
+   if(!confirm('Delete this email permanently? This cannot be undone.')) return;
+   fetch(_SB+'/rest/v1/edm_campaign_sections?campaign_id=eq.'+id,{method:'DELETE',headers:_sbH()})
+    .then(function(){ return fetch(_SB+'/rest/v1/edm_sends?campaign_id=eq.'+id,{method:'DELETE',headers:_sbH()}); })
+    .then(function(){ return fetch(_SB+'/rest/v1/edm_campaigns?id=eq.'+id,{method:'DELETE',headers:_sbH()}); })
+    .then(function(r){ if(r.ok){ if(_edmCur&&_edmCur.id===id) edmBackToList(); edmLoad(); } else { alert('Could not delete.'); } })
+    .catch(function(){ alert('Could not delete.'); });
  }
 
  function edmNew(){
