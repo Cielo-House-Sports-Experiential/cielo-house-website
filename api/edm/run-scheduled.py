@@ -51,7 +51,8 @@ class handler(BaseHTTPRequestHandler):
         token = self.headers.get('X-Scheduler-Token') or ''
         if not SCHED_TOKEN or token != SCHED_TOKEN:
             return self._json(401, {'error': 'unauthorised'})
-        now = datetime.now(timezone.utc).isoformat()
+        # Use ...Z (not +00:00) so the '+' doesn't get mangled in the URL query.
+        now = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
         try:
             due = sb('GET', "edm_campaigns?status=eq.scheduled&scheduled_at=lte." + now + "&select=id,subject") or []
         except Exception as e:
