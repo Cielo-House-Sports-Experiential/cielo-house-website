@@ -2327,6 +2327,20 @@
  }
 
  async function syncGoogleData(manual) {
+   // Only the account owner runs the live Google fetch. Everyone else (e.g. Gio)
+   // views the shared analytics already synced to Supabase, so they SEE the data
+   // and never hit Google's "insufficient permissions" error or need to reconnect.
+   var _email = (window._edmEmail || '').toLowerCase();
+   if (_email && _email !== 'britt@cielohouse.com.au') {
+     try {
+       gbarShow('connected');
+       var lbl = document.getElementById('gbar-sync-label');
+       if (lbl) lbl.textContent = 'Showing latest synced analytics';
+       var pk = document.getElementById('ga4-prop-picker'); if (pk) pk.style.display = 'none';
+     } catch(e) {}
+     loadAnalytics();
+     return;
+   }
    // If token expired or missing, refresh silently from stored refresh_token (no popup)
    var token = _gaToken || localStorage.getItem('ch_ga_token');
    var exp   = _gaTokenExp || parseInt(localStorage.getItem('ch_ga_token_exp') || '0');
@@ -2360,7 +2374,7 @@
      document.getElementById('ga4-prop-picker').style.display = 'none';
      loadAnalytics();
      loadGA4RealtimeActivity(token, propId);
-     runFreeAiChecks(token);
+     loadAiResultsFromServer();
    } catch(e) {
      showApiError('Google', e);
    }
