@@ -88,15 +88,25 @@ def gsc(token):
     start = end - datetime.timedelta(days=28)
     body = {'startDate': start.isoformat(), 'endDate': end.isoformat(),
             'dimensions': ['query'], 'rowLimit': 5}
+    status = 'no Search Console data'
     for site in GSC_SITES:
         try:
             url = ('https://www.googleapis.com/webmasters/v3/sites/'
                    + urllib.parse.quote(site, safe='') + '/searchAnalytics/query')
-            return _http(url, headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'},
+            data = _http(url, headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'},
                          body=body, timeout=25)
-        except Exception:
-            continue
-    return None
+            if (data or {}).get('rows'):
+                return data, 'ok (' + site + ')'
+            status = 'connected but no query rows (' + site + ')'
+        except urllib.error.HTTPError as e:
+            try:
+                d = json.loads(e.read().decode())
+                status = (d.get('error', {}) or {}).get('message', 'HTTP %s' % e.code)[:200]
+            except Exception:
+                status = 'HTTP %s' % e.code
+        except Exception as e:
+            status = str(e)[:200]
+    return None, status
 
 
 def parse(main, events, gscdata):
@@ -153,14 +163,15 @@ def run():
         return {'error': 'Could not refresh Google access token.'}
     main = ga4_main(token, GA4_PROPERTY_ID)
     events = ga4_events(token, GA4_PROPERTY_ID)
-    gscdata = gsc(token)
+    gscdata, gsc_status = gsc(token)
     fields = parse(main, events, gscdata)
     if 'sessions' not in fields:
         return {'error': 'GA4 returned no rows', 'fields': fields}
     merge_into_ch_stats(fields)
     return {'ok': True, 'sessions': fields.get('sessions'), 'visitors': fields.get('visitors'),
             'pageviews': fields.get('pageviews'), 'clicks': fields.get('clicks'),
-            'gsc_queries': sum(1 for k in fields if k.startswith('gq')), 'synced_at': fields['syncedAt']}
+            'gsc_queries': sum(1 for k in fields if k.startswith('gq')),
+            'gsc_status': gsc_status, 'synced_at': fields['syncedAt']}
 
 
 class handler(BaseHTTPRequestHandler):

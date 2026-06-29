@@ -467,7 +467,7 @@
      </div>
      <div style="display:flex;gap:0.4rem;align-items:center;">
        <span style="font-size:0.72rem;color:#27ae60;font-weight:600;" id="ai-updated"></span>
-       <button class="btn btn-secondary btn-sm" onclick="refreshAiAll()" style="font-size:0.74rem;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline-block;vertical-align:-2px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg> Run Checks</button>
+       <button class="btn btn-secondary btn-sm" onclick="refreshAiAll()" style="font-size:0.74rem;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline-block;vertical-align:-2px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg> Refresh</button>
        <button class="btn btn-secondary btn-sm" onclick="openAiKeys()" style="font-size:0.74rem;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:-2px;"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> Add ChatGPT/Perplexity</button>
      </div>
    </div>
@@ -2048,15 +2048,10 @@
  }
 
  async function refreshAiAll() {
-   var bar = document.getElementById('ai-loading-bar');
-   var msg = document.getElementById('ai-loading-msg');
-   if (bar) bar.style.display = 'flex';
-   if (msg) msg.textContent = 'Running checks on the server — 40 queries across Gemini, ChatGPT and Perplexity (~30-60s)…';
-   try {
-     await fetch('/api/ai-visibility-run', { method: 'POST' });
-   } catch (e) { /* run may still have completed; we read the table next */ }
+   // On-demand runs are DISABLED so no API credits are spent from the dashboard.
+   // The checks refresh automatically once a week (server-side cron). This button
+   // only re-reads the latest stored results — no API calls, no credits.
    await loadAiResultsFromServer();
-   if (bar) bar.style.display = 'none';
  }
 
  async function runAiChecks(manual) {
