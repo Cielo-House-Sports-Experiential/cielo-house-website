@@ -2,7 +2,8 @@
   "version": 2,
   "outputDirectory": ".",
   "functions": {
-    "api/ai-visibility-run.py": { "maxDuration": 60 }
+    "api/ai-visibility-run.py": { "maxDuration": 60 },
+    "api/ga-sync.py": { "maxDuration": 30 }
   },
   "redirects": [
     { "source": "/UPLOAD-IMAGE.HTML", "destination": "/upload-image.html" },
