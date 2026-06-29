@@ -1771,7 +1771,7 @@
    if (gh) localStorage.setItem('ch_key_github', gh);
    if (typeof _saveSecrets === 'function') _saveSecrets();
    closeAiKeys();
-   runAiChecks(true);
+   refreshAiAll();
  }
 
  // ===================== PUBLISH TO SITE =====================
@@ -1992,15 +1992,18 @@
  }
 
  function refreshAiAll() {
-   var token = localStorage.getItem('ch_ga_token');
-   var exp = parseInt(localStorage.getItem('ch_ga_token_exp') || '0');
-   if (token && Date.now() < exp - 60000) {
-     runFreeAiChecks(token);
+   // AI Answer Visibility uses the AI keys (Gemini / OpenAI / Perplexity) only -
+   // it does NOT need the Google Analytics connection. Run it whenever any AI
+   // key is present, so a disconnected/expired Google login never blocks it.
+   var gk = localStorage.getItem('ch_key_gemini');
+   var ok = localStorage.getItem('ch_key_openai');
+   var pk = localStorage.getItem('ch_key_perplexity');
+   if (gk || ok || pk) {
+     runFreeAiChecks(null);
    } else {
-     // Token expired — re-auth then run
-     connectGoogle();
+     openAiKeys();
    }
-   // Also run paid AI checks if keys exist
+   // Also run paid AI score checks if keys exist
    runAiChecks(false);
  }
 
