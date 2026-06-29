@@ -77,7 +77,8 @@ def _http(url, method='POST', headers=None, body=None, timeout=45):
     data = json.dumps(body).encode() if body is not None else None
     req = urllib.request.Request(url, data=data, headers=headers or {}, method=method)
     with urllib.request.urlopen(req, timeout=timeout) as r:
-        return json.loads(r.read().decode())
+        raw = r.read().decode().strip()
+        return json.loads(raw) if raw else None
 
 
 def _err_text(e):
