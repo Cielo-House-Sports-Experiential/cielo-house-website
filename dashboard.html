@@ -1868,7 +1868,37 @@
    'promotional models brand ambassadors Australia sports',
    'experiential marketing agency Brisbane Gold Coast',
    'sports event activation company Australia',
-   'hospitality packages Formula 1 Australian Grand Prix'
+   'hospitality packages Formula 1 Australian Grand Prix',
+   'top experiential marketing agencies in Australia',
+   'corporate hospitality providers Australian Grand Prix',
+   'brand activation companies Gold Coast',
+   'event marketing agency Queensland',
+   'sports marketing agency Australia',
+   'who runs brand activations at Supercars events',
+   'premium corporate hospitality Supercars Gold Coast 500',
+   'experiential agency for sponsorship activation Australia',
+   'best agency for event activations in Queensland',
+   'corporate hospitality Formula 1 Melbourne',
+   'brand experience agency Australia',
+   'activation agency for sporting events Australia',
+   'companies that provide brand ambassadors for events Australia',
+   'VIP hospitality packages Supercars',
+   'experiential marketing companies Brisbane',
+   'sports hospitality agency Australia',
+   'event staffing and promotional models Gold Coast',
+   'agencies that do brand activations at the F1 Grand Prix',
+   'corporate event management sports Australia',
+   'experiential marketing for brands at Australian sporting events',
+   'who to hire for sponsorship activation in Australia',
+   'best brand activation agency for sporting events',
+   'luxury corporate hospitality Australian sport',
+   'experiential marketing agency for automotive brands Australia',
+   'event activation specialists Gold Coast Queensland',
+   'WSL surfing event hospitality and activation Australia',
+   'agencies for VIP experiences at motorsport events Australia',
+   'brand activation and experiential agency Sydney Melbourne',
+   'corporate hospitality and guest management sporting events Australia',
+   'full service experiential marketing agency Australia'
  ];
 
  async function askGemini(token, question) {
@@ -1940,11 +1970,11 @@
      if (msg) msg.textContent = 'Asking Gemini: "' + q + '" (' + (i+1) + '/' + AI_QUERIES.length + ')…';
      var tasks = [];
      // Gemini (free, always run)
-     tasks.push(askGemini(token, q).then(function(res) { gemResults.push({ query: q, mentioned: res.mentioned, snippet: res.snippet }); }).catch(function() { gemResults.push({ query: q, mentioned: false, snippet: '', error: true }); }));
+     tasks.push(askGemini(token, q).then(function(res) { gemResults.push({ query: q, mentioned: res.mentioned, snippet: res.snippet }); }).catch(function(e) { gemResults.push({ query: q, mentioned: false, snippet: '', err: (e && e.message) || 'request failed' }); }));
      // OpenAI if key exists
-     if (okKey) tasks.push(askOpenAI(okKey, q).then(function(res) { cgptResults.push({ query: q, mentioned: res.mentioned, snippet: res.snippet }); }).catch(function() { cgptResults.push({ query: q, mentioned: false, snippet: '' }); }));
+     if (okKey) tasks.push(askOpenAI(okKey, q).then(function(res) { cgptResults.push({ query: q, mentioned: res.mentioned, snippet: res.snippet }); }).catch(function(e) { cgptResults.push({ query: q, mentioned: false, snippet: '', err: (e && e.message) || 'request failed' }); }));
      // Perplexity if key exists
-     if (pkKey) tasks.push(askPerplexity(pkKey, q).then(function(res) { plexResults.push({ query: q, mentioned: res.mentioned, snippet: res.snippet }); }).catch(function() { plexResults.push({ query: q, mentioned: false, snippet: '' }); }));
+     if (pkKey) tasks.push(askPerplexity(pkKey, q).then(function(res) { plexResults.push({ query: q, mentioned: res.mentioned, snippet: res.snippet }); }).catch(function(e) { plexResults.push({ query: q, mentioned: false, snippet: '', err: (e && e.message) || 'request failed' }); }));
      await Promise.all(tasks);
    }
 
@@ -2772,12 +2802,13 @@
        var cgRow = cgptR[i] || {}, plRow = plexR[i] || {};
        var anyMention = row.mentioned || cgRow.mentioned || plRow.mentioned;
        var snippet = row.snippet || cgRow.snippet || plRow.snippet || '';
+       var errMsg = row.err || cgRow.err || plRow.err || '';
        html += '<tr style="border-bottom:1px solid #f2f4fb;' + (anyMention ? 'background:#f0fff4;' : '') + '">'
          + '<td style="padding:0.55rem 0.75rem;color:#333;">' + esc(row.query) + '</td>'
          + '<td style="text-align:center;padding:0.55rem;">' + (row.mentioned ? '<span style="color:#27ae60;font-weight:700;">Yes</span>' : '<span style="color:#ccc;">—</span>') + '</td>'
          + (hasCgpt ? '<td style="text-align:center;padding:0.55rem;">' + (cgRow.mentioned ? '<span style="color:#27ae60;font-weight:700;">Yes</span>' : '<span style="color:#ccc;">—</span>') + '</td>' : '')
          + (hasPlex ? '<td style="text-align:center;padding:0.55rem;">' + (plRow.mentioned ? '<span style="color:#27ae60;font-weight:700;">Yes</span>' : '<span style="color:#ccc;">—</span>') + '</td>' : '')
-         + '<td style="padding:0.55rem 0.75rem;color:#888;font-style:italic;font-size:0.73rem;">' + (snippet ? '"' + esc(snippet.slice(0,120)) + (snippet.length > 120 ? '…' : '') + '"' : '') + '</td>'
+         + '<td style="padding:0.55rem 0.75rem;font-style:italic;font-size:0.73rem;' + (snippet ? 'color:#888;' : 'color:#c0392b;') + '">' + (snippet ? '"' + esc(snippet.slice(0,120)) + (snippet.length > 120 ? '…' : '') + '"' : (errMsg ? esc(errMsg.slice(0,150)) : '')) + '</td>'
          + '</tr>';
      });
      html += '</tbody></table>';
