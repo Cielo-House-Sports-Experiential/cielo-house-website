@@ -1,6 +1,9 @@
 {
   "version": 2,
   "outputDirectory": ".",
+  "functions": {
+    "api/ai-visibility-run.py": { "maxDuration": 60 }
+  },
   "redirects": [
     { "source": "/UPLOAD-IMAGE.HTML", "destination": "/upload-image.html" },
     { "source": "/UPLOAD-IMAGE.html", "destination": "/upload-image.html" },
