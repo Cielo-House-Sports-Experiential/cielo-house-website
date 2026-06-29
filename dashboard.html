@@ -2021,20 +2021,42 @@
    return JSON.parse(text);
  }
 
- function refreshAiAll() {
-   // AI Answer Visibility uses the AI keys (Gemini / OpenAI / Perplexity) only -
-   // it does NOT need the Google Analytics connection. Run it whenever any AI
-   // key is present, so a disconnected/expired Google login never blocks it.
-   var gk = localStorage.getItem('ch_key_gemini');
-   var ok = localStorage.getItem('ch_key_openai');
-   var pk = localStorage.getItem('ch_key_perplexity');
-   if (gk || ok || pk) {
-     runFreeAiChecks(null);
-   } else {
-     openAiKeys();
-   }
-   // Also run paid AI score checks if keys exist
-   runAiChecks(false);
+ // AI Answer Visibility now runs SERVER-SIDE (api/ai-visibility-run) using the
+ // keys saved in dashboard_secrets. The browser only triggers a run and then
+ // reads the stored results, so it works on every device (incl. Gio) with no
+ // CORS, no per-browser keys, and no model-name churn.
+ async function loadAiResultsFromServer() {
+   try {
+     var r = await fetch(_SB + '/rest/v1/ai_visibility_results?select=model,query,mentioned,snippet,error,run_id,created_at&order=created_at.desc&limit=200', { headers: _sbH() });
+     var rows = await r.json();
+     if (!Array.isArray(rows) || !rows.length) return;
+     var latest = rows[0].run_id;
+     var cur = rows.filter(function(x){ return x.run_id === latest; });
+     function byModel(m) {
+       return AI_QUERIES.map(function(q){
+         var row = cur.find(function(x){ return x.model === m && x.query === q; });
+         return row ? { query: q, mentioned: row.mentioned, snippet: row.snippet || '', err: row.error || '' }
+                    : { query: q, mentioned: false, snippet: '', err: '' };
+       });
+     }
+     var s = JSON.parse(localStorage.getItem('ch_stats') || '{}');
+     s.aiQueries = { gem: byModel('gemini'), cgpt: byModel('chatgpt'), plex: byModel('perplexity'), updatedAt: rows[0].created_at };
+     s.aiUpdatedAt = rows[0].created_at;
+     localStorage.setItem('ch_stats', JSON.stringify(s));
+     loadAnalytics();
+   } catch (e) {}
+ }
+
+ async function refreshAiAll() {
+   var bar = document.getElementById('ai-loading-bar');
+   var msg = document.getElementById('ai-loading-msg');
+   if (bar) bar.style.display = 'flex';
+   if (msg) msg.textContent = 'Running checks on the server — 40 queries across Gemini, ChatGPT and Perplexity (~30-60s)…';
+   try {
+     await fetch('/api/ai-visibility-run', { method: 'POST' });
+   } catch (e) { /* run may still have completed; we read the table next */ }
+   await loadAiResultsFromServer();
+   if (bar) bar.style.display = 'none';
  }
 
  async function runAiChecks(manual) {
@@ -3371,7 +3393,8 @@
      try { if (typeof _fillKeyFields === 'function') _fillKeyFields(); } catch(e){}
      try { if (typeof loadAnalytics === 'function') loadAnalytics(); } catch(e){}
      try { if (localStorage.getItem('ch_ga_refresh_token') && typeof syncGoogleData === 'function') syncGoogleData(false); } catch(e){}
-     try { if ((localStorage.getItem('ch_key_openai') || localStorage.getItem('ch_key_gemini') || localStorage.getItem('ch_key_perplexity')) && typeof runAiChecks === 'function') runAiChecks(true); } catch(e){}
+     // Show the latest server-side AI visibility run (no in-browser calls).
+     try { if (typeof loadAiResultsFromServer === 'function') loadAiResultsFromServer(); } catch(e){}
    });
    setInterval(_saveSecrets, 30000);
  });
