@@ -5678,14 +5678,17 @@ Respond ONLY with valid JSON array, no other text:
    fetch(_SB+'/rest/v1/edm_campaign_sections?id=eq.'+b.id,{method:'PATCH',headers:Object.assign({},_sbH(),{'Prefer':'return=minimal'}),body:JSON.stringify({position:b.position})}).catch(function(){});
  }
 
- function edmTest(){
+ async function edmTest(){
    if(!_edmCur) return;
    var emails=document.getElementById('edm-test-emails').value.split(',').map(function(e){return e.trim();}).filter(Boolean);
    if(!emails.length){ alert('Enter at least one test email address.'); return; }
    if(!_edmSecs.length){ alert('Add at least one image before sending.'); return; }
    edmSaveMeta();
    var btn=document.getElementById('edm-test-btn'); btn.disabled=true; btn.textContent='Sending…';
-   fetch('/api/edm/send',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(window._edmToken||'')},body:JSON.stringify({campaign_id:_edmCur.id,mode:'test',test_emails:emails})})
+   // Always grab a FRESH access token first — a stale one is what causes the 403.
+   var token = window._edmToken || '';
+   try { if(window._sbAuth){ var s = await window._sbAuth.auth.getSession(); if(s && s.data && s.data.session && s.data.session.access_token){ token = s.data.session.access_token; window._edmToken = token; window._authToken = token; } } } catch(e){}
+   fetch('/api/edm/send',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({campaign_id:_edmCur.id,mode:'test',test_emails:emails})})
     .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
     .then(function(res){ btn.disabled=false; btn.textContent='Send test';
       if(res.ok&&res.j.ok){ alert('Test sent to '+res.j.sent+' address(es). Check the inbox.'); }
