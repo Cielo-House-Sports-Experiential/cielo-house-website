@@ -1,6 +1,6 @@
 """
 Cielo House EDM — send engine.
-POST /api/edm/send   (Authorization: Bearer <supabase access token>)
+POST /api/edm/send  (Authorization: Bearer <supabase access token>)
 Body: { "campaign_id": "...", "mode": "test"|"now", "test_emails": ["..."] }
 
 - mode "test": sends [TEST] copies to the given addresses; no edm_sends rows, no stats.
