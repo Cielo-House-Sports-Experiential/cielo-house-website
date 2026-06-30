@@ -10,7 +10,7 @@ Body: { "campaign_id": "...", "mode": "test"|"now", "test_emails": ["..."] }
 Admin-only: verifies the Supabase access token belongs to an allow-listed admin.
 """
 from http.server import BaseHTTPRequestHandler
-import os, json, urllib.request, html as htmlmod
+import os, json, urllib.request, urllib.error, html as htmlmod
 from datetime import datetime, timezone
 
 SB = os.environ.get('SUPABASE_URL', '')
@@ -90,10 +90,20 @@ def build_email(camp, sections, send_id, token):
 
 
 def resend_send(obj):
+    if not RESEND:
+        raise Exception('RESEND_API_KEY is not set on the server')
     req = urllib.request.Request('https://api.resend.com/emails', method='POST', data=json.dumps(obj).encode(),
                                  headers={'Authorization': 'Bearer ' + RESEND, 'Content-Type': 'application/json'})
-    with urllib.request.urlopen(req, timeout=20) as r:
-        return json.loads(r.read().decode())
+    try:
+        with urllib.request.urlopen(req, timeout=20) as r:
+            return json.loads(r.read().decode())
+    except urllib.error.HTTPError as e:
+        detail = ''
+        try:
+            detail = e.read().decode()[:400]
+        except Exception:
+            pass
+        raise Exception('Resend rejected the email (' + str(e.code) + '): ' + detail)
 
 
 class handler(BaseHTTPRequestHandler):
