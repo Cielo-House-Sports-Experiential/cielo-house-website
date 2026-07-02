@@ -785,6 +785,12 @@
           <button type="button" class="rte-btn" title="Heading 3" onclick="rteCmd('formatBlock','h3')">H3</button>
           <button type="button" class="rte-btn" title="Paragraph" onclick="rteCmd('formatBlock','p')">P</button>
           <span class="rte-sep"></span>
+          <select class="rte-btn" id="rte-font" title="Brand font" style="padding:0.28rem 0.45rem;font-weight:600;" onchange="rteFont(this.value); this.selectedIndex=0;">
+            <option value="">Font &#9662;</option>
+            <option value="Poppins" style="font-family:'Poppins',sans-serif;">Poppins &middot; Body</option>
+            <option value="Bebas Neue" style="font-family:'Bebas Neue',sans-serif;">Bebas Neue &middot; Heading</option>
+          </select>
+          <span class="rte-sep"></span>
           <button type="button" class="rte-btn" title="Bullet list" onclick="rteCmd('insertUnorderedList')">&#8226; List</button>
           <button type="button" class="rte-btn" title="Numbered list" onclick="rteCmd('insertOrderedList')">1. List</button>
           <span class="rte-sep"></span>
@@ -4203,6 +4209,15 @@
  function rteCmd(cmd, val) {
    document.getElementById('blog-content').focus();
    document.execCommand(cmd, false, val || null);
+ }
+
+ // Apply a brand font to the current selection. Emits inline CSS (font-family)
+ // rather than legacy <font> tags so the site render + sanitiser recognise it.
+ function rteFont(font) {
+   if (!font) return;
+   document.getElementById('blog-content').focus();
+   try { document.execCommand('styleWithCSS', false, true); } catch (e) {}
+   document.execCommand('fontName', false, font);
  }
 
  function rteInsertLink() {

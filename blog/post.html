@@ -25,18 +25,12 @@
  .prose blockquote p { font-family: var(--font-display); font-size: clamp(1.25rem, 2vw, 1.5rem); color: var(--color-midnight); line-height: 1.4; margin-bottom: 0; }
  .prose strong { color: var(--color-midnight); font-weight: 600; }
  .prose .lead { font-size: 1.15rem; color: var(--color-text-light); line-height: 1.8; margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-light-grey); }
- /* Posts are pasted from external editors (Docs/Word) that carry inline
-    font-family / font-size / colour. Force the brand fonts + a uniform body
-    style so every post reads consistently, whatever was pasted in. */
- .prose, .prose p, .prose li, .prose span, .prose td, .prose div, .prose a { font-family: var(--font-body) !important; }
- .prose h1, .prose h1 *, .prose h2, .prose h2 *, .prose h3, .prose h3 *, .prose h4, .prose h4 *,
- .prose blockquote p, .prose blockquote p * { font-family: var(--font-display) !important; }
- .prose p, .prose li { font-size: 1.05rem !important; }
- .prose p.lead { font-size: 1.15rem !important; }
- .prose p *, .prose li * { font-size: inherit !important; }
- .prose p, .prose li, .prose p span, .prose li span { color: var(--color-text-light) !important; }
- .prose h1, .prose h2, .prose h3, .prose h4, .prose h1 *, .prose h2 *, .prose h3 *, .prose h4 * { color: var(--color-midnight) !important; }
- .prose strong { color: var(--color-midnight) !important; }
+ /* Posts are pasted from Docs/Word carrying inline fonts. sanitizeBlogHtml()
+    (JS) strips non-brand inline font-family/size/colour so these brand defaults
+    govern, while a brand font deliberately selected in the editor still wins. */
+ .prose p, .prose li, .prose td { font-family: var(--font-body); }
+ .prose h1, .prose h2, .prose h3, .prose h4, .prose blockquote p { font-family: var(--font-display); }
+ .prose p, .prose li { font-size: 1.05rem; }
  .sidebar-card { background: var(--color-off-white); border-radius: var(--radius-md); padding: 1.75rem; margin-bottom: 2rem; border-top: 2px solid var(--color-gold); }
  .sidebar-card--dark { background: var(--color-midnight); }
  .article-tag { display: inline-block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-gold); background: rgba(102,141,198,0.1); padding: 0.35rem 0.85rem; border-radius: var(--radius-full); margin-right: 0.5rem; margin-bottom: 0.5rem; }
@@ -161,15 +155,43 @@
  function renderContent(raw) {
    if (!raw) return '';
    const trimmed = raw.trim();
+   let html;
    if (trimmed.startsWith('<')) {
-     // Already HTML (saved from contenteditable editor)
-     return trimmed;
+     html = trimmed; // Already HTML (saved from contenteditable editor)
+   } else {
+     try {
+       html = (typeof marked !== 'undefined') ? marked.parse(trimmed) : trimmed.replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>');
+     } catch(e) { html = trimmed; }
    }
+   return sanitizeBlogHtml(html);
+ }
+
+ // Pasted content (Docs/Word) carries inline font-family/size/colour that
+ // clashes with the brand fonts. Strip those inline styles so the site's brand
+ // fonts govern — but KEEP a font-family the author deliberately chose from the
+ // editor's brand-font selector (Poppins / Bebas Neue).
+ function sanitizeBlogHtml(html) {
    try {
-     return (typeof marked !== 'undefined') ? marked.parse(trimmed) : trimmed.replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>');
-   } catch(e) {
-     return trimmed;
-   }
+     const BRAND = ['poppins', 'bebas neue'];
+     const box = document.createElement('div');
+     box.innerHTML = html;
+     box.querySelectorAll('[style]').forEach(el => {
+       let s = el.getAttribute('style') || '';
+       s = s.replace(/font-family\s*:\s*([^;]*);?/gi, (m, fam) =>
+         BRAND.some(b => fam.toLowerCase().includes(b)) ? 'font-family:' + fam.trim() + ';' : '');
+       s = s.replace(/font-size\s*:[^;]*;?/gi, '');
+       s = s.replace(/line-height\s*:[^;]*;?/gi, '');
+       s = s.replace(/(^|;)\s*color\s*:[^;]*/gi, '');
+       s = s.replace(/mso-[^:;]*:[^;]*;?/gi, '');
+       el.setAttribute('style', s.replace(/;{2,}/g, ';').replace(/^\s*;\s*/, '').trim());
+       if (!el.getAttribute('style')) el.removeAttribute('style');
+     });
+     box.querySelectorAll('font[face]').forEach(f => {
+       if (!BRAND.some(b => (f.getAttribute('face') || '').toLowerCase().includes(b))) f.removeAttribute('face');
+     });
+     box.querySelectorAll('o\\:p').forEach(o => o.remove());
+     return box.innerHTML;
+   } catch (e) { return html; }
  }
 
  async function load() {
