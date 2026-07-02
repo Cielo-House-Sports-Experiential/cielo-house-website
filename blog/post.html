@@ -25,6 +25,18 @@
  .prose blockquote p { font-family: var(--font-display); font-size: clamp(1.25rem, 2vw, 1.5rem); color: var(--color-midnight); line-height: 1.4; margin-bottom: 0; }
  .prose strong { color: var(--color-midnight); font-weight: 600; }
  .prose .lead { font-size: 1.15rem; color: var(--color-text-light); line-height: 1.8; margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--color-light-grey); }
+ /* Posts are pasted from external editors (Docs/Word) that carry inline
+    font-family / font-size / colour. Force the brand fonts + a uniform body
+    style so every post reads consistently, whatever was pasted in. */
+ .prose, .prose p, .prose li, .prose span, .prose td, .prose div, .prose a { font-family: var(--font-body) !important; }
+ .prose h1, .prose h1 *, .prose h2, .prose h2 *, .prose h3, .prose h3 *, .prose h4, .prose h4 *,
+ .prose blockquote p, .prose blockquote p * { font-family: var(--font-display) !important; }
+ .prose p, .prose li { font-size: 1.05rem !important; }
+ .prose p.lead { font-size: 1.15rem !important; }
+ .prose p *, .prose li * { font-size: inherit !important; }
+ .prose p, .prose li, .prose p span, .prose li span { color: var(--color-text-light) !important; }
+ .prose h1, .prose h2, .prose h3, .prose h4, .prose h1 *, .prose h2 *, .prose h3 *, .prose h4 * { color: var(--color-midnight) !important; }
+ .prose strong { color: var(--color-midnight) !important; }
  .sidebar-card { background: var(--color-off-white); border-radius: var(--radius-md); padding: 1.75rem; margin-bottom: 2rem; border-top: 2px solid var(--color-gold); }
  .sidebar-card--dark { background: var(--color-midnight); }
  .article-tag { display: inline-block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-gold); background: rgba(102,141,198,0.1); padding: 0.35rem 0.85rem; border-radius: var(--radius-full); margin-right: 0.5rem; margin-bottom: 0.5rem; }
