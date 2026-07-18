@@ -3358,6 +3358,9 @@
 
  function renderEvts() {
  var evts = getEvts();
+ // Display in date order — earliest first; any undated events go last. Sorting the
+ // array in place keeps the Edit/Delete indices matching what's shown.
+ evts.sort(function(a, b){ return (a.start || '9999-99-99').localeCompare(b.start || '9999-99-99'); });
  document.getElementById('evt-count').textContent = evts.length;
  var grid = document.getElementById('evt-grid');
  if (!evts.length) { grid.innerHTML = '<div class="empty">No events yet.</div>'; return; }
