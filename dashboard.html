@@ -3206,14 +3206,30 @@
  }
  function saveEvts(e) {
    _evts = e;
-   // Replace-all sync: clear the table, then insert the current set in order.
-   fetch(EVT_SB + '/rest/v1/site_events?id=not.is.null', { method: 'DELETE', headers: EVT_H() })
-     .then(function () {
-       if (!e.length) return;
-       var payload = e.map(function (ev, i) { return { title: ev.title, location: ev.location || null, start_date: ev.start || null, end_date: ev.end || null, photo: ev.photo || null, notes: ev.notes || null, sort_order: i }; });
+   var payload = (e || []).map(function (ev, i) { return { title: ev.title, location: ev.location || null, start_date: ev.start || null, end_date: ev.end || null, photo: ev.photo || null, notes: ev.notes || null, sort_order: i }; });
+   // SAFETY GUARD: never wipe the whole calendar on an empty save. The old code
+   // deleted every row FIRST and then inserted — so an empty list (or a failed
+   // insert after the delete) erased all events. Refuse an empty payload outright.
+   if (!payload.length) {
+     alert('Not saving an empty calendar — this guard prevents wiping all your events. Add an event, or remove the last one directly in the database.');
+     return;
+   }
+   // Non-destructive replace: INSERT the new set first, then delete ONLY the previous
+   // rows once the insert has succeeded. If any step fails, the existing events stay
+   // put (worst case a momentary duplicate) — a save can never leave the calendar empty.
+   var oldIds = [];
+   fetch(EVT_SB + '/rest/v1/site_events?select=id', { headers: EVT_H() })
+     .then(function (r) { return r.ok ? r.json() : []; })
+     .then(function (rows) {
+       oldIds = (rows || []).map(function (x) { return x.id; });
        return fetch(EVT_SB + '/rest/v1/site_events', { method: 'POST', headers: Object.assign({}, EVT_H(), { Prefer: 'return=minimal' }), body: JSON.stringify(payload) });
      })
-     .catch(function () { alert('Could not save events to the website. Check your connection and try again.'); });
+     .then(function (r) {
+       if (!r || !r.ok) throw new Error('insert failed');
+       if (!oldIds.length) return;
+       return fetch(EVT_SB + '/rest/v1/site_events?id=in.(' + oldIds.join(',') + ')', { method: 'DELETE', headers: EVT_H() });
+     })
+     .catch(function () { alert('Could not save events. Your existing events were NOT changed. Check your connection and try again.'); });
  }
  // SAFE one-way migration: events you edited live in this browser's localStorage —
  // that is the source of truth. Show them and push them UP to Supabase. The local
