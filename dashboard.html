@@ -3710,6 +3710,11 @@
      var searchMatch = !search || (p.title||'').toLowerCase().includes(search) || (p.category||'').toLowerCase().includes(search);
      return statusMatch && searchMatch;
    });
+   // Newest first, every load: sort by date (then scheduled time) descending so
+   // no older post ever floats above a newer one, regardless of insert order.
+   filtered.sort(function(a, b) {
+     return String(b.date || b.scheduledAt || '').localeCompare(String(a.date || a.scheduledAt || ''));
+   });
    // Show/hide select-all row
    var selAllRow = document.getElementById('select-all-row');
    if (filtered.length > 0) {
@@ -3851,18 +3856,20 @@
    var existing = (editId !== '') ? posts[parseInt(editId)] : null;
    var schedRaw = document.getElementById('blog-schedule-at').value;
    var scheduledIso = null, newStatus = null;
+   // SAVE NEVER SCHEDULES OR PUBLISHES. Saving only stores inputs (including the
+   // schedule time). A new post stays Draft; an existing post keeps its current
+   // status. A post only becomes Scheduled via the explicit Schedule action, and
+   // only goes live via the scheduled-publish runner at its time. Editing a live
+   // post never unpublishes it.
    if (schedRaw) {
      var sd = new Date(schedRaw);
-     if (!isNaN(sd.getTime())) {
-       scheduledIso = sd.toISOString();
-       newStatus = sd.getTime() > Date.now() ? 'Scheduled' : 'Published';
-     }
+     if (!isNaN(sd.getTime())) { scheduledIso = sd.toISOString(); }
    }
-   if (newStatus === null) {
-     // No valid publish time in the field: preserve whatever the post already had.
-     if (existing && existing.scheduledAt) { scheduledIso = existing.scheduledAt; newStatus = existing.status || 'Scheduled'; }
-     else if (existing && existing.status) { newStatus = existing.status; }
-     else { newStatus = 'Draft'; }
+   if (existing) {
+     newStatus = existing.status || 'Draft';
+     if (scheduledIso === null && existing.scheduledAt) { scheduledIso = existing.scheduledAt; }
+   } else {
+     newStatus = 'Draft';
    }
    var articleDate = document.getElementById('blog-date').value || (scheduledIso ? scheduledIso.slice(0,10) : '');
 
