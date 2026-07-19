@@ -38,8 +38,9 @@
      if (s && s.user && ADMIN.indexOf((s.user.email || '').toLowerCase()) >= 0) {
        sessionStorage.setItem('ch_auth', 'true');
        window._edmEmail = s.user.email; _setTok(s.access_token);
-       if (window.history && window.location.hash) { history.replaceState(null, '', window.location.pathname + window.location.search); }
+       window._deepLinkHash = window.location.hash || '';
        ok();
+       if (window.applyDeepLink) { setTimeout(window.applyDeepLink, 300); }
      } else {
        go();
      }
@@ -1715,8 +1716,23 @@
  btn.classList.add('active');
  var panel = document.getElementById('panel-' + btn.getAttribute('data-panel'));
  if (panel) panel.classList.add('active');
+ // Deep link: reflect the open panel in the URL so it can be shared/bookmarked.
+ if (window.history) { try { history.replaceState(null, '', '#' + btn.getAttribute('data-panel')); } catch (e) {} }
  });
  });
+ // Deep link on load: open the panel named in the URL hash (e.g. #subscribers,
+ // #events, #edm). For #edm/<id> (or #edm-<id>) open that specific EDM once the
+ // list has loaded. Works for every panel.
+ window.applyDeepLink = function() {
+ var h = (window._deepLinkHash || window.location.hash || '').replace(/^#/, '');
+ if (!h) return;
+ var m = /^edm[\/-](.+)$/.exec(h);
+ var panelName = m ? 'edm' : h;
+ var navBtn = document.querySelector('.nav-btn[data-panel="' + panelName + '"]');
+ if (!navBtn) return;
+ navBtn.click();
+ if (m && typeof edmOpen === 'function') { setTimeout(function () { try { edmOpen(m[1]); } catch (e) {} }, 500); }
+ };
 
  // Track page view
  (function() {
