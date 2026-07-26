@@ -72,7 +72,14 @@ def build_email(camp, sections, send_id, token):
         imgtag = ('<img src="' + esc(sec.get('image_url') or '') + '" alt="' + esc(sec.get('image_alt') or '') +
                   '" width="1200" style="display:block;width:100%;max-width:1200px;height:auto;border:0;" />')
         if sec.get('link_url'):
-            href = BASE + '/api/edm/click?s=' + send_id + '&sec=' + sec['id']
+            # A test send has no edm_sends row, so the click tracker can't resolve
+            # a per-section destination and would fall back to the homepage for
+            # EVERY link. Link tests straight to the real URL so they're
+            # verifiable; real sends keep click tracking.
+            if send_id == 'test':
+                href = esc(sec['link_url'])
+            else:
+                href = BASE + '/api/edm/click?s=' + send_id + '&sec=' + sec['id']
             imgtag = '<a href="' + href + '" target="_blank">' + imgtag + '</a>'
         rows.append('<tr><td style="padding:0;font-size:0;line-height:0;">' + imgtag + '</td></tr>')
     unsub = BASE + '/api/edm/unsubscribe?t=' + (token or '')
