@@ -25,6 +25,24 @@ def rpc(fn, args):
         return None
 
 
+def section_dest(sec):
+    # The destination is the section's own stored link — read from the DB, never
+    # from the URL, so this is not an open redirect. Used as the source of truth
+    # for the redirect (and the only resolver for test sends, which have no
+    # edm_sends row for the RPC to validate against).
+    try:
+        req = urllib.request.Request(
+            SB + '/rest/v1/edm_campaign_sections?id=eq.' + urllib.parse.quote(sec) + '&select=link_url',
+            headers={'apikey': SR, 'Authorization': 'Bearer ' + SR})
+        with urllib.request.urlopen(req, timeout=8) as r:
+            rows = json.loads(r.read().decode())
+        if rows and rows[0].get('link_url'):
+            return rows[0]['link_url']
+    except Exception:
+        return None
+    return None
+
+
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         q = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
@@ -34,13 +52,14 @@ class handler(BaseHTTPRequestHandler):
         ip = (self.headers.get('x-forwarded-for', '') or '').split(',')[0].strip()
         ip_hash = hashlib.sha256((ip + '|cielo').encode()).hexdigest()[:32] if ip else None
         dest = None
-        if sid and sec:
-            res = rpc('edm_log_click', {'p_send': sid, 'p_section': sec, 'p_ua': ua, 'p_ip': ip_hash})
-            if res and res != 'null':
-                try:
-                    dest = json.loads(res)
-                except Exception:
-                    dest = res
+        # Log the click for real sends only (a test has no send row; logging it
+        # would corrupt the campaign's click stats).
+        if sid and sec and sid != 'test':
+            rpc('edm_log_click', {'p_send': sid, 'p_section': sec, 'p_ua': ua, 'p_ip': ip_hash})
+        # Resolve the destination from the section itself, so test and real sends
+        # redirect to exactly the same place.
+        if sec:
+            dest = section_dest(sec)
         if not dest or not (str(dest).startswith('http://') or str(dest).startswith('https://')):
             dest = FALLBACK
         self.send_response(302)
