@@ -34,6 +34,19 @@ def sb(method, path, body=None, prefer=None):
         return json.loads(t) if t else None
 
 
+def scheduler_token():
+    # The token the scheduler authenticates with. Prefer the env var; fall back
+    # to the value stored in dashboard_secrets.vals.edm_scheduler_token so the
+    # scheduled-send trigger works without an extra Vercel env var.
+    if SCHED_TOKEN:
+        return SCHED_TOKEN
+    try:
+        rows = sb('GET', 'dashboard_secrets?id=eq.main&select=vals')
+        return ((rows[0].get('vals') or {}).get('edm_scheduler_token') or '') if rows else ''
+    except Exception:
+        return ''
+
+
 def verify_admin(auth_header):
     if not auth_header or not auth_header.startswith('Bearer '):
         return None
@@ -129,7 +142,8 @@ class handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         sched = self.headers.get('X-Scheduler-Token') or ''
-        if not (verify_admin(self.headers.get('Authorization')) or (SCHED_TOKEN and sched == SCHED_TOKEN)):
+        stok = scheduler_token()
+        if not (verify_admin(self.headers.get('Authorization')) or (stok and sched == stok)):
             return self._json(401, {'error': 'unauthorised'})
         try:
             n = int(self.headers.get('Content-Length') or 0)
