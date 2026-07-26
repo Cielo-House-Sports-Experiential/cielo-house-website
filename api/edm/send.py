@@ -92,8 +92,12 @@ def build_email(camp, sections, send_id, token):
 def resend_send(obj):
     if not RESEND:
         raise Exception('RESEND_API_KEY is not set on the server')
+    # Resend is fronted by Cloudflare, which returns 403 (error code 1010) for
+    # requests with no User-Agent. urllib doesn't set a usable one, so set it
+    # explicitly or every send fails before reaching the API.
     req = urllib.request.Request('https://api.resend.com/emails', method='POST', data=json.dumps(obj).encode(),
-                                 headers={'Authorization': 'Bearer ' + RESEND, 'Content-Type': 'application/json'})
+                                 headers={'Authorization': 'Bearer ' + RESEND, 'Content-Type': 'application/json',
+                                          'User-Agent': 'CieloHouse-EDM/1.0'})
     try:
         with urllib.request.urlopen(req, timeout=20) as r:
             return json.loads(r.read().decode())
