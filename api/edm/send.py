@@ -20,6 +20,7 @@ SCHED_TOKEN = os.environ.get('EDM_SCHEDULER_TOKEN', '')
 BASE = os.environ.get('EDM_TRACKING_BASE_URL', 'https://www.cielohouse.com.au')
 ADMIN = {'britt@cielohouse.com.au', 'giovana@cielohouse.com.au', 'connect@cielohouse.com.au'}
 FROM = 'Cielo House Experiential & Events <connect@cielohouse.com.au>'
+ROW_BG = '#2b317b'  # navy behind sliced "row" sections, fills any hairline gaps
 
 
 def sb(method, path, body=None, prefer=None):
@@ -69,6 +70,33 @@ def build_email(camp, sections, send_id, token):
     pre = esc(camp.get('preview_text') or '')
     rows = []
     for sec in sections:
+        # Multi-link "row" section: link_url holds JSON {"row":[{img,href,w},...]}.
+        # Rendered as one seamless row of side-by-side image slices, each with its
+        # own link (e.g. a social bar where the LinkedIn and Instagram icons go to
+        # different places). Slices are pre-cut so their widths are proportional,
+        # so the row scales as one image. Direct hrefs => identical in test + real.
+        row_cfg = None
+        link = sec.get('link_url') or ''
+        if link.startswith('{'):
+            try:
+                parsed = json.loads(link)
+                if isinstance(parsed, dict) and isinstance(parsed.get('row'), list):
+                    row_cfg = parsed['row']
+            except Exception:
+                row_cfg = None
+        if row_cfg:
+            cells = []
+            for cell in row_cfg:
+                cimg = ('<img src="' + esc(cell.get('img') or '') + '" width="100%" alt="" '
+                        'style="display:block;width:100%;height:auto;border:0;" />')
+                if cell.get('href'):
+                    cimg = '<a href="' + esc(cell['href']) + '" target="_blank">' + cimg + '</a>'
+                cells.append('<td width="' + esc(cell.get('w') or '') + '" bgcolor="' + ROW_BG +
+                             '" style="padding:0;font-size:0;line-height:0;background:' + ROW_BG + ';">' + cimg + '</td>')
+            row_tbl = ('<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" '
+                       'style="border-collapse:collapse;table-layout:fixed;"><tr>' + ''.join(cells) + '</tr></table>')
+            rows.append('<tr><td style="padding:0;font-size:0;line-height:0;background:' + ROW_BG + ';">' + row_tbl + '</td></tr>')
+            continue
         imgtag = ('<img src="' + esc(sec.get('image_url') or '') + '" alt="' + esc(sec.get('image_alt') or '') +
                   '" width="1200" style="display:block;width:100%;max-width:1200px;height:auto;border:0;" />')
         if sec.get('link_url'):
@@ -100,8 +128,17 @@ def build_email(camp, sections, send_id, token):
             '</table></td></tr></table>' + pixel + '</body></html>')
     txt = [camp.get('preview_text') or camp.get('subject') or '']
     for sec in sections:
-        if sec.get('link_url'):
-            txt.append((sec.get('image_alt') or 'Link') + ': ' + sec['link_url'])
+        link = sec.get('link_url') or ''
+        if link.startswith('{'):
+            # Row section: list each slice's own link in the plain-text part.
+            try:
+                for cell in (json.loads(link).get('row') or []):
+                    if cell.get('href'):
+                        txt.append('Link: ' + cell['href'])
+            except Exception:
+                pass
+        elif link:
+            txt.append((sec.get('image_alt') or 'Link') + ': ' + link)
     txt += ['', 'Cielo House Experiential & Events — connect@cielohouse.com.au', 'Unsubscribe: ' + unsub]
     return html, '\n'.join(txt)
 
