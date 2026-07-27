@@ -86,11 +86,14 @@ def build_email(camp, sections, send_id, token):
                 row_cfg = None
         if row_cfg:
             cells = []
-            for cell in row_cfg:
+            for idx, cell in enumerate(row_cfg):
                 cimg = ('<img src="' + esc(cell.get('img') or '') + '" width="100%" alt="" '
                         'style="display:block;width:100%;height:auto;border:0;" />')
                 if cell.get('href'):
-                    cimg = '<a href="' + esc(cell['href']) + '" target="_blank">' + cimg + '</a>'
+                    # Tracked per-slice link (&i=<index>) so each icon's clicks are
+                    # counted separately. Identical URL in test + real (replica).
+                    href = BASE + '/api/edm/click?s=' + send_id + '&sec=' + sec['id'] + '&i=' + str(idx)
+                    cimg = '<a href="' + href + '" target="_blank">' + cimg + '</a>'
                 cells.append('<td width="' + esc(cell.get('w') or '') + '" bgcolor="' + ROW_BG +
                              '" style="padding:0;font-size:0;line-height:0;background:' + ROW_BG + ';">' + cimg + '</td>')
             row_tbl = ('<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" '
