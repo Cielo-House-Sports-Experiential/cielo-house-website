@@ -57,6 +57,9 @@ var EVENTS_SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsIn
 
 /* ---- Load events from Supabase (same on every device), max 4 ---- */
 function loadEvents() {
+  /* No `visible` filter. The dashboard has no show/hide toggle for events, so
+     nothing ever sets that flag — filtering on it hid the whole calendar the
+     moment any save recreated the rows with the column default (false). */
   fetch(EVENTS_SB + '/rest/v1/site_events?select=title,location,start_date,end_date,photo&order=start_date.asc&limit=4', { headers: { apikey: EVENTS_SK, Authorization: 'Bearer ' + EVENTS_SK } })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (rows) {

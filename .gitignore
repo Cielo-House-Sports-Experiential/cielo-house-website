@@ -15,3 +15,5 @@ __pycache__/
 
 # Zip backups
 *.zip
+.vercel
+.env*
