@@ -1,0 +1,34 @@
+# THE OLD DASHBOARD IS NOT PUBLISHED ANY MORE.
+#
+# Everything it did now runs from the new portal at portal.cielohouse.com.au.
+# Britt asked for it to be pulled out on 11.08.26.
+#
+# Nothing here is deleted. Every file is still in the repository exactly as it
+# was, it simply is not deployed, so none of it is reachable on the live site.
+# Taking a line out of this file puts that page straight back.
+#
+# Checked before doing this: no public page links to any of it, and nothing
+# else in the site imports it.
+
+# The dashboard itself and the two pages only it uses
+dashboard.html
+login.html
+upload-image.html
+
+# Endpoints only the dashboard called
+api/google-proxy.py
+api/google-token.py
+api/cs-upload.py
+api/ai-visibility-run.py
+api/ga-sync.py
+
+# The OLD EDM sender. New EDMs are built and sent by the portal.
+api/edm/send.py
+api/edm/run-scheduled.py
+
+# DELIBERATELY STILL PUBLISHED, do not add these:
+#   api/chat.py              the chat the public site calls
+#   api/edm/click.py         \
+#   api/edm/open.py           >  the links inside EDMs already in people's
+#   api/edm/unsubscribe.py   /   inboxes. Taking these away would break an
+#                                unsubscribe link somebody was already sent.
