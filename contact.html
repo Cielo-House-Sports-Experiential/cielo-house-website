@@ -69,13 +69,13 @@
    }
  }
  </script>
-  <!-- Google Analytics 4 — replace G-TPHXH530F6 with your Measurement ID -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-TPHXH530F6"></script>
+  <!-- Google Analytics 4 — replace G-EX4125KP0Z with your Measurement ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-EX4125KP0Z"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag("js", new Date());
-    gtag("config", "G-TPHXH530F6");
+    gtag("config", "G-EX4125KP0Z");
   </script>
 </head>
 <body>
@@ -340,12 +340,27 @@
    function collect() {
      var data = new FormData(form);
      return {
+       first_name: data.get('first_name') || '',
+       last_name: data.get('last_name') || '',
        name: ((data.get('first_name') || '') + ' ' + (data.get('last_name') || '')).trim(),
        email: data.get('email') || '',
        company: data.get('company') || '',
        service: data.get('service') || '',
        message: data.get('message') || ''
      };
+   }
+
+   // Every enquiry also goes to the portal, onto Website, Email Enquiries, and
+   // is emailed to Britt from there. Process is which button was pressed.
+   function sendToPortal(f, process) {
+     return fetch('https://portal.cielohouse.com.au/api/enquiry', {
+       method: 'POST',
+       headers: { 'Content-Type': 'application/json' },
+       body: JSON.stringify({
+         first_name: f.first_name, last_name: f.last_name, email: f.email,
+         company: f.company, service: f.service, message: f.message, process: process
+       })
+     }).then(function (r) { return r.json(); });
    }
 
    function validate(f) {
@@ -380,8 +395,9 @@
        var btn = form.querySelector('button[type="submit"]');
        btn.textContent = 'Sending…';
        btn.disabled = true;
-       sendBrief(f, 'New website brief' + (f.name ? ' — ' + f.name : '')).then(function (res) {
-         if (res && res.success) {
+       sendBrief(f, 'New website brief' + (f.name ? ' — ' + f.name : '')).catch(function () {});
+       sendToPortal(f, 'Brief').then(function (res) {
+         if (res && (res.ok || res.emailed)) {
            form.style.display = 'none';
            if (successMsg) successMsg.style.display = 'block';
          } else {
@@ -403,6 +419,7 @@
        var f = collect();
        if (!validate(f)) return;
        // Send the brief, then open the Calendly popup.
+       sendToPortal(f, 'Briefing Call').catch(function () {});
        sendBrief(f, 'Briefing Call Scheduled').catch(function () {});
        if (window.Calendly) {
          Calendly.initPopupWidget({ url: CALENDLY });

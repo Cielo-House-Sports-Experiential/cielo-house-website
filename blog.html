@@ -46,14 +46,19 @@
    }
  }
  </script>
-  <!-- Google Analytics 4 — replace G-TPHXH530F6 with your Measurement ID -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-TPHXH530F6"></script>
+  <!-- Google Analytics 4 — replace G-EX4125KP0Z with your Measurement ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-EX4125KP0Z"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag("js", new Date());
-    gtag("config", "G-TPHXH530F6");
+    gtag("config", "G-EX4125KP0Z");
   </script>
+<script>
+/* A blog is live on the date it is set for, never before it. Today is worked
+   out in Britt's time, ten hours ahead of UTC. */
+function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString().slice(0,10); }
+</script>
 </head>
 <body>
 
@@ -283,7 +288,7 @@
    let posts = [];
    try {
      const r = await fetch(
-       `${U}/rest/v1/blog_posts?status=eq.Published&select=slug,title,excerpt,category,image,author,date&order=date.desc`,
+       `${U}/rest/v1/blog_posts?status=eq.Published&date=lte.${chBlogToday()}&select=slug,title,excerpt,category,image,author,date&order=date.desc`,
        { headers: { apikey: K, Authorization: 'Bearer ' + K } }
      );
      const data = await r.json();

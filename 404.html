@@ -41,14 +41,19 @@
 #not-found{display:none;text-align:center;padding:6rem 1rem;}
 @media(max-width:900px){.article-layout{grid-template-columns:1fr;}}
 </style>
-  <!-- Google Analytics 4 — replace G-TPHXH530F6 with your Measurement ID -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-TPHXH530F6"></script>
+  <!-- Google Analytics 4 — replace G-EX4125KP0Z with your Measurement ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-EX4125KP0Z"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag("js", new Date());
-    gtag("config", "G-TPHXH530F6");
+    gtag("config", "G-EX4125KP0Z");
   </script>
+<script>
+/* A blog is live on the date it is set for, never before it. Today is worked
+   out in Britt's time, ten hours ahead of UTC. */
+function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString().slice(0,10); }
+</script>
 </head>
 <body>
 <nav class="nav" role="navigation" aria-label="Main navigation">
@@ -220,7 +225,7 @@ async function init() {
   let post = null;
   try {
     const r = await fetch(
-      `${SB_URL}/rest/v1/blog_posts?slug=eq.${encodeURIComponent(slug)}&status=eq.Published&select=*`,
+      `${SB_URL}/rest/v1/blog_posts?slug=eq.${encodeURIComponent(slug)}&status=eq.Published&date=lte.${chBlogToday()}&select=*`,
       { headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY } }
     );
     const rows = await r.json();

@@ -41,14 +41,19 @@
  "sameAs": ["https://www.instagram.com/cielohouse_/", "https://www.linkedin.com/company/cielohouse"]
  }
  </script>
-  <!-- Google Analytics 4 — replace G-TPHXH530F6 with your Measurement ID -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-TPHXH530F6"></script>
+  <!-- Google Analytics 4 — replace G-EX4125KP0Z with your Measurement ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-EX4125KP0Z"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag("js", new Date());
-    gtag("config", "G-TPHXH530F6");
+    gtag("config", "G-EX4125KP0Z");
   </script>
+<script>
+/* A blog is live on the date it is set for, never before it. Today is worked
+   out in Britt's time, ten hours ahead of UTC. */
+function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString().slice(0,10); }
+</script>
 </head>
 <body>
 
@@ -609,16 +614,26 @@
 
  <script src="js/main.js?v=4" defer></script>
  <script src="js/events.js?v=4" defer></script>
+<script src="js/popup.js?v=2"></script>
  <script>
  function handleEmailSignup(e) {
  e.preventDefault();
  var form = e.target;
  var msg = form.querySelector('.email-signup__msg');
  var input = form.querySelector('input[type=email]');
- if (input.value && window.cieloSubscribe) { cieloSubscribe(form, 'home'); }
- msg.style.display = 'block';
- input.value = '';
- setTimeout(function() { msg.style.display = 'none'; }, 4000);
+ if (!input.value || !window.cieloSubscribe) return;
+ /* The thank you used to show whatever happened, and the box emptied itself
+    before anything had been saved. Now it waits: cieloSubscribe empties the box
+    only once the address has actually been taken, so a sign up that failed
+    never shows a tick. */
+ cieloSubscribe(form, 'home');
+ var seen = setInterval(function () {
+   if (input.value) return;
+   clearInterval(seen);
+   msg.style.display = 'block';
+   setTimeout(function () { msg.style.display = 'none'; }, 4000);
+ }, 200);
+ setTimeout(function () { clearInterval(seen); }, 15000);
  }
 
  /* ── Live home-page content from Supabase (same on every device, driven by the
@@ -651,7 +666,7 @@
    /* Insights — latest 3 published posts */
    var blogGrid = document.querySelector('.blog-grid');
    if (blogGrid) {
-     fetch(SB + '/rest/v1/blog_posts?status=eq.Published&select=slug,title,excerpt,image,category,date,author&order=date.desc&limit=3', { headers: H })
+     fetch(SB + '/rest/v1/blog_posts?status=eq.Published&date=lte.' + chBlogToday() + '&select=slug,title,excerpt,image,category,date,author&order=date.desc&limit=3', { headers: H })
        .then(function (r) { return r.ok ? r.json() : null; })
        .then(function (rows) {
          if (!rows || !rows.length) return;

@@ -654,25 +654,49 @@ if (heroBg && window.innerWidth > 768) {
 })();
 
 /* ============================================
-   Newsletter subscribe — saves to Supabase (subscribers table), not localStorage.
-   Used by the "Join Our Mailing List" forms across the site.
+   Newsletter subscribe.
+
+   ONE MAILING LIST, AND IT LIVES IN THE PORTAL.
+
+   This used to write straight into the website's own subscribers table with the
+   public key. That was a second list: the portal held its own, the EDM sends to
+   the portal's, and so anybody who signed up here would never have received an
+   EDM. Set right by Britt on 11.08.26.
+
+   Everything now goes to the portal, which is the one list. Signing up here is
+   asking to hear from us, so the portal sends the Subscription Confirmation.
+   The e-book pop up is the other way in and it does NOT send that, because
+   somebody there came for the download.
+
+   Used by Home Section 6, Insights Section 3 and Contact Section 5.
    ============================================ */
 window.cieloSubscribe = function (form, source) {
   var input = form.querySelector('input[type=email]');
   var btn = form.querySelector('button[type="submit"]') || form.querySelector('button');
   var email = input && input.value ? input.value.trim() : '';
   if (!email) return false;
-  var SB = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
-  var SK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
-  // Plain insert (no upsert): the subscriber list is no longer anon-readable, so
-  // the on-conflict upsert path is blocked by RLS. A duplicate email just returns
-  // a harmless 409 that we ignore — the UI still confirms.
-  fetch(SB + '/rest/v1/subscribers', {
+  var was = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = 'One moment'; }
+
+  fetch('https://portal.cielohouse.com.au/api/edm/subscribe', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'apikey': SK, 'Authorization': 'Bearer ' + SK, 'Prefer': 'return=minimal' },
-    body: JSON.stringify({ email: email, source: source || 'website' })
-  }).catch(function () {});
-  if (btn) btn.textContent = 'Subscribed ✓';
-  if (input) input.value = '';
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email, kind: 'mailing-list', source: source || 'website' })
+  })
+    .then(function (r) { return r.json().catch(function () { return null; }); })
+    .then(function (j) {
+      // A sign up that did not go through says so rather than showing a tick.
+      if (!j || !j.ok) {
+        if (btn) { btn.disabled = false; btn.textContent = was || 'Subscribe'; }
+        alert((j && j.error) || 'That did not go through. Please try again.');
+        return;
+      }
+      if (btn) btn.textContent = 'Subscribed \u2713';
+      if (input) input.value = '';
+    })
+    .catch(function () {
+      if (btn) { btn.disabled = false; btn.textContent = was || 'Subscribe'; }
+      alert('That did not go through. Please try again.');
+    });
   return false;
 };

@@ -48,14 +48,19 @@
  .preview-banner { background: var(--color-gold); color: #fff; text-align: center; padding: 0.6rem 1rem; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.05em; }
  @media (max-width: 900px) { .article-layout { grid-template-columns: 1fr; } }
  </style>
-  <!-- Google Analytics 4 — replace G-TPHXH530F6 with your Measurement ID -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-TPHXH530F6"></script>
+  <!-- Google Analytics 4 — replace G-EX4125KP0Z with your Measurement ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-EX4125KP0Z"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag("js", new Date());
-    gtag("config", "G-TPHXH530F6");
+    gtag("config", "G-EX4125KP0Z");
   </script>
+<script>
+/* A blog is live on the date it is set for, never before it. Today is worked
+   out in Britt's time, ten hours ahead of UTC. */
+function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString().slice(0,10); }
+</script>
 </head>
 <body>
  <div id="previewBanner" class="preview-banner" style="display:none;">PREVIEW - this is a draft, not yet live on the site</div>
@@ -78,7 +83,7 @@
  <li><a href="../blog.html" class="nav__link">Insights</a></li>
  <li><a href="../contact.html" class="nav__link">Contact</a></li>
  </ul>
- <div class="nav__cta"><a href="https://www.cielohouse.com.au/contact.html#discovery-call" class="btn btn--primary">Schedule a Briefing Call</a></div>
+ <div class="nav__cta"><a href="https://www.cielohouse.com.au/contact.html#discovery-call" onclick="if(typeof gtag!=='undefined')gtag('event','schedule_call',{event_category:'CTA',event_label:(document.querySelector('h1')||{}).textContent||document.title});" class="btn btn--primary">Schedule a Briefing Call</a></div>
  <button class="nav__hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
  </div>
  </nav>
@@ -184,7 +189,7 @@
        // Tier 1: Supabase (3 s timeout so slow/down Supabase doesn't block render)
        const ctrl = new AbortController();
        const tid = setTimeout(() => ctrl.abort(), 3000);
-       const r = await fetch(`${SUPABASE_URL}/rest/v1/blog_posts?slug=eq.${encodeURIComponent(slug)}&status=eq.Published&select=*`, { headers: { apikey: SUPABASE_ANON, Authorization: 'Bearer ' + SUPABASE_ANON }, signal: ctrl.signal });
+       const r = await fetch(`${SUPABASE_URL}/rest/v1/blog_posts?slug=eq.${encodeURIComponent(slug)}&status=eq.Published&date=lte.${chBlogToday()}&select=*`, { headers: { apikey: SUPABASE_ANON, Authorization: 'Bearer ' + SUPABASE_ANON }, signal: ctrl.signal });
        clearTimeout(tid);
        const rows = await r.json();
        post = Array.isArray(rows) && rows[0] ? rows[0] : null;
@@ -237,7 +242,7 @@
      const ld = { '@context':'https://schema.org','@type':'FAQPage','mainEntity': post.seo_qa.map(qa => ({ '@type':'Question','name':qa.q,'acceptedAnswer':{'@type':'Answer','text':qa.a} })) };
      const s = document.createElement('script'); s.type = 'application/ld+json'; s.textContent = JSON.stringify(ld); document.head.appendChild(s);
    }
-   html += '<div style="background:var(--color-off-white); border-radius:var(--radius-md); padding:2rem; margin-top:3rem; border-top:2px solid var(--color-gold);"><span class="eyebrow">Work with Cielo House</span><p style="margin:0.75rem 0 1.5rem; color:var(--color-text-light);">Cielo House designs and delivers premium activations and hospitality at Australia\'s biggest sporting events.</p><a href="https://www.cielohouse.com.au/contact.html#discovery-call" class="btn btn--primary">Schedule a Briefing Call</a></div>';
+   html += '<div style="background:var(--color-off-white); border-radius:var(--radius-md); padding:2rem; margin-top:3rem; border-top:2px solid var(--color-gold);"><span class="eyebrow">Work with Cielo House</span><p style="margin:0.75rem 0 1.5rem; color:var(--color-text-light);">Cielo House designs and delivers premium activations and hospitality at Australia\'s biggest sporting events.</p><a href="https://www.cielohouse.com.au/contact.html#discovery-call" onclick="if(typeof gtag!==\'undefined\')gtag(\'event\',\'schedule_call\',{event_category:\'CTA\',event_label:(document.querySelector(\'h1\')||{}).textContent||document.title});" class="btn btn--primary">Schedule a Briefing Call</a></div>';
    document.getElementById('prose').innerHTML = html;
 
    // Fix Wix CDN image URLs: strip thumbnail resize params to get original full-res image
