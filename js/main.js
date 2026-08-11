@@ -691,7 +691,11 @@ window.cieloSubscribe = function (form, source) {
         alert((j && j.error) || 'That did not go through. Please try again.');
         return;
       }
-      if (btn) btn.textContent = 'Subscribed \u2713';
+      /* The words shown back are the ones set on that page in the portal, if it
+         has any. Otherwise the plain confirmation. */
+      var cfg = window.CH_PAGE || {};
+      var msg = (cfg.s3 && cfg.s3.success) || (cfg.s5 && cfg.s5.success) || '';
+      if (btn) btn.textContent = msg || 'Subscribed \u2713';
       if (input) input.value = '';
     })
     .catch(function () {

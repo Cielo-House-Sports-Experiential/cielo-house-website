@@ -55,7 +55,7 @@
 function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString().slice(0,10); }
 </script>
 </head>
-<body>
+<body data-ch-page="home_page">
 
  <!-- ===== NAVIGATION ===== -->
  <nav class="nav" role="navigation" aria-label="Main navigation">
@@ -65,19 +65,19 @@ function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString()
  <img src="images/new-logo/CH_Logo_Horizontal_Blue-on-White.png" alt="Cielo House" class="nav__logo-img nav__logo-img--scrolled" />
  </a>
  <ul class="nav__links" role="list">
- <li><a href="about.html" class="nav__link">About</a></li>
+ <li><a href="about.html" class="nav__link" data-ch-href="s3.p2l">About</a></li>
  <li class="nav__dropdown">
- <a href="services.html" class="nav__link">Services ↓</a>
+ <a href="services.html" class="nav__link" data-ch-href="s4.box3.pillLink">Services ↓</a>
  <ul class="nav__dropdown-menu" role="list">
- <li><a href="services/brand-activations.html" class="nav__dropdown-link">Brand Activations</a></li>
- <li><a href="services/corporate-hospitality.html" class="nav__dropdown-link">Premium Hospitality</a></li>
+ <li><a href="services/brand-activations.html" class="nav__dropdown-link" data-ch-href="s4.i1.linkCopy" data-ch="s4.i1.heading">Brand Activations</a></li>
+ <li><a href="services/corporate-hospitality.html" class="nav__dropdown-link" data-ch-href="s4.i2.linkCopy" data-ch="s4.i2.heading">Premium Hospitality</a></li>
 </ul>
  </li>
- <li><a href="work.html" class="nav__link">Work</a></li>
- <li><a href="blog.html" class="nav__link">Insights</a></li>
- <li><a href="contact.html" class="nav__link">Contact</a></li>
+ <li><a href="work.html" class="nav__link" data-ch-href="s1.p2l" data-ch-href="s7.sideLink">Work</a></li>
+ <li><a href="blog.html" class="nav__link" data-ch-href="s12.sideLinkLink" data-ch="s12.eyebrow">Insights</a></li>
+ <li><a href="contact.html" class="nav__link" data-ch-href="s1.p1l" data-ch-href="s3.p1l" data-ch-href="s9.pillLink">Contact</a></li>
  </ul>
- <div class="nav__cta"><a href="contact.html#discovery-call" onclick="if(typeof gtag!=='undefined')gtag('event','schedule_call',{event_category:'CTA',event_label:document.title});" class="btn btn--primary">Schedule a Briefing Call</a></div>
+ <div class="nav__cta"><a href="contact.html#discovery-call" onclick="if(typeof gtag!=='undefined')gtag('event','schedule_call',{event_category:'CTA',event_label:document.title});" class="btn btn--primary" data-ch="s1.p1t">Schedule a Briefing Call</a></div>
  <button class="nav__hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
  </div>
  </nav>
@@ -95,7 +95,7 @@ function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString()
  <a href="blog.html" class="nav__mobile-link">Insights</a>
  <a href="contact.html" class="nav__mobile-link">Contact</a>
  </nav>
- <a href="contact.html#discovery-call" onclick="if(typeof gtag!=='undefined')gtag('event','schedule_call',{event_category:'CTA',event_label:document.title});" class="btn btn--primary btn--lg" style="margin-top:2.5rem;">Schedule a Briefing Call</a>
+ <a href="contact.html#discovery-call" onclick="if(typeof gtag!=='undefined')gtag('event','schedule_call',{event_category:'CTA',event_label:document.title});" class="btn btn--primary btn--lg" style="margin-top:2.5rem;" data-ch="s3.p1t">Schedule a Briefing Call</a>
  </div>
 
  <main>
@@ -113,24 +113,24 @@ function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString()
  aria-hidden="true"
  tabindex="-1"
  >
- <source src="hero-video-2026.mp4" type="video/mp4" />
+ <source src="hero-video-2026.mp4" type="video/mp4" data-ch-src="s1.video" />
  </video>
  </div>
  <div class="hero__content">
  <div class="hero__inner">
- <span class="hero__tag">Australia's Premium Experiential and Events Agency</span>
- <h1 class="hero__title">
+ <span class="hero__tag" data-ch="s1.eyebrow">Australia's Premium Experiential and Events Agency</span>
+ <h1 class="hero__title" data-ch="s1.heading">
  Brand Activations and Premium Hospitality<br><span style="color:var(--color-secondary);font-style:italic">Built for the moment, Created to last</span>
  </h1>
- <p class="hero__description">
+ <p class="hero__description" data-ch="s1.copy">
  Founder led and delivered, with a track record proven alongside Australia's biggest brands at the most prominent sports and entertainment events in the country. When your brand needs to show up at the moments that matter, this is where you start.
  </p>
  <div class="hero__ctas">
- <a href="contact.html" class="btn btn--primary btn--lg">
+ <a href="contact.html" class="btn btn--primary btn--lg" data-ch="s9.pillCopy">
  Schedule a Briefing Call
  <svg class="btn__arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
  </a>
- <a href="work.html" class="btn btn--secondary btn--lg">See Our Work</a>
+ <a href="work.html" class="btn btn--secondary btn--lg" data-ch="s1.p2t">See Our Work</a>
  </div>
  </div>
  </div>
@@ -143,7 +143,7 @@ function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString()
  <section class="events-calendar" id="whats-on" aria-label="Upcoming events">
 
  <div class="whats-on-header">
- <h2 class="hero__title" style="white-space:normal;">What's On</h2>
+ <h2 class="hero__title" style="white-space:normal;" data-ch="s2.banner">What's On</h2>
  </div>
 
  <!-- ⬇ TO ADD/REMOVE EVENTS: edit the CIELO_EVENTS array in js/events.js -->
@@ -154,12 +154,12 @@ function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString()
  <!-- ===== CTA ===== -->
  <section class="cta-section" aria-label="Book a discovery call">
  <div class="container container--narrow" style="position:relative; z-index:1;">
- <span class="eyebrow cta-section__eyebrow">Built for the moment, created to last.</span>
- <h2 class="cta-section__title" data-animate>Ready to Bring Your Brand<br>to Life at the <em style="font-style:italic">Moments That Matter?</em></h2>
- <p class="cta-section__text" data-animate data-animate-delay="1">We partner with brands that take their events seriously, delivering premium hospitality programs and brand activations with senior thinking on every project.</p>
+ <span class="eyebrow cta-section__eyebrow" data-ch="s3.eyebrow">Built for the moment, created to last.</span>
+ <h2 class="cta-section__title" data-animate data-ch="s3.heading">Ready to Bring Your Brand<br>to Life at the <em style="font-style:italic">Moments That Matter?</em></h2>
+ <p class="cta-section__text" data-animate data-animate-delay="1" data-ch="s3.copy">We partner with brands that take their events seriously, delivering premium hospitality programs and brand activations with senior thinking on every project.</p>
  <div class="cta-section__btns" data-animate data-animate-delay="2">
  <a href="https://www.cielohouse.com.au/contact.html#discovery-call" onclick="if(typeof gtag!=='undefined')gtag('event','schedule_call',{event_category:'CTA',event_label:document.title});" class="btn btn--primary btn--lg">Schedule a Briefing Call <svg class="btn__arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
- <a href="about.html" class="btn btn--secondary btn--lg">See How We Work</a>
+ <a href="about.html" class="btn btn--secondary btn--lg" data-ch="s3.p2t">See How We Work</a>
  </div>
  </div>
  </section>
@@ -169,10 +169,10 @@ function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString()
  <div class="container">
  <div style="display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:end; margin-bottom:var(--space-16);">
  <div data-animate>
- <span class="eyebrow">What We Do</span>
- <h2 id="services-heading">Two Pillars, One Experienced Team,<br><em style="font-style:italic">Working Together to Bring Your Brand to Life</em></h2>
+ <span class="eyebrow" data-ch="s4.eyebrow">What We Do</span>
+ <h2 id="services-heading" data-ch="s4.heading">Two Pillars, One Experienced Team,<br><em style="font-style:italic">Working Together to Bring Your Brand to Life</em></h2>
  </div>
- <p data-animate data-animate-delay="1" style="font-size:1.1rem; line-height:1.7; color:var(--color-text-light); padding-bottom:0.25rem;">
+ <p data-animate data-animate-delay="1" style="font-size:1.1rem; line-height:1.7; color:var(--color-text-light); padding-bottom:0.25rem;" data-ch="s4.subheading">
  Brand activations and premium hospitality, built for the moment, created to last.
  </p>
  </div>
@@ -181,23 +181,23 @@ function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString()
  <article class="service-card" data-animate>
  <span class="service-card__number">01</span>
  <h3 class="service-card__title">Brand Activations</h3>
- <p class="service-card__text">From concept to design, management and logistics through to delivery and post event reporting, Cielo House designs and delivers brand experiences at major sporting events for your customers and fans. Event day activations, fan engagement zones, consumer promotions, content capture and more.</p>
- <a href="services/brand-activations.html" class="service-card__link">Explore Service <svg viewBox="0 0 16 16" fill="none" width="12" height="12" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>
+ <p class="service-card__text" data-ch="s4.i1.copy">From concept to design, management and logistics through to delivery and post event reporting, Cielo House designs and delivers brand experiences at major sporting events for your customers and fans. Event day activations, fan engagement zones, consumer promotions, content capture and more.</p>
+ <a href="services/brand-activations.html" class="service-card__link" data-ch="s4.i1.linkText">Explore Service <svg viewBox="0 0 16 16" fill="none" width="12" height="12" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>
  </article>
 
  <article class="service-card" data-animate data-animate-delay="1">
  <span class="service-card__number">02</span>
  <h3 class="service-card__title">Premium Hospitality</h3>
- <p class="service-card__text">Custom designed suites, end to end hosted customer programs, talent integration, and guest experiences built for the sport environment. A hospitality experience does not begin at the event, it begins in the weeks and months before from the very first touchpoint for your customers.</p>
- <a href="services/corporate-hospitality.html" class="service-card__link">Explore Service <svg viewBox="0 0 16 16" fill="none" width="12" height="12" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>
+ <p class="service-card__text" data-ch="s4.i2.copy">Custom designed suites, end to end hosted customer programs, talent integration, and guest experiences built for the sport environment. A hospitality experience does not begin at the event, it begins in the weeks and months before from the very first touchpoint for your customers.</p>
+ <a href="services/corporate-hospitality.html" class="service-card__link" data-ch="s4.i2.linkText">Explore Service <svg viewBox="0 0 16 16" fill="none" width="12" height="12" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>
  </article>
 
  <!-- CTA tile -->
  <div class="service-card" style="background:var(--color-midnight); display:flex; flex-direction:column; justify-content:center;" data-animate data-animate-delay="2">
- <span class="eyebrow eyebrow--light" style="margin-bottom:1.5rem;">Ready to start?</span>
- <h3 style="font-family:var(--font-display); font-size:clamp(1.5rem,2.5vw,2rem); color:var(--color-white); margin-bottom:1.5rem; font-weight:400; line-height:1.2;">Elevate Your Brand at the Events That Matter Most</h3>
- <p style="font-size:0.875rem; color:rgba(255,255,255,0.6); margin-bottom:2rem; line-height:1.7;">One experienced team, working together to bring your brand to life.</p>
- <a href="services.html" class="btn btn--outline-white" style="align-self:flex-start;">View All Services</a>
+ <span class="eyebrow eyebrow--light" style="margin-bottom:1.5rem;" data-ch="s4.box3.eyebrow">Ready to start?</span>
+ <h3 style="font-family:var(--font-display); font-size:clamp(1.5rem,2.5vw,2rem); color:var(--color-white); margin-bottom:1.5rem; font-weight:400; line-height:1.2;" data-ch="s4.box3.heading">Elevate Your Brand at the Events That Matter Most</h3>
+ <p style="font-size:0.875rem; color:rgba(255,255,255,0.6); margin-bottom:2rem; line-height:1.7;" data-ch="s4.box3.copy">One experienced team, working together to bring your brand to life.</p>
+ <a href="services.html" class="btn btn--outline-white" style="align-self:flex-start;" data-ch="s4.box3.pillText">View All Services</a>
  </div>
  </div>
  </div>
@@ -208,20 +208,20 @@ function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString()
  <div class="container" style="max-width:var(--container);">
  <div class="stats">
  <div class="stat" data-animate>
- <span class="stat__number" data-count="40" data-suffix="+">40+</span>
- <span class="stat__label">Years of Combined Experience</span>
+ <span class="stat__number" data-count="40" data-suffix="+" data-ch="s5.stats.0.heading">40+</span>
+ <span class="stat__label" data-ch="s5.stats.0.copy">Years of Combined Experience</span>
  </div>
  <div class="stat" data-animate data-animate-delay="1">
- <span class="stat__number" data-count="30" data-suffix="M+">$30M+</span>
- <span class="stat__label">in Event Budgets Managed</span>
+ <span class="stat__number" data-count="30" data-suffix="M+" data-ch="s5.stats.1.heading">$30M+</span>
+ <span class="stat__label" data-ch="s5.stats.1.copy">in Event Budgets Managed</span>
  </div>
  <div class="stat" data-animate data-animate-delay="2">
- <span class="stat__number" data-count="120" data-suffix="+">120+</span>
- <span class="stat__label">Brand Collaborations</span>
+ <span class="stat__number" data-count="120" data-suffix="+" data-ch="s5.stats.2.heading">120+</span>
+ <span class="stat__label" data-ch="s5.stats.2.copy">Brand Collaborations</span>
  </div>
  <div class="stat" data-animate data-animate-delay="3">
- <span class="stat__number" data-count="100" data-suffix="%">100%</span>
- <span class="stat__label">Commitment to Excellence</span>
+ <span class="stat__number" data-count="100" data-suffix="%" data-ch="s5.stats.3.heading">100%</span>
+ <span class="stat__label" data-ch="s5.stats.3.copy">Commitment to Excellence</span>
  </div>
  </div>
  </div>
@@ -231,16 +231,16 @@ function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString()
  <section class="section email-signup" aria-label="Join our mailing list" style="background: #f5f5f5; padding-block: var(--space-20);">
  <div class="container">
  <div style="text-align:center; max-width: 560px; margin: 0 auto;">
- <h2 style="color:#2B317B; margin-bottom: var(--space-4);">Join our mailing list<br>for events insights</h2>
- <p style="color:rgba(43,49,123,0.7); margin-bottom: var(--space-8); font-size: var(--text-base);">Be the first to hear about upcoming events, activation opportunities, and insights from The Cielo Team.</p>
+ <h2 style="color:#2B317B; margin-bottom: var(--space-4);" data-ch="s6.heading">Join our mailing list<br>for events insights</h2>
+ <p style="color:rgba(43,49,123,0.7); margin-bottom: var(--space-8); font-size: var(--text-base);" data-ch="s6.copy">Be the first to hear about upcoming events, activation opportunities, and insights from The Cielo Team.</p>
  <form class="email-signup__form" onsubmit="handleEmailSignup(event)" novalidate>
  <div style="display:flex; gap: var(--space-3); flex-wrap:wrap; justify-content:center;">
  <input type="email" name="email" placeholder="Your email address" required
  style="flex:1; min-width:240px; padding: 0.85rem 1.25rem; border-radius: var(--radius-sm); border: 1px solid rgba(43,49,123,0.2); background: #fff; color:#2B317B; font-family: var(--font-body); font-size: var(--text-base); outline:none;"
- aria-label="Email address" />
- <button type="submit" class="btn btn--primary" style="white-space:nowrap;">Subscribe</button>
+ aria-label="Email address" data-ch-placeholder="s6.placeholder" />
+ <button type="submit" class="btn btn--primary" style="white-space:nowrap;" data-ch="s6.pillCopy">Subscribe</button>
  </div>
- <p class="email-signup__msg" style="margin-top:var(--space-4); font-size:var(--text-sm); color: #2B317B; display:none;">Thanks! You are on the list.</p>
+ <p class="email-signup__msg" style="margin-top:var(--space-4); font-size:var(--text-sm); color: #2B317B; display:none;" data-ch="s6.success">Thanks! You are on the list.</p>
  </form>
  </div>
  </div>
@@ -251,10 +251,10 @@ function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString()
  <div class="container">
  <div style="display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:var(--space-12); flex-wrap:wrap; gap:1rem;">
  <div data-animate>
- <span class="eyebrow">Our Work</span>
- <h2 id="work-heading">Latest Cielo House <em style="font-style:italic">Activations &amp; Hospitality</em></h2>
+ <span class="eyebrow" data-ch="s7.eyebrow">Our Work</span>
+ <h2 id="work-heading" data-ch="s7.heading">Latest Cielo House <em style="font-style:italic">Activations &amp; Hospitality</em></h2>
  </div>
- <a href="work.html" class="link-arrow" data-animate data-animate-delay="2">View all work <svg viewBox="0 0 16 16" fill="none" width="14" height="14" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>
+ <a href="work.html" class="link-arrow" data-animate data-animate-delay="2" data-ch="s7.sideCopy">View all work <svg viewBox="0 0 16 16" fill="none" width="14" height="14" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>
  </div>
  <div class="work-grid">
  <article class="work-card" data-animate>
@@ -300,32 +300,32 @@ function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString()
  <!-- ===== WHO WE WORK WITH ===== -->
  <section class="trust-bar" aria-label="Our amazing partners">
  <div class="trust-bar__inner">
- <p class="trust-bar__label" data-animate>Trusted by Australia's biggest brands and organisations</p>
+ <p class="trust-bar__label" data-animate data-ch="s8.heading">Trusted by Australia's biggest brands and organisations</p>
  <div class="trust-bar__logos">
- <div class="trust-bar__logo" data-animate style="transition-delay:0ms"><img src="images/partners/01.png" alt="Boost Mobile" loading="lazy" decoding="async" /></div>
- <div class="trust-bar__logo" data-animate style="transition-delay:60ms"><img src="images/partners/02.png" alt="Coates" loading="lazy" decoding="async" /></div>
- <div class="trust-bar__logo" data-animate style="transition-delay:120ms"><img src="images/partners/03.png" alt="Thrifty Car Rental" loading="lazy" decoding="async" /></div>
- <div class="trust-bar__logo" data-animate style="transition-delay:180ms"><img src="images/partners/04.png" alt="mophie" loading="lazy" decoding="async" /></div>
- <div class="trust-bar__logo" data-animate style="transition-delay:240ms"><img src="images/partners/05.png" alt="CHIKO" loading="lazy" decoding="async" /></div>
- <div class="trust-bar__logo" data-animate style="transition-delay:300ms"><img src="images/partners/06.png" alt="AutogenAI" loading="lazy" decoding="async" /></div>
- <div class="trust-bar__logo" data-animate style="transition-delay:360ms"><img src="images/partners/07.png" alt="Coles Liquor" loading="lazy" decoding="async" /></div>
- <div class="trust-bar__logo" data-animate style="transition-delay:420ms"><img src="images/partners/08.png" alt="First Choice Liquor Market" loading="lazy" decoding="async" /></div>
- <div class="trust-bar__logo" data-animate style="transition-delay:0ms"><img src="images/partners/09.png" alt="NRL" loading="lazy" decoding="async" /></div>
- <div class="trust-bar__logo" data-animate style="transition-delay:60ms"><img src="images/partners/10.png" alt="Ampol State of Origin" loading="lazy" decoding="async" /></div>
- <div class="trust-bar__logo" data-animate style="transition-delay:120ms"><img src="images/partners/11.png" alt="Walkinshaw Andretti United" loading="lazy" decoding="async" /></div>
- <div class="trust-bar__logo" data-animate style="transition-delay:180ms"><img src="images/partners/12.png" alt="A-Leagues" loading="lazy" decoding="async" /></div>
- <div class="trust-bar__logo" data-animate style="transition-delay:240ms"><img src="images/partners/13.png" alt="VAILO Adelaide 500" loading="lazy" decoding="async" /></div>
- <div class="trust-bar__logo" data-animate style="transition-delay:300ms"><img src="images/partners/14.png" alt="World Surf League" loading="lazy" decoding="async" /></div>
- <div class="trust-bar__logo" data-animate style="transition-delay:360ms"><img src="images/partners/15.png" alt="Australian Grand Prix Corporation" loading="lazy" decoding="async" /></div>
- <div class="trust-bar__logo" data-animate style="transition-delay:420ms"><img src="images/partners/16.png" alt="Australian Supercross Championship" loading="lazy" decoding="async" /></div>
- <div class="trust-bar__logo" data-animate style="transition-delay:0ms"><img src="images/partners/17.png" alt="AFL" loading="lazy" decoding="async" /></div>
- <div class="trust-bar__logo" data-animate style="transition-delay:60ms"><img src="images/partners/18.png" alt="Perth Glory FC" loading="lazy" decoding="async" /></div>
- <div class="trust-bar__logo" data-animate style="transition-delay:120ms"><img src="images/partners/19.png" alt="Newcastle United Jets" loading="lazy" decoding="async" /></div>
- <div class="trust-bar__logo" data-animate style="transition-delay:180ms"><img src="images/partners/20.png" alt="Thredbo" loading="lazy" decoding="async" /></div>
- <div class="trust-bar__logo" data-animate style="transition-delay:240ms"><img src="images/partners/21.png" alt="Surf Life Saving" loading="lazy" decoding="async" /></div>
- <div class="trust-bar__logo" data-animate style="transition-delay:300ms"><img src="images/partners/22.png" alt="Supercars Championship" loading="lazy" decoding="async" /></div>
- <div class="trust-bar__logo" data-animate style="transition-delay:360ms"><img src="images/partners/23.png" alt="Surfing Australia" loading="lazy" decoding="async" /></div>
- <div class="trust-bar__logo" data-animate style="transition-delay:420ms"><img src="images/partners/24.png" alt="Global Drone Show" loading="lazy" decoding="async" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:0ms"><img src="images/partners/01.png" alt="Boost Mobile" loading="lazy" decoding="async" data-ch-src="s8.logos.0" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:60ms"><img src="images/partners/02.png" alt="Coates" loading="lazy" decoding="async" data-ch-src="s8.logos.1" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:120ms"><img src="images/partners/03.png" alt="Thrifty Car Rental" loading="lazy" decoding="async" data-ch-src="s8.logos.2" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:180ms"><img src="images/partners/04.png" alt="mophie" loading="lazy" decoding="async" data-ch-src="s8.logos.3" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:240ms"><img src="images/partners/05.png" alt="CHIKO" loading="lazy" decoding="async" data-ch-src="s8.logos.4" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:300ms"><img src="images/partners/06.png" alt="AutogenAI" loading="lazy" decoding="async" data-ch-src="s8.logos.5" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:360ms"><img src="images/partners/07.png" alt="Coles Liquor" loading="lazy" decoding="async" data-ch-src="s8.logos.6" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:420ms"><img src="images/partners/08.png" alt="First Choice Liquor Market" loading="lazy" decoding="async" data-ch-src="s8.logos.7" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:0ms"><img src="images/partners/09.png" alt="NRL" loading="lazy" decoding="async" data-ch-src="s8.logos.8" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:60ms"><img src="images/partners/10.png" alt="Ampol State of Origin" loading="lazy" decoding="async" data-ch-src="s8.logos.9" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:120ms"><img src="images/partners/11.png" alt="Walkinshaw Andretti United" loading="lazy" decoding="async" data-ch-src="s8.logos.10" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:180ms"><img src="images/partners/12.png" alt="A-Leagues" loading="lazy" decoding="async" data-ch-src="s8.logos.11" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:240ms"><img src="images/partners/13.png" alt="VAILO Adelaide 500" loading="lazy" decoding="async" data-ch-src="s8.logos.12" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:300ms"><img src="images/partners/14.png" alt="World Surf League" loading="lazy" decoding="async" data-ch-src="s8.logos.13" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:360ms"><img src="images/partners/15.png" alt="Australian Grand Prix Corporation" loading="lazy" decoding="async" data-ch-src="s8.logos.14" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:420ms"><img src="images/partners/16.png" alt="Australian Supercross Championship" loading="lazy" decoding="async" data-ch-src="s8.logos.15" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:0ms"><img src="images/partners/17.png" alt="AFL" loading="lazy" decoding="async" data-ch-src="s8.logos.16" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:60ms"><img src="images/partners/18.png" alt="Perth Glory FC" loading="lazy" decoding="async" data-ch-src="s8.logos.17" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:120ms"><img src="images/partners/19.png" alt="Newcastle United Jets" loading="lazy" decoding="async" data-ch-src="s8.logos.18" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:180ms"><img src="images/partners/20.png" alt="Thredbo" loading="lazy" decoding="async" data-ch-src="s8.logos.19" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:240ms"><img src="images/partners/21.png" alt="Surf Life Saving" loading="lazy" decoding="async" data-ch-src="s8.logos.20" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:300ms"><img src="images/partners/22.png" alt="Supercars Championship" loading="lazy" decoding="async" data-ch-src="s8.logos.21" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:360ms"><img src="images/partners/23.png" alt="Surfing Australia" loading="lazy" decoding="async" data-ch-src="s8.logos.22" /></div>
+ <div class="trust-bar__logo" data-animate style="transition-delay:420ms"><img src="images/partners/24.png" alt="Global Drone Show" loading="lazy" decoding="async" data-ch-src="s8.logos.23" /></div>
  </div>
  </div>
  </section>
@@ -340,16 +340,15 @@ function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString()
  src="images/britt-niven.jpg"
  alt="Britt Niven Founder & Managing Director of Cielo House"
  style="width:100%; height:100%; object-fit:cover; object-position:center top;"
- loading="lazy"
- />
+ loading="lazy" data-ch-src="s9.image" />
  </div>
  </div>
  <div data-animate="fade-right">
- <span class="eyebrow">Meet the Founder</span>
- <h2 id="founder-heading" style="margin-bottom:0.5rem;">Hi, I'm <em style="font-style:italic">Britt Niven</em></h2>
+ <span class="eyebrow" data-ch="s9.eyebrow">Meet the Founder</span>
+ <h2 id="founder-heading" style="margin-bottom:0.5rem;" data-ch="s9.heading">Hi, I'm <em style="font-style:italic">Britt Niven</em></h2>
  <p style="font-size:1rem; font-weight:500; color:var(--color-gold); letter-spacing:0.05em; margin-bottom:1.5rem;">Founder & Managing Director, Cielo House</p>
  <span class="divider"></span>
- <p style="font-size:1.1rem; margin-bottom:1.5rem;">I built Cielo House to do one thing exceptionally well - deliver brand experiences that hold a premium standard for all our clients. Across twenty years in activations, hospitality, and sponsorship at the biggest events in Australia and the United States, I have managed more than $30 million in event budgets and partnered with over 120 brands, with work across the Supercars Championship, Formula 1 Australian Grand Prix, NBA All Star, Made in America Festival, Nascar Chase and the NHL and MLB.</p>
+ <p style="font-size:1.1rem; margin-bottom:1.5rem;" data-ch="s9.copy">I built Cielo House to do one thing exceptionally well - deliver brand experiences that hold a premium standard for all our clients. Across twenty years in activations, hospitality, and sponsorship at the biggest events in Australia and the United States, I have managed more than $30 million in event budgets and partnered with over 120 brands, with work across the Supercars Championship, Formula 1 Australian Grand Prix, NBA All Star, Made in America Festival, Nascar Chase and the NHL and MLB.</p>
  <p style="font-size:1.1rem; margin-bottom:1.5rem;">Every program that carries the Cielo House name is founder led, from concept to post event. Cielo translates as sky in Italian, and the work we build lives up to that name.</p>
  <a href="contact.html#discovery-call" class="btn btn--primary">Schedule a Briefing Call</a>
  </div>
@@ -361,8 +360,8 @@ function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString()
  <section class="section" style="background:#fff;" aria-labelledby="testimonials-heading">
  <div class="container">
  <div class="section-header--center" data-animate>
- <span class="eyebrow">What They Say</span>
- <h2 id="testimonials-heading">Trusted by Australia's <em style="font-style:italic">Leading Brands</em></h2>
+ <span class="eyebrow" data-ch="s10.eyebrow">What They Say</span>
+ <h2 id="testimonials-heading" data-ch="s10.heading">Trusted by Australia's <em style="font-style:italic">Leading Brands</em></h2>
  <span class="divider divider--center"></span>
  </div>
 
@@ -497,7 +496,7 @@ function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString()
  <section class="faq-section" id="faq" aria-labelledby="faq-heading">
  <div class="container container--narrow">
  <div class="faq-header" data-animate>
- <h2 id="faq-heading">Frequently Asked <em>Questions</em></h2>
+ <h2 id="faq-heading" data-ch="s11.heading">Frequently Asked <em>Questions</em></h2>
  <span class="divider"></span>
  </div>
  <div class="faq-list" id="faq-list" role="list"></div>
@@ -513,9 +512,9 @@ function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString()
  <div style="display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:var(--space-12); flex-wrap:wrap; gap:1rem;">
  <div data-animate>
  <span class="eyebrow">Insights</span>
- <h2 id="insights-heading">Event Agency <em style="font-style:italic">Insights</em></h2>
+ <h2 id="insights-heading" data-ch="s12.heading">Event Agency <em style="font-style:italic">Insights</em></h2>
  </div>
- <a href="blog.html" class="link-arrow" data-animate data-animate-delay="2">All articles <svg viewBox="0 0 16 16" fill="none" width="14" height="14" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>
+ <a href="blog.html" class="link-arrow" data-animate data-animate-delay="2" data-ch="s12.sideLinkCopy">All articles <svg viewBox="0 0 16 16" fill="none" width="14" height="14" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>
  </div>
  <div class="blog-grid">
  <article class="blog-card" data-animate>
@@ -740,5 +739,6 @@ function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString()
  })();
  </script>
 <script src="/tracking.js"></script>
+<script src="js/site-content.js?v=2"></script>
 </body>
 </html>

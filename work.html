@@ -51,7 +51,7 @@
     gtag("config", "G-EX4125KP0Z");
   </script>
 </head>
-<body>
+<body data-ch-page="work_page">
 
  <nav class="nav" role="navigation" aria-label="Main navigation">
  <div class="nav__inner">
@@ -62,7 +62,7 @@
  <ul class="nav__links" role="list">
  <li><a href="about.html" class="nav__link">About</a></li>
  <li class="nav__dropdown">
- <a href="services.html" class="nav__link">Services ↓</a>
+ <a href="services.html" class="nav__link" data-ch-href="s4.p2l">Services ↓</a>
  <ul class="nav__dropdown-menu" role="list">
  <li><a href="services/brand-activations.html" class="nav__dropdown-link">Brand Activations</a></li>
  <li><a href="services/corporate-hospitality.html" class="nav__dropdown-link">Premium Hospitality</a></li>
@@ -70,9 +70,9 @@
  </li>
  <li><a href="work.html" class="nav__link">Work</a></li>
  <li><a href="blog.html" class="nav__link">Insights</a></li>
- <li><a href="contact.html" class="nav__link">Contact</a></li>
+ <li><a href="contact.html" class="nav__link" data-ch-href="s4.p1l">Contact</a></li>
  </ul>
- <div class="nav__cta"><a href="https://www.cielohouse.com.au/contact.html#discovery-call" onclick="if(typeof gtag!=='undefined')gtag('event','schedule_call',{event_category:'CTA',event_label:document.title});" class="btn btn--primary">Schedule a Briefing Call</a></div>
+ <div class="nav__cta"><a href="https://www.cielohouse.com.au/contact.html#discovery-call" onclick="if(typeof gtag!=='undefined')gtag('event','schedule_call',{event_category:'CTA',event_label:document.title});" class="btn btn--primary" data-ch="s4.p1t">Schedule a Briefing Call</a></div>
  <button class="nav__hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
  </div>
  </nav>
@@ -97,13 +97,13 @@
 
  <section class="page-hero" aria-label="Our Work">
  <div class="page-hero__inner">
- <span class="eyebrow eyebrow--light">Our Work</span>
- <h1 class="page-hero__title">Real Brand Experiences.<br><em style="font-style:italic">Our Events with Real Outcomes</em></h1>
- <p class="page-hero__lead">Case studies from some of Australia's biggest events, each one proof of the standard Cielo House delivers on the ground.</p>
+ <span class="eyebrow eyebrow--light" data-ch="s1.eyebrow">Our Work</span>
+ <h1 class="page-hero__title" data-ch="s1.heading">Real Brand Experiences.<br><em style="font-style:italic">Our Events with Real Outcomes</em></h1>
+ <p class="page-hero__lead" data-ch="s1.copy">Case studies from some of Australia's biggest events, each one proof of the standard Cielo House delivers on the ground.</p>
  </div>
    <div class="page-hero__video-wrap" aria-hidden="true">
     <video autoplay muted loop playsinline preload="auto" tabindex="-1">
-      <source src="hero-video-2026.mp4" type="video/mp4" />
+      <source src="hero-video-2026.mp4" type="video/mp4" data-ch-src="s1.video" />
     </video>
   </div>
  </section>
@@ -221,12 +221,12 @@
 
  <section class="cta-section" aria-label="Let's work together">
  <div class="container container--narrow" style="position:relative;z-index:1;">
- <span class="eyebrow cta-section__eyebrow">Built for the moment, created to last.</span>
- <h2 class="cta-section__title" data-animate>Ready to Activate Your Brand at the <em style="font-style:italic">Next Big Event?</em></h2>
- <p class="cta-section__text" data-animate data-animate-delay="1">Cielo House partners with brands ready to show up at the moments that matter. The process starts with a brief.</p>
+ <span class="eyebrow cta-section__eyebrow" data-ch="s4.eyebrow">Built for the moment, created to last.</span>
+ <h2 class="cta-section__title" data-animate data-ch="s4.heading">Ready to Activate Your Brand at the <em style="font-style:italic">Next Big Event?</em></h2>
+ <p class="cta-section__text" data-animate data-animate-delay="1" data-ch="s4.copy">Cielo House partners with brands ready to show up at the moments that matter. The process starts with a brief.</p>
  <div class="cta-section__btns" data-animate data-animate-delay="2">
  <a href="https://www.cielohouse.com.au/contact.html#discovery-call" onclick="if(typeof gtag!=='undefined')gtag('event','schedule_call',{event_category:'CTA',event_label:document.title});" class="btn btn--primary btn--lg">Schedule a Briefing Call</a>
- <a href="services.html" class="btn btn--secondary btn--lg">Explore Services</a>
+ <a href="services.html" class="btn btn--secondary btn--lg" data-ch="s4.p2t">Explore Services</a>
  </div>
  </div>
  </section>
@@ -341,5 +341,6 @@ function filterWork(cat, btn) {
     .catch(function () {});
 })();
 </script>
+<script src="js/site-content.js?v=2"></script>
 </body>
 </html>

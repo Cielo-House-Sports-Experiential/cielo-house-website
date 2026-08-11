@@ -60,7 +60,7 @@
 function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString().slice(0,10); }
 </script>
 </head>
-<body>
+<body data-ch-page="insights_page">
 
  <nav class="nav" role="navigation" aria-label="Main navigation">
  <div class="nav__inner">
@@ -106,13 +106,13 @@ function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString()
 
  <section class="page-hero" aria-label="Insights & Ideas">
  <div class="page-hero__inner">
- <span class="eyebrow eyebrow--light">Event Agency Insights</span>
- <h1 class="page-hero__title">Ideas, Expertise & <em style="font-style:italic">Industry Knowledge</em></h1>
- <p class="page-hero__lead">Expert perspectives on brand activations, sponsorship strategy, premium hospitality, and the live events industry from the Cielo House team.</p>
+ <span class="eyebrow eyebrow--light" data-ch="s1.eyebrow">Event Agency Insights</span>
+ <h1 class="page-hero__title" data-ch="s1.heading">Ideas, Expertise & <em style="font-style:italic">Industry Knowledge</em></h1>
+ <p class="page-hero__lead" data-ch="s1.copy">Expert perspectives on brand activations, sponsorship strategy, premium hospitality, and the live events industry from the Cielo House team.</p>
  </div>
    <div class="page-hero__video-wrap" aria-hidden="true">
     <video autoplay muted loop playsinline preload="auto" tabindex="-1">
-      <source src="hero-video-2026.mp4" type="video/mp4" />
+      <source src="hero-video-2026.mp4" type="video/mp4" data-ch-src="s1.video" />
     </video>
   </div>
  </section>
@@ -125,7 +125,7 @@ function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString()
    <img src="images/our-work/boost-mobile-gold-coast-500.jpg" alt="Why companies should invest in sponsorship activations" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;"/>
   </div>
   <div style="flex:0 0 50%;width:50%;padding-left:4rem;min-width:0;">
-   <span class="eyebrow">Featured</span>
+   <span class="eyebrow" data-ch="s2.featuredEyebrow">Featured</span>
    <span style="font-size:.75rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--color-gold);display:block;margin-bottom:.75rem;">Sponsorship</span>
    <h2 style="font-family:var(--font-display);font-size:clamp(1.75rem,3vw,2.75rem);margin-bottom:1rem;line-height:1.2;"><a href="blog/post.html?slug=why-invest-in-sponsorship-activations" style="color:var(--color-midnight);">Why Companies Should Invest in Sponsorship Activations</a></h2>
    <p style="color:var(--color-text-light);line-height:1.75;margin-bottom:1.5rem;">Sponsorship without activation is just a logo on a fence. Here's why smart brands invest in live activations to turn their sponsorship spend into real brand equity.</p>
@@ -142,8 +142,8 @@ function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString()
  <section class="section section--off-white" aria-label="All articles">
  <div class="container">
  <div class="section-header--center">
- <span class="eyebrow">All Articles</span>
- <h2>Everything You Need to Know About <em style="font-style:italic">Experiential and Events</em></h2>
+ <span class="eyebrow" data-ch="s2.articlesEyebrow">All Articles</span>
+ <h2 data-ch="s2.articlesHeading">Everything You Need to Know About <em style="font-style:italic">Experiential and Events</em></h2>
  <span class="divider divider--center"></span>
  </div>
  <div class="blog-grid" id="blog-grid">
@@ -208,11 +208,11 @@ function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString()
  <!-- NEWSLETTER -->
  <section class="cta-section" aria-label="Mailing list signup">
  <div class="container container--narrow" style="position:relative;z-index:1;">
- <h2 class="cta-section__title">Join Our Mailing List for <em style="font-style:italic">Events Insights!</em></h2>
- <p class="cta-section__text">Get the latest insights on brand activations, sponsorship strategy, and the events industry direct to your inbox.</p>
+ <h2 class="cta-section__title" data-ch="s3.heading">Join Our Mailing List for <em style="font-style:italic">Events Insights!</em></h2>
+ <p class="cta-section__text" data-ch="s3.copy">Get the latest insights on brand activations, sponsorship strategy, and the events industry direct to your inbox.</p>
  <form style="display:flex; gap:1rem; max-width:480px; margin:0 auto; flex-wrap:wrap;" onsubmit="event.preventDefault(); cieloSubscribe(this,'blog-insights');">
- <input type="email" placeholder="Your email address*" required style="flex:1; min-width:220px; padding:1rem 1.5rem; border-radius:var(--radius-full); border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.08); color:white; font-family:var(--font-body); font-size:0.9rem; outline:none;" />
- <button type="submit" class="btn btn--primary">Submit</button>
+ <input type="email" placeholder="Your email address*" required style="flex:1; min-width:220px; padding:1rem 1.5rem; border-radius:var(--radius-full); border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.08); color:white; font-family:var(--font-body); font-size:0.9rem; outline:none;" data-ch-placeholder="s3.placeholder" />
+ <button type="submit" class="btn btn--primary" data-ch="s3.pillCopy">Submit</button>
  </form>
  </div>
  </section>
@@ -382,5 +382,6 @@ function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString()
  </script>
  <script src="js/main.js" defer></script>
 <script src="/tracking.js"></script>
+<script src="js/site-content.js?v=2"></script>
 </body>
 </html>
