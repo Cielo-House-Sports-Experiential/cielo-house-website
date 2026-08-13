@@ -37,6 +37,17 @@
  .prose p, .prose li, .prose p span, .prose li span { color: var(--color-text-light) !important; }
  .prose h1, .prose h2, .prose h3, .prose h4, .prose h1 *, .prose h2 *, .prose h3 *, .prose h4 * { color: var(--color-midnight) !important; }
  .prose strong { color: var(--color-midnight) !important; }
+ /* A LINK IN AN ARTICLE HAS TO LOOK LIKE ONE.
+    There was no rule for it at all, so every link took the grey of the text
+    around it with nothing under it. The links were all still there and still
+    worked, but on the page they read as ordinary words. */
+ .prose a, .prose p a, .prose li a, .prose p span a, .prose li span a {
+   color: var(--color-gold) !important;
+   text-decoration: underline;
+   text-underline-offset: 3px;
+   text-decoration-thickness: 1px;
+ }
+ .prose a:hover, .prose p a:hover, .prose li a:hover { color: var(--color-gold-dark) !important; }
  .sidebar-card { background: var(--color-off-white); border-radius: var(--radius-md); padding: 1.75rem; margin-bottom: 2rem; border-top: 2px solid var(--color-gold); }
  .sidebar-card--dark { background: var(--color-midnight); }
  .article-tag { display: inline-block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-gold); background: rgba(102,141,198,0.1); padding: 0.35rem 0.85rem; border-radius: var(--radius-full); margin-right: 0.5rem; margin-bottom: 0.5rem; }
