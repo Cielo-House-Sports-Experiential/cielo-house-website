@@ -19,6 +19,10 @@
  .bk-inner{max-width:940px;margin:0 auto;}
  .bk-note{margin:0 0 1.75rem;padding:.85rem 1.1rem;border:1px solid var(--color-secondary);border-left:3px solid var(--color-primary);border-radius:2px;background:var(--color-off-white);color:var(--color-primary);font-size:.95rem;}
  .bk-modal{position:fixed;inset:0;background:rgba(43,49,123,.6);display:flex;align-items:flex-start;justify-content:center;padding-top:14vh;z-index:60;}
+ /* hidden has to win. Setting display here beats the browser's own rule for
+    a hidden element, so without this the cancel box sits open on a page
+    nobody has booked anything on yet. */
+ .bk-modal[hidden]{display:none;}
  .bk-modal-card{width:min(460px,92vw);background:var(--color-white);border-radius:2px;padding:1.75rem;box-shadow:0 8px 32px rgba(43,49,123,.28);}
  .bk-modal-h{margin:0 0 .9rem;font-family:var(--font-display);font-size:1.7rem;letter-spacing:.03em;text-transform:uppercase;color:var(--color-primary);}
  .bk-modal-card p{margin:0 0 1.2rem;color:var(--color-text);font-size:.98rem;}
@@ -388,7 +392,14 @@
         if (!first) el('bkTimes').innerHTML = '<p class="bk-none">There are no times open at the moment.</p>';
       })
       .catch(function (e) {
-        fatal('This booking page could not be loaded. ' + (e && e.message ? e.message : ''));
+        var m = (e && e.message) ? e.message : '';
+        /* Switched off is not broken, and it is the visitor reading this, so it
+           says what it is rather than sounding like a fault. */
+        if (m === 'not open yet') {
+          fatal('This meeting is not open for booking at the moment. Please get in touch and we will find a time.');
+          return;
+        }
+        fatal('This booking page could not be loaded. ' + m);
       });
   }
 
