@@ -222,6 +222,17 @@
  </div>
  </section>
 
+ <!-- BOOK A BRIEFING CALL, ON THIS PAGE.
+      The booking page is ours and lives at /book/briefing-call. It is shown
+      here rather than sent to, so nobody leaves the contact page to book. -->
+ <div id="bookBox" hidden style="position:fixed;inset:0;background:rgba(43,49,123,.6);z-index:2000;display:flex;align-items:flex-start;justify-content:center;padding:3vh 1rem;">
+  <div style="position:relative;width:min(920px,100%);height:94vh;background:#fff;border-radius:2px;box-shadow:0 8px 40px rgba(43,49,123,.35);overflow:hidden;">
+   <button type="button" id="bookClose" aria-label="Close" style="position:absolute;top:10px;right:12px;z-index:2;border:0;background:#fff;color:#2B317B;font-family:inherit;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;padding:8px 12px;cursor:pointer;">Close</button>
+   <iframe id="bookFrame" title="Book a briefing call" src="about:blank" style="width:100%;height:100%;border:0;display:block;"></iframe>
+  </div>
+ </div>
+ <style>#bookBox[hidden]{display:none;}</style>
+
  <!-- CONTACT INFO -->
  <section class="section section--lg" aria-labelledby="contact-info-heading">
  <div class="container">
@@ -422,16 +433,37 @@
      cal.addEventListener('click', function () {
        var f = collect();
        if (!validate(f)) return;
-       // Send the brief, then open the Calendly popup.
+       // The brief still goes, then our own booking page opens over this one.
        sendToPortal(f, 'Briefing Call').catch(function () {});
        sendBrief(f, 'Briefing Call Scheduled').catch(function () {});
-       if (window.Calendly) {
-         Calendly.initPopupWidget({ url: CALENDLY });
-       } else {
-         window.open(CALENDLY, '_blank', 'noopener');
-       }
+       openBooking();
      });
    }
+
+   /* Loaded only when it is asked for, so the contact page does not carry it
+      on every visit, and emptied on close so it starts fresh next time. */
+   function openBooking() {
+     var box = document.getElementById('bookBox');
+     var frame = document.getElementById('bookFrame');
+     if (!box || !frame) { window.open('/book/briefing-call', '_blank', 'noopener'); return; }
+     frame.src = '/book/briefing-call';
+     box.hidden = false;
+     document.body.style.overflow = 'hidden';
+   }
+   function closeBooking() {
+     var box = document.getElementById('bookBox');
+     var frame = document.getElementById('bookFrame');
+     if (!box) return;
+     box.hidden = true;
+     if (frame) frame.src = 'about:blank';
+     document.body.style.overflow = '';
+   }
+   var bookClose = document.getElementById('bookClose');
+   if (bookClose) bookClose.addEventListener('click', closeBooking);
+   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeBooking(); });
+   /* Clicking the dark surround closes it. Clicking the card itself does not. */
+   var bookBoxEl = document.getElementById('bookBox');
+   if (bookBoxEl) bookBoxEl.addEventListener('click', function (e) { if (e.target === bookBoxEl) closeBooking(); });
  })();
  </script>
 <script src="/tracking.js"></script>
