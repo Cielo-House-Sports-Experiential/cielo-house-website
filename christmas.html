@@ -26,6 +26,7 @@
 
  .xm-fields{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;}
  .xm-field{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1.25rem;}
+ .xm-field[hidden]{display:none;}
  .xm-fields .xm-field{margin-bottom:0;}
  .xm-field.is-wide{grid-column:1 / -1;}
  .xm-field > span,.xm-lab{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--color-text-light);}
@@ -36,12 +37,12 @@
 
  /* One date, a range, or as many as they want to add. */
  .xm-date{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;margin-bottom:.6rem;}
- .xm-date input[type=date]{padding:.7rem;border:1px solid var(--color-light-grey);border-radius:2px;font-family:var(--font-body);font-size:.95rem;color:var(--color-text);background:var(--color-white);}
+ .xm-date input[type=date]{width:190px;flex:0 0 auto;padding:.7rem;border:1px solid var(--color-light-grey);border-radius:2px;font-family:var(--font-body);font-size:.95rem;color:var(--color-text);background:var(--color-white);}
  .xm-date .xm-to{color:var(--color-text-light);font-size:.85rem;}
  .xm-range{border:none;background:transparent;padding:0;color:var(--color-secondary);font-family:var(--font-body);font-size:.8rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;text-decoration:underline;}
  .xm-drop{border:none;background:transparent;padding:0 .25rem;color:var(--color-mid-grey);font-size:1.15rem;line-height:1;cursor:pointer;}
  .xm-drop:hover{color:var(--color-primary);}
- .xm-add{margin-top:.35rem;padding:.6rem 1.1rem;border:1px solid var(--color-light-grey);border-radius:2px;background:transparent;color:var(--color-primary);font-family:var(--font-body);font-size:.75rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;}
+ .xm-add{align-self:flex-start;margin-top:.35rem;padding:.6rem 1.1rem;border:1px solid var(--color-light-grey);border-radius:2px;background:transparent;color:var(--color-primary);font-family:var(--font-body);font-size:.75rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;}
  .xm-add:hover{border-color:var(--color-secondary);}
 
  .xm-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
@@ -141,6 +142,11 @@
        </select></label>
       <label class="xm-field" id="xmOtherWrap" hidden><span>If other, please tell us</span><input type="text" id="xmOther" name="event_type_other"></label>
      </div>
+
+     <label class="xm-field is-wide"><span>Type of venue you like</span><textarea id="xmVenueLikes" name="venue_likes" rows="3"></textarea></label>
+     <label class="xm-field is-wide"><span>Venues you don't like</span><textarea id="xmVenueDislikes" name="venue_dislikes" rows="3"></textarea></label>
+     <label class="xm-field is-wide"><span>Must haves</span><textarea id="xmMustHaves" name="must_haves" rows="3"></textarea></label>
+     <label class="xm-field is-wide"><span>Steer clear of</span><textarea id="xmSteerClear" name="steer_clear" rows="3"></textarea></label>
 
      <label class="xm-field is-wide"><span>Details</span><textarea id="xmDetails" name="details" rows="5"></textarea></label>
      <label class="xm-field is-wide"><span>Demographics of your team</span><textarea id="xmDemo" name="demographics" rows="4"></textarea></label>
@@ -291,6 +297,10 @@
         dates: readDates(),
         event_type: el('xmType').value,
         event_type_other: el('xmOther').value.trim(),
+        venue_likes: el('xmVenueLikes').value.trim(),
+        venue_dislikes: el('xmVenueDislikes').value.trim(),
+        must_haves: el('xmMustHaves').value.trim(),
+        steer_clear: el('xmSteerClear').value.trim(),
         details: el('xmDetails').value.trim(),
         demographics: el('xmDemo').value.trim(),
         anything_else: el('xmElse').value.trim(),
