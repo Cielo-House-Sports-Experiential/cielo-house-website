@@ -1,7 +1,6 @@
 /* BOOK A BRIEFING CALL, WITHOUT LEAVING THE PAGE.
-   Every "Schedule a Briefing Call" on the site points at the contact page's
-   discovery-call section. They all now open our own booking page over the top
-   of whatever page you are on instead.
+   Every "Schedule a Briefing Call" on the site points at /book/briefing-call.
+   They open our own booking page over the top of whatever page you are on.
 
    It is written once here rather than on each page, so the seven of them can
    never drift apart.
