@@ -122,12 +122,33 @@
     document.documentElement.setAttribute('data-ch-loaded', table);
   }
 
-  fetch(SB + '/rest/v1/' + encodeURIComponent(table) + '?id=eq.1&select=config', {
+  /* PREVIEWING SOMETHING NOT PUBLISHED YET.
+     Every page keeps two versions: config is what the public sees, draft is
+     what has been saved in the portal and not published. ?chdraft=1 draws the
+     draft instead, which is how Preview in the portal shows exactly what
+     publishing would give people. Nobody arrives here with that on the end by
+     accident, and it changes nothing that is stored. */
+  var wantDraft = /[?&]chdraft=1(&|$)/.test(location.search);
+  var cols = wantDraft ? 'config,draft' : 'config';
+
+  fetch(SB + '/rest/v1/' + encodeURIComponent(table) + '?id=eq.1&select=' + cols, {
     headers: { apikey: SK, Authorization: 'Bearer ' + SK }
   })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (rows) {
-      if (Array.isArray(rows) && rows[0] && rows[0].config) apply(rows[0].config);
+      var row = Array.isArray(rows) ? rows[0] : null;
+      if (!row) return;
+      /* The draft when there is one, otherwise what is live, so a page with
+         nothing saved still previews as it actually looks. */
+      var use = (wantDraft && row.draft) ? row.draft : row.config;
+      if (use) apply(use);
+      if (wantDraft) {
+        var tag = document.createElement('div');
+        tag.textContent = row.draft ? 'PREVIEW, NOT PUBLISHED' : 'PREVIEW, nothing saved yet, this is the live page';
+        tag.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#B3261E;color:#fff;'
+          + 'font:600 12px/1 system-ui,sans-serif;letter-spacing:.08em;text-align:center;padding:9px 12px;';
+        (document.body || document.documentElement).appendChild(tag);
+      }
     })
     /* If it cannot be read the page simply keeps what is written in it. */
     .catch(function () {});
