@@ -179,7 +179,7 @@
      <div class="bk-fields">
       <label class="bk-field"><span>Your name</span><input type="text" id="bkName" name="name" required></label>
       <label class="bk-field"><span>Email</span><input type="email" id="bkEmail" name="email" required></label>
-      <label class="bk-field is-wide"><span>Company</span><input type="text" id="bkCompany" name="company" required></label>
+      <label class="bk-field is-wide" id="bkCompanyWrap"><span>Company</span><input type="text" id="bkCompany" name="company" required></label>
      </div>
      <div class="bk-fields" id="bkQs"></div>
      <div class="bk-hp"><label>Company website<input type="text" id="bkHp" name="company_website" tabindex="-1" autocomplete="off"></label></div>
@@ -385,6 +385,16 @@
     });
   }
 
+  /* Britt, 29.08.26: a Quick Catch Up does not ask for a company. Named here by
+     the one meeting she asked for, so no other meeting is changed. */
+  var NO_COMPANY = (slug === 'quick-catch-up');
+  if (NO_COMPANY) {
+    var _cw = el('bkCompanyWrap');
+    if (_cw) { _cw.hidden = true; }
+    var _ci = el('bkCompany');
+    if (_ci) { _ci.required = false; _ci.value = ''; }
+  }
+
   function load() {
     if (!slug) { fatal('This link is missing the name of the meeting.'); return; }
     if (preview) el('bkPreview').hidden = false;
@@ -558,7 +568,7 @@
       body: JSON.stringify({
         slug: slug, start: chosenSlot.start,
         name: el('bkName').value.trim(), email: el('bkEmail').value.trim(),
-        company: el('bkCompany').value.trim(),
+        company: NO_COMPANY ? '' : el('bkCompany').value.trim(),
         answers: answers, c: fromCrm,
         company_website: el('bkHp').value
       })
