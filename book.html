@@ -3,7 +3,7 @@
 <head>
  <meta charset="UTF-8" />
  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
- <title>Book a meeting | Cielo House</title>
+ <title>Cielo House</title>
  <meta name="description" content="Pick a time with Cielo House. Choose from the times that are genuinely free and the meeting request comes straight to your inbox." />
  <meta name="robots" content="noindex" />
  <!-- SHOWN INSIDE THE BOOKING POPUP.
@@ -141,7 +141,11 @@
     <p class="bk-note" id="bkNote" hidden></p>
 
     <div class="bk-head">
-     <h1 class="bk-title" id="bkTitle">Book a meeting</h1>
+     <!-- Left empty on purpose. The name of the meeting is not known until it
+          has been read back, and a heading that says one thing and then
+          corrects itself in front of the visitor reads as a fault. It keeps
+          its height so nothing jumps when the name lands. -->
+     <h1 class="bk-title" id="bkTitle" style="min-height:1.1em">&nbsp;</h1>
      <div class="bk-rule"></div>
      <p class="bk-meta" id="bkMeta"></p>
     </div>
@@ -301,6 +305,8 @@
   var chosenSlot = null;
 
   function fatal(msg) {
+    var h = el('bkTitle');
+    if (h && !h.textContent.trim()) h.textContent = 'Book a meeting';
     var f = el('bkFatal');
     f.textContent = msg;
     f.hidden = false;
