@@ -1,0 +1,78 @@
+/* BOOK A BRIEFING CALL, WITHOUT LEAVING THE PAGE.
+   Every "Schedule a Briefing Call" on the site points at the contact page's
+   discovery-call section. They all now open our own booking page over the top
+   of whatever page you are on instead.
+
+   It is written once here rather than on each page, so the seven of them can
+   never drift apart.
+
+   display is set in this stylesheet and NOT on the element. An inline display
+   beats a stylesheet rule for a hidden element, and that is exactly what put an
+   empty white box over the live contact page on 28.08.26. */
+(function () {
+  var URL_BOOK = '/book/briefing-call';
+  var box = null, frame = null;
+
+  function build() {
+    if (box) return;
+    var css = document.createElement('style');
+    css.textContent =
+      '#chBookBox{position:fixed;inset:0;background:rgba(43,49,123,.6);z-index:2000;'
+      + 'display:flex;align-items:flex-start;justify-content:center;padding:3vh 1rem;}'
+      + '#chBookBox[hidden]{display:none;}'
+      + '#chBookCard{position:relative;width:min(920px,100%);height:94vh;background:#fff;'
+      + 'border-radius:2px;box-shadow:0 8px 40px rgba(43,49,123,.35);overflow:hidden;}'
+      + '#chBookClose{position:absolute;top:10px;right:12px;z-index:2;border:0;background:#fff;'
+      + 'color:#2B317B;font-family:inherit;font-size:.8rem;letter-spacing:.08em;'
+      + 'text-transform:uppercase;padding:8px 12px;cursor:pointer;}'
+      + '#chBookFrame{width:100%;height:100%;border:0;display:block;}';
+    document.head.appendChild(css);
+
+    box = document.createElement('div');
+    box.id = 'chBookBox';
+    box.hidden = true;
+    box.innerHTML =
+      '<div id="chBookCard">'
+      + '<button type="button" id="chBookClose" aria-label="Close">Close</button>'
+      + '<iframe id="chBookFrame" title="Book a briefing call" src="about:blank"></iframe>'
+      + '</div>';
+    document.body.appendChild(box);
+    frame = box.querySelector('#chBookFrame');
+
+    box.querySelector('#chBookClose').addEventListener('click', close);
+    /* The dark surround closes it. The card itself does not. */
+    box.addEventListener('click', function (e) { if (e.target === box) close(); });
+  }
+
+  function open() {
+    build();
+    /* Loaded only when asked for, so no page carries it on every visit. */
+    frame.src = URL_BOOK;
+    box.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+  function close() {
+    if (!box) return;
+    box.hidden = true;
+    frame.src = 'about:blank';   /* emptied, so it starts fresh next time */
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+
+  /* Every Schedule a Briefing Call on the site, however its address is written:
+     contact.html#discovery-call, ../contact.html#discovery-call, or the full
+     https address. Bound to the document, so it also catches anything a page
+     draws after it has loaded. */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest ? e.target.closest('a[href]') : null;
+    if (!a) return;
+    if (!/contact\.html#discovery-call$/.test(a.getAttribute('href') || '')) return;
+    e.preventDefault();
+    open();
+  });
+
+  /* The contact page sends the brief first, then calls this. */
+  window.chOpenBooking = open;
+  window.chCloseBooking = close;
+})();
