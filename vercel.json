@@ -9,6 +9,10 @@
     {
       "source": "/book/:slug",
       "destination": "/book.html"
+    },
+    {
+      "source": "/christmas",
+      "destination": "/christmas.html"
     }
   ],
   "headers": [
