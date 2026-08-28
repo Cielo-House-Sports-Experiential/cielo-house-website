@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <title>Book a meeting | Cielo House</title>
+ <meta name="description" content="Pick a time with Cielo House. Choose from the times that are genuinely free and the meeting request comes straight to your inbox." />
+ <meta name="robots" content="noindex" />
+ <link rel="preconnect" href="https://fonts.googleapis.com" />
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+ <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+ <noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" /></noscript>
+ <link rel="stylesheet" href="/css/fonts.css" />
+ <link rel="stylesheet" href="/css/styles.css?v=11" />
+ <style>
+ /* THE BOOKING PAGE. Built on the site's own variables so it stays on brand
+    without repeating any colour by hand. Square, per the Cielo House rule. */
+ .bk-wrap{padding:9rem 1.5rem 5rem;background:var(--color-white);}
+ .bk-inner{max-width:940px;margin:0 auto;}
+ .bk-head{margin-bottom:2.5rem;}
+ .bk-eyebrow{margin:0 0 .6rem;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:var(--color-secondary);}
+ .bk-title{margin:0;font-family:var(--font-display);font-size:clamp(2.4rem,6vw,3.6rem);line-height:1;letter-spacing:.03em;text-transform:uppercase;color:var(--color-primary);}
+ .bk-rule{width:56px;height:3px;background:var(--color-secondary);margin:1rem 0 1.1rem;}
+ .bk-meta{margin:0;color:var(--color-text-light);font-size:1rem;}
+
+ .bk-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:1.5rem;align-items:start;}
+ .bk-panel{border:1px solid var(--color-light-grey);border-radius:2px;padding:1.25rem;background:var(--color-white);}
+ .bk-panel-h{margin:0 0 1rem;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--color-text-light);}
+
+ .bk-monthbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+ .bk-month{font-family:var(--font-display);font-size:1.5rem;letter-spacing:.04em;text-transform:uppercase;color:var(--color-primary);}
+ .bk-nav{width:34px;height:34px;border:1px solid var(--color-light-grey);border-radius:2px;background:transparent;color:var(--color-primary);font-size:1.1rem;line-height:1;cursor:pointer;}
+ .bk-nav:hover:not(:disabled){border-color:var(--color-secondary);}
+ .bk-nav:disabled{opacity:.35;cursor:default;}
+
+ .bk-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px;}
+ .bk-dow span{text-align:center;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--color-mid-grey);}
+ .bk-days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+ .bk-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border:1px solid transparent;border-radius:2px;background:var(--color-off-white);color:var(--color-mid-grey);font-size:.9rem;font-family:var(--font-body);cursor:default;}
+ .bk-day.is-open{background:var(--color-white);border-color:var(--color-secondary);color:var(--color-primary);font-weight:600;cursor:pointer;}
+ .bk-day.is-open:hover{background:var(--color-secondary);color:var(--color-white);}
+ .bk-day.is-on{background:var(--color-primary);border-color:var(--color-primary);color:var(--color-white);font-weight:600;}
+ .bk-day.is-blank{background:transparent;}
+
+ .bk-times{display:flex;flex-direction:column;gap:6px;max-height:340px;overflow-y:auto;}
+ .bk-slot{padding:.7rem 1rem;border:1px solid var(--color-light-grey);border-radius:2px;background:var(--color-white);color:var(--color-primary);font-family:var(--font-body);font-size:.95rem;text-align:left;cursor:pointer;}
+ .bk-slot:hover{border-color:var(--color-secondary);}
+ .bk-slot.is-on{background:var(--color-primary);border-color:var(--color-primary);color:var(--color-white);}
+ .bk-none{color:var(--color-text-light);font-size:.92rem;margin:0;}
+
+ .bk-form{margin-top:2rem;border:1px solid var(--color-light-grey);border-radius:2px;padding:1.5rem;}
+ .bk-chosen{margin:0 0 1.25rem;font-weight:600;color:var(--color-primary);}
+ .bk-fields{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+ .bk-field{display:flex;flex-direction:column;gap:.4rem;}
+ .bk-field.is-wide{grid-column:1 / -1;}
+ .bk-field span{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--color-text-light);}
+ .bk-field input,.bk-field textarea{width:100%;padding:.75rem;border:1px solid var(--color-light-grey);border-radius:2px;font-family:var(--font-body);font-size:.95rem;color:var(--color-text);background:var(--color-white);}
+ .bk-field input:focus,.bk-field textarea:focus{outline:2px solid var(--color-secondary);outline-offset:1px;border-color:var(--color-secondary);}
+ .bk-field textarea{min-height:90px;resize:vertical;}
+ /* Nobody can see this. Anything that fills it in is not a person. */
+ .bk-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
+ .bk-submit{margin-top:.5rem;padding:.95rem 2rem;border:2px solid var(--color-primary);border-radius:2px;background:var(--color-primary);color:var(--color-white);font-family:var(--font-body);font-size:.78rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;}
+ .bk-submit:hover:not(:disabled){background:var(--color-secondary);border-color:var(--color-secondary);}
+ .bk-submit:disabled{opacity:.6;cursor:default;}
+ .bk-err{margin:1rem 0 0;color:#B3261E;font-size:.95rem;}
+
+ .bk-done{margin-top:2rem;border:1px solid var(--color-secondary);border-left:3px solid var(--color-primary);border-radius:2px;padding:1.75rem;background:var(--color-off-white);}
+ .bk-done-h{margin:0 0 .75rem;font-family:var(--font-display);font-size:1.9rem;letter-spacing:.03em;text-transform:uppercase;color:var(--color-primary);}
+ .bk-done p{margin:0 0 .5rem;color:var(--color-text);}
+
+ @media(max-width:820px){
+  .bk-grid{grid-template-columns:1fr;}
+  .bk-fields{grid-template-columns:1fr;}
+  .bk-wrap{padding-top:7rem;}
+ }
+ </style>
+</head>
+<body data-ch-page="book_page">
+
+
+ <nav class="nav" role="navigation" aria-label="Main navigation">
+ <div class="nav__inner">
+ <a href="/index.html" class="nav__logo" aria-label="Cielo House Home">
+ <img src="/images/new-logo/CH_Logo_Horizontal_White.png" alt="Cielo House" class="nav__logo-img nav__logo-img--default" />
+ <img src="/images/new-logo/CH_Logo_Horizontal_Blue-on-White.png" alt="Cielo House" class="nav__logo-img nav__logo-img--scrolled" />
+ </a>
+ <ul class="nav__links" role="list">
+ <li><a href="/about.html" class="nav__link">About</a></li>
+ <li class="nav__dropdown">
+ <a href="/services.html" class="nav__link">Services ↓</a>
+ <ul class="nav__dropdown-menu" role="list">
+ <li><a href="/services/brand-activations.html" class="nav__dropdown-link">Brand Activations</a></li>
+ <li><a href="/services/corporate-hospitality.html" class="nav__dropdown-link">Premium Hospitality</a></li>
+</ul>
+ </li>
+ <li><a href="/work.html" class="nav__link">Work</a></li>
+ <li><a href="/blog.html" class="nav__link">Insights</a></li>
+ <li><a href="/contact.html" class="nav__link">Contact</a></li>
+ </ul>
+ <div class="nav__cta"><a href="https://www.cielohouse.com.au/contact.html#discovery-call" onclick="if(typeof gtag!=='undefined')gtag('event','schedule_call',{event_category:'CTA',event_label:document.title});" class="btn btn--primary" data-ch="s3.p2Copy">Schedule a Briefing Call</a></div>
+ <button class="nav__hamburger" aria-label="Open menu"><span></span><span></span><span></span></button>
+ </div>
+ </nav>
+ <div class="nav__mobile" role="dialog" aria-modal="true" aria-label="Mobile navigation">
+ <nav>
+ <a href="/about.html" class="nav__mobile-link">About</a>
+ <div class="nav__mobile-group">
+ <button class="nav__mobile-toggle" aria-expanded="false">Services <span class="nav__mobile-caret" aria-hidden="true">&#9662;</span></button>
+ <div class="nav__mobile-sub">
+ <a href="/services/brand-activations.html" class="nav__mobile-sublink">Brand Activations</a>
+ <a href="/services/corporate-hospitality.html" class="nav__mobile-sublink">Premium Hospitality</a>
+ </div>
+ </div>
+ <a href="/work.html" class="nav__mobile-link">Work</a>
+ <a href="/blog.html" class="nav__mobile-link">Insights</a>
+ <a href="/contact.html" class="nav__mobile-link">Contact</a>
+ </nav>
+ <a href="https://www.cielohouse.com.au/contact.html#discovery-call" onclick="if(typeof gtag!=='undefined')gtag('event','schedule_call',{event_category:'CTA',event_label:document.title});" class="btn btn--primary btn--lg" style="margin-top:2.5rem;">Schedule a Briefing Call</a>
+ </div>
+ <main>
+  <section class="bk-wrap">
+   <div class="bk-inner">
+    <div class="bk-head">
+     <p class="bk-eyebrow">Cielo House</p>
+     <h1 class="bk-title" id="bkTitle">Book a meeting</h1>
+     <div class="bk-rule"></div>
+     <p class="bk-meta" id="bkMeta"></p>
+    </div>
+
+    <div class="bk-grid">
+     <div class="bk-panel">
+      <div class="bk-monthbar">
+       <button type="button" class="bk-nav" id="bkPrev" aria-label="Previous month">&#8249;</button>
+       <span class="bk-month" id="bkMonth"></span>
+       <button type="button" class="bk-nav" id="bkNext" aria-label="Next month">&#8250;</button>
+      </div>
+      <div class="bk-dow"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+      <div class="bk-days" id="bkDays"></div>
+     </div>
+
+     <div class="bk-panel">
+      <p class="bk-panel-h" id="bkTimesH">Pick a day</p>
+      <div class="bk-times" id="bkTimes"></div>
+     </div>
+    </div>
+
+    <form class="bk-form" id="bkForm" hidden autocomplete="on">
+     <p class="bk-chosen" id="bkChosen"></p>
+     <div class="bk-fields">
+      <label class="bk-field"><span>Your name</span><input type="text" id="bkName" name="name" required></label>
+      <label class="bk-field"><span>Email</span><input type="email" id="bkEmail" name="email" required></label>
+     </div>
+     <div class="bk-fields" id="bkQs"></div>
+     <div class="bk-hp"><label>Company website<input type="text" id="bkHp" name="company_website" tabindex="-1" autocomplete="off"></label></div>
+     <button type="submit" class="bk-submit" id="bkGo">Confirm this time</button>
+     <p class="bk-err" id="bkErr" hidden></p>
+    </form>
+
+    <div class="bk-done" id="bkDone" hidden>
+     <h2 class="bk-done-h">You are booked in</h2>
+     <p id="bkDoneWhen"></p>
+     <p id="bkDoneNote">A meeting request is on its way to your inbox. Accept it and the meeting goes straight into your calendar.</p>
+    </div>
+
+    <p class="bk-err" id="bkFatal" hidden></p>
+   </div>
+  </section>
+ </main>
+ <footer class="footer" role="contentinfo">
+ <div class="footer__top">
+ <div class="footer__brand">
+ <img src="/images/new-logo/CH_Logo_Stacked_White.png" alt="Cielo House" class="footer__logo-img" />
+ 
+ 
+ <p class="footer__tagline">Built for the moment, created to last.</p>
+ <p style="font-size:0.8rem; color:rgba(255,255,255,0.55); line-height:1.6; margin-top:0.75rem;">Australia's premium experiential and events agency. Brand activations and corporate hospitality, founder led and delivered across Australia.</p>
+ <div class="footer__social">
+ <a href="https://www.instagram.com/cielohouse_/" class="footer__social-link" aria-label="Instagram @cielohouse_" target="_blank" rel="noopener noreferrer">
+ <svg viewBox="0 0 24 24" fill="none" width="16" height="16" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+ </a>
+ <a href="https://www.linkedin.com/company/cielohouse" class="footer__social-link" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer">
+ <svg viewBox="0 0 24 24" fill="none" width="16" height="16" stroke="currentColor" stroke-width="1.5"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+ </a>
+ </div>
+ </div>
+ <div>
+ <h3 class="footer__heading">Services</h3>
+ <ul class="footer__links" role="list">
+ <li><a href="/services/brand-activations.html" class="footer__link">Brand Activations</a></li>
+ <li><a href="/services/corporate-hospitality.html" class="footer__link">Premium Hospitality</a></li>
+</ul>
+ </div>
+ <div>
+ <h3 class="footer__heading">Company</h3>
+ <ul class="footer__links" role="list">
+ <li><a href="/about.html" class="footer__link">About</a></li>
+ <li><a href="/work.html" class="footer__link">Work</a></li>
+ <li><a href="/blog.html" class="footer__link">Insights</a></li>
+ <li><a href="/contact.html" class="footer__link">Contact</a></li>
+ </ul>
+ </div>
+ <div>
+ <h3 class="footer__heading">Contact Us</h3>
+ <div class="footer__contact-item">
+ <div class="footer__contact-icon-wrap">
+ <img class="footer__contact-icon" src="/images/contact-icons/address-icon.png" alt="Address" loading="lazy" decoding="async" />
+ </div>
+ <span>8/25 Alex Fisher Drive,<br>Burleigh Heads QLD 4220</span>
+ </div>
+ <div class="footer__contact-item">
+ <div class="footer__contact-icon-wrap">
+ <img class="footer__contact-icon" src="/images/contact-icons/email-icon.png" alt="Email" loading="lazy" decoding="async" />
+ </div>
+ <a href="mailto:connect@cielohouse.com.au" class="footer__link" data-ch="s4.emailCopy">connect@cielohouse.com.au</a>
+ </div>
+ </div>
+ </div>
+ <div class="footer__bottom">
+ <p class="footer__copy">Copyright &copy; 2026 Cielo House Experiential &amp; Events</p>
+ </div>
+ </footer>
+<script src="/js/main.js" defer></script>
+<script>
+/* THE BOOKING PAGE.
+   Which meeting this is comes from the address: cielohouse.com.au/book/<name>.
+   Everything else comes from the portal, which owns the meeting types, reads
+   Britt's calendar, and decides what is actually free.
+
+   Every time shown here is AEST, because that is where Cielo House works and
+   where the meeting happens. AEST is UTC+10 and never moves. */
+(function () {
+  var API = 'https://portal.cielohouse.com.au/api/bookings';
+  var AEST = 600; /* minutes */
+
+  var slug = (function () {
+    var m = /\/book\/([a-z0-9-]+)/i.exec(location.pathname);
+    if (m) return m[1].toLowerCase();
+    return (new URLSearchParams(location.search).get('m') || '').toLowerCase();
+  })();
+  /* A booking link inside a CRM email carries the company it was sent to, so
+     the booking can be written back against that company. */
+  var fromCrm = new URLSearchParams(location.search).get('c') || '';
+
+  var el = function (id) { return document.getElementById(id); };
+  var pad = function (n) { return String(n).padStart(2, '0'); };
+  var aest = function (iso) { return new Date(Date.parse(iso) + AEST * 60000); };
+  var esc = function (s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  };
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+    'August', 'September', 'October', 'November', 'December'];
+  var DAYNAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  var type = null;      /* the meeting type */
+  var byDate = {};      /* '2026-08-29' -> [{start, label}] */
+  var month = null;     /* first of the month being shown, as a UTC date */
+  var chosenDate = '';
+  var chosenSlot = null;
+
+  function fatal(msg) {
+    var f = el('bkFatal');
+    f.textContent = msg;
+    f.hidden = false;
+  }
+
+  function load() {
+    if (!slug) { fatal('This link is missing the name of the meeting.'); return; }
+    fetch(API + '/type?slug=' + encodeURIComponent(slug))
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (!j || !j.ok) throw new Error((j && j.error) || 'not found');
+        type = j.type;
+        document.title = type.name + ' | Cielo House';
+        el('bkTitle').textContent = type.name;
+        el('bkMeta').textContent = type.minutes + ' minutes, AEST'
+          + (type.location ? ', ' + type.location : '');
+        drawQuestions();
+        return fetch(API + '/availability?slug=' + encodeURIComponent(slug));
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (!j || !j.ok) throw new Error((j && j.error) || 'no times');
+        byDate = {};
+        (j.days || []).forEach(function (d) { byDate[d.date] = d.slots; });
+        var first = Object.keys(byDate).sort()[0];
+        month = first ? monthOf(first) : monthOf(todayAest());
+        drawMonth();
+        if (!first) el('bkTimes').innerHTML = '<p class="bk-none">There are no times open at the moment.</p>';
+      })
+      .catch(function (e) {
+        fatal('This booking page could not be loaded. ' + (e && e.message ? e.message : ''));
+      });
+  }
+
+  function todayAest() {
+    return new Date(Date.now() + AEST * 60000).toISOString().slice(0, 10);
+  }
+  function monthOf(dateStr) {
+    return new Date(Date.parse(dateStr.slice(0, 8) + '01T00:00:00Z'));
+  }
+
+  function drawMonth() {
+    el('bkMonth').textContent = MONTHS[month.getUTCMonth()] + ' ' + month.getUTCFullYear();
+    /* Monday first, the way a week reads here. */
+    var startDow = (month.getUTCDay() + 6) % 7;
+    var days = new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth() + 1, 0)).getUTCDate();
+    var cells = [];
+    for (var b = 0; b < startDow; b++) cells.push('<div class="bk-day is-blank"></div>');
+    for (var d = 1; d <= days; d++) {
+      var iso = month.getUTCFullYear() + '-' + pad(month.getUTCMonth() + 1) + '-' + pad(d);
+      var open = !!(byDate[iso] && byDate[iso].length);
+      cells.push('<button type="button" class="bk-day'
+        + (open ? ' is-open' : '') + (iso === chosenDate ? ' is-on' : '')
+        + '" data-date="' + iso + '"' + (open ? '' : ' disabled') + '>' + d + '</button>');
+    }
+    el('bkDays').innerHTML = cells.join('');
+    el('bkDays').querySelectorAll('[data-date]').forEach(function (b) {
+      b.addEventListener('click', function () { pickDate(b.dataset.date); });
+    });
+
+    var all = Object.keys(byDate).sort();
+    var firstM = all.length ? monthOf(all[0]) : month;
+    var lastM = all.length ? monthOf(all[all.length - 1]) : month;
+    el('bkPrev').disabled = (month <= firstM);
+    el('bkNext').disabled = (month >= lastM);
+  }
+
+  function pickDate(iso) {
+    chosenDate = iso;
+    chosenSlot = null;
+    drawMonth();
+    var d = new Date(Date.parse(iso + 'T00:00:00Z'));
+    el('bkTimesH').textContent = DAYNAMES[d.getUTCDay()] + ' '
+      + pad(d.getUTCDate()) + '.' + pad(d.getUTCMonth() + 1) + '.' + String(d.getUTCFullYear()).slice(2);
+    var slots = byDate[iso] || [];
+    el('bkTimes').innerHTML = slots.length
+      ? slots.map(function (s, i) {
+          return '<button type="button" class="bk-slot" data-slot="' + i + '">' + esc(s.label) + '</button>';
+        }).join('')
+      : '<p class="bk-none">Nothing open that day.</p>';
+    el('bkTimes').querySelectorAll('[data-slot]').forEach(function (b) {
+      b.addEventListener('click', function () { pickSlot(slots[+b.dataset.slot], b); });
+    });
+    el('bkForm').hidden = true;
+  }
+
+  function pickSlot(slot, btn) {
+    chosenSlot = slot;
+    el('bkTimes').querySelectorAll('.bk-slot').forEach(function (x) { x.classList.remove('is-on'); });
+    btn.classList.add('is-on');
+    var d = aest(slot.start);
+    el('bkChosen').textContent = DAYNAMES[d.getUTCDay()] + ' ' + pad(d.getUTCDate()) + '.'
+      + pad(d.getUTCMonth() + 1) + '.' + String(d.getUTCFullYear()).slice(2)
+      + ' at ' + slot.label + ' AEST, ' + type.minutes + ' minutes';
+    el('bkForm').hidden = false;
+    el('bkErr').hidden = true;
+    el('bkForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function drawQuestions() {
+    var qs = (type && type.questions) || [];
+    el('bkQs').innerHTML = qs.map(function (q) {
+      var wide = q.type === 'textarea';
+      var input = wide
+        ? '<textarea data-q="' + esc(q.id) + '"' + (q.required ? ' required' : '') + '></textarea>'
+        : '<input type="text" data-q="' + esc(q.id) + '"' + (q.required ? ' required' : '') + '>';
+      return '<label class="bk-field' + (wide ? ' is-wide' : '') + '"><span>' + esc(q.label)
+        + (q.required ? '' : ' (optional)') + '</span>' + input + '</label>';
+    }).join('');
+  }
+
+  el('bkPrev').addEventListener('click', function () {
+    month = new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth() - 1, 1)); drawMonth();
+  });
+  el('bkNext').addEventListener('click', function () {
+    month = new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth() + 1, 1)); drawMonth();
+  });
+
+  el('bkForm').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    if (!chosenSlot) return;
+    var go = el('bkGo'), was = go.textContent;
+    go.disabled = true; go.textContent = 'Booking...';
+    el('bkErr').hidden = true;
+
+    var answers = {};
+    el('bkQs').querySelectorAll('[data-q]').forEach(function (i) {
+      answers[i.dataset.q] = i.value.trim();
+    });
+
+    fetch(API + '/book', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        slug: slug, start: chosenSlot.start,
+        name: el('bkName').value.trim(), email: el('bkEmail').value.trim(),
+        answers: answers, c: fromCrm,
+        company_website: el('bkHp').value
+      })
+    })
+      .then(function (r) { return r.json().then(function (j) { return { s: r.status, j: j }; }); })
+      .then(function (out) {
+        var j = out.j || {};
+        if (!j.ok) {
+          el('bkErr').textContent = j.error || 'That could not be booked. Please try again.';
+          el('bkErr').hidden = false;
+          go.disabled = false; go.textContent = was;
+          /* Somebody else took it, so show what is actually left. */
+          if (j.taken) load();
+          return;
+        }
+        el('bkForm').hidden = true;
+        document.querySelector('.bk-grid').hidden = true;
+        el('bkDoneWhen').textContent = el('bkChosen').textContent;
+        if (j.invite !== 'sent') {
+          el('bkDoneNote').textContent = 'You are booked in. The meeting request could not be'
+            + ' emailed just now, so Cielo House will be in touch to confirm.';
+        }
+        el('bkDone').hidden = false;
+        el('bkDone').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      })
+      .catch(function () {
+        el('bkErr').textContent = 'That could not be booked. Please try again.';
+        el('bkErr').hidden = false;
+        go.disabled = false; go.textContent = was;
+      });
+  });
+
+  load();
+})();
+</script>
+</body>
+</html>

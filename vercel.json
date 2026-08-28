@@ -5,6 +5,10 @@
     {
       "source": "/blog/:slug",
       "destination": "/blog/post.html?slug=:slug"
+    },
+    {
+      "source": "/book/:slug",
+      "destination": "/book.html"
     }
   ],
   "headers": [
