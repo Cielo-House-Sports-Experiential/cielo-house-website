@@ -17,6 +17,13 @@
     without repeating any colour by hand. Square, per the Cielo House rule. */
  .bk-wrap{padding:9rem 1.5rem 5rem;background:var(--color-white);}
  .bk-inner{max-width:940px;margin:0 auto;}
+ .bk-note{margin:0 0 1.75rem;padding:.85rem 1.1rem;border:1px solid var(--color-secondary);border-left:3px solid var(--color-primary);border-radius:2px;background:var(--color-off-white);color:var(--color-primary);font-size:.95rem;}
+ .bk-modal{position:fixed;inset:0;background:rgba(43,49,123,.6);display:flex;align-items:flex-start;justify-content:center;padding-top:14vh;z-index:60;}
+ .bk-modal-card{width:min(460px,92vw);background:var(--color-white);border-radius:2px;padding:1.75rem;box-shadow:0 8px 32px rgba(43,49,123,.28);}
+ .bk-modal-h{margin:0 0 .9rem;font-family:var(--font-display);font-size:1.7rem;letter-spacing:.03em;text-transform:uppercase;color:var(--color-primary);}
+ .bk-modal-card p{margin:0 0 1.2rem;color:var(--color-text);font-size:.98rem;}
+ .bk-modal-row{display:flex;gap:.75rem;justify-content:flex-end;}
+ .bk-ghost{padding:.95rem 1.5rem;border:2px solid var(--color-light-grey);border-radius:2px;background:transparent;color:var(--color-text);font-family:var(--font-body);font-size:.78rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;}
  .bk-preview{margin:0 0 1.75rem;padding:.85rem 1.1rem;border:1px solid var(--color-secondary);border-left:3px solid var(--color-primary);border-radius:2px;background:var(--color-off-white);color:var(--color-primary);font-size:.9rem;font-weight:500;}
  .bk-head{margin-bottom:2.5rem;}
  .bk-title{margin:0;font-family:var(--font-display);font-size:clamp(2.4rem,6vw,3.6rem);line-height:1;letter-spacing:.03em;text-transform:uppercase;color:var(--color-primary);}
@@ -121,6 +128,7 @@
   <section class="bk-wrap">
    <div class="bk-inner">
     <div class="bk-preview" id="bkPreview" hidden>Preview. This is exactly what somebody booking would see, and nothing here can be booked.</div>
+    <p class="bk-note" id="bkNote" hidden></p>
 
     <div class="bk-head">
      <h1 class="bk-title" id="bkTitle">Book a meeting</h1>
@@ -165,6 +173,18 @@
     </div>
 
     <p class="bk-err" id="bkFatal" hidden></p>
+
+    <div class="bk-modal" id="bkCancelBox" hidden>
+     <div class="bk-modal-card" role="dialog" aria-modal="true" aria-labelledby="bkCancelH">
+      <h2 class="bk-modal-h" id="bkCancelH">Cancel this meeting</h2>
+      <p id="bkCancelWhat"></p>
+      <p class="bk-err" id="bkCancelErr" hidden></p>
+      <div class="bk-modal-row">
+       <button type="button" class="bk-ghost" id="bkKeep">Keep it</button>
+       <button type="button" class="bk-submit" id="bkDoCancel">Yes, cancel it</button>
+      </div>
+     </div>
+    </div>
    </div>
   </section>
  </main>
@@ -246,6 +266,12 @@
      real meeting and the real times, and it cannot book. */
   var preview = new URLSearchParams(location.search).get('preview') === '1';
   var q = preview ? '&preview=1' : '';
+  /* Somebody who followed the change or cancel link in their own booking
+     email. The reference is what proves it is their booking, and it only ever
+     opens that one. */
+  var myRef = (new URLSearchParams(location.search).get('ref') || '').trim().toUpperCase();
+  var myDo = (new URLSearchParams(location.search).get('do') || '').toLowerCase();
+  var mine = null;
 
   var el = function (id) { return document.getElementById(id); };
   var pad = function (n) { return String(n).padStart(2, '0'); };
@@ -268,6 +294,72 @@
     var f = el('bkFatal');
     f.textContent = msg;
     f.hidden = false;
+  }
+
+  /* Their own booking, fetched by its reference. */
+  function loadMine(then) {
+    fetch(API + '/manage?ref=' + encodeURIComponent(myRef))
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (!j || !j.ok) throw new Error((j && j.error) || 'not found');
+        mine = j.booking;
+        if (mine.status === 'Cancelled') {
+          note('This meeting has already been cancelled.');
+          document.querySelector('.bk-grid').hidden = true;
+          return;
+        }
+        if (myDo === 'cancel') { askToCancel(); return; }
+        note('Changing your ' + mine.typeName + ', currently ' + whenText(mine.start)
+          + '. Pick a new time below and we will send you a new confirmation.');
+        then();
+      })
+      .catch(function (e) {
+        fatal('We could not find that booking. ' + (e && e.message ? e.message : ''));
+      });
+  }
+  function note(t) { var n = el('bkNote'); n.textContent = t; n.hidden = false; }
+  function whenText(iso) {
+    var d = aest(iso);
+    return DAYNAMES[d.getUTCDay()] + ' ' + pad(d.getUTCDate()) + '.' + pad(d.getUTCMonth() + 1)
+      + '.' + String(d.getUTCFullYear()).slice(2) + ' at ' + pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()) + ' AEST';
+  }
+
+  /* Cancelling. Britt asked for a box that makes them confirm. */
+  function askToCancel() {
+    document.querySelector('.bk-grid').hidden = true;
+    el('bkCancelWhat').textContent = 'Your ' + mine.typeName + ' on ' + whenText(mine.start)
+      + '. Britt will be told, and it will come out of both calendars.';
+    el('bkCancelBox').hidden = false;
+  }
+  function wireCancel() {
+    el('bkKeep').addEventListener('click', function () {
+      el('bkCancelBox').hidden = true;
+      note('Nothing has changed. Your meeting is still on for ' + whenText(mine.start) + '.');
+    });
+    el('bkDoCancel').addEventListener('click', function () {
+      var btn = el('bkDoCancel'), was = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Cancelling...';
+      fetch(API + '/manage', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ref: myRef, action: 'cancel' }) })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          if (!j || !j.ok) {
+            el('bkCancelErr').textContent = (j && j.error) || 'That could not be cancelled.';
+            el('bkCancelErr').hidden = false;
+            btn.disabled = false; btn.textContent = was; return;
+          }
+          el('bkCancelBox').hidden = true;
+          el('bkDoneWhen').textContent = 'Your ' + mine.typeName + ' on ' + whenText(mine.start) + ' is cancelled.';
+          el('bkDoneNote').textContent = 'Nothing further is needed. It has come out of the calendar.';
+          document.querySelector('.bk-done-h').textContent = 'That is cancelled';
+          el('bkDone').hidden = false;
+        })
+        .catch(function () {
+          el('bkCancelErr').textContent = 'That could not be cancelled.';
+          el('bkCancelErr').hidden = false;
+          btn.disabled = false; btn.textContent = was;
+        });
+    });
   }
 
   function load() {
@@ -360,6 +452,9 @@
     el('bkChosen').textContent = DAYNAMES[d.getUTCDay()] + ' ' + pad(d.getUTCDate()) + '.'
       + pad(d.getUTCMonth() + 1) + '.' + String(d.getUTCFullYear()).slice(2)
       + ' at ' + slot.label + ' AEST, ' + type.minutes + ' minutes';
+    /* Changing an existing booking needs no form: they have already told us
+       everything. Picking the time is the whole thing. */
+    if (mine) { moveTo(slot); return; }
     el('bkForm').hidden = false;
     el('bkErr').hidden = true;
     if (preview) {
@@ -367,6 +462,34 @@
       el('bkGo').disabled = true;
     }
     el('bkForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function moveTo(slot) {
+    el('bkTimes').querySelectorAll('.bk-slot').forEach(function (x) { x.disabled = true; });
+    note('Moving your meeting...');
+    fetch(API + '/manage', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ref: myRef, action: 'reschedule', start: slot.start }) })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (!j || !j.ok) {
+          note((j && j.error) || 'That could not be changed. Please pick another time.');
+          el('bkTimes').querySelectorAll('.bk-slot').forEach(function (x) { x.disabled = false; });
+          if (j && j.taken) load();
+          return;
+        }
+        document.querySelector('.bk-grid').hidden = true;
+        el('bkNote').hidden = true;
+        document.querySelector('.bk-done-h').textContent = 'That is changed';
+        el('bkDoneWhen').textContent = 'Your ' + mine.typeName + ' is now ' + whenText(j.start) + '.';
+        el('bkDoneNote').textContent = 'A new confirmation is on its way to your inbox, with an updated'
+          + ' calendar invite. Accepting it moves the meeting in your calendar.';
+        el('bkDone').hidden = false;
+        el('bkDone').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      })
+      .catch(function () {
+        note('That could not be changed. Please try again.');
+        el('bkTimes').querySelectorAll('.bk-slot').forEach(function (x) { x.disabled = false; });
+      });
   }
 
   function drawQuestions() {
@@ -438,7 +561,8 @@
       });
   });
 
-  load();
+  wireCancel();
+  if (myRef) loadMine(load); else load();
 })();
 </script>
 </body>
