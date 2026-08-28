@@ -17,6 +17,7 @@
     without repeating any colour by hand. Square, per the Cielo House rule. */
  .bk-wrap{padding:9rem 1.5rem 5rem;background:var(--color-white);}
  .bk-inner{max-width:940px;margin:0 auto;}
+ .bk-preview{margin:0 0 1.75rem;padding:.85rem 1.1rem;border:1px solid var(--color-secondary);border-left:3px solid var(--color-primary);border-radius:2px;background:var(--color-off-white);color:var(--color-primary);font-size:.9rem;font-weight:500;}
  .bk-head{margin-bottom:2.5rem;}
  .bk-eyebrow{margin:0 0 .6rem;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:var(--color-secondary);}
  .bk-title{margin:0;font-family:var(--font-display);font-size:clamp(2.4rem,6vw,3.6rem);line-height:1;letter-spacing:.03em;text-transform:uppercase;color:var(--color-primary);}
@@ -120,6 +121,8 @@
  <main>
   <section class="bk-wrap">
    <div class="bk-inner">
+    <div class="bk-preview" id="bkPreview" hidden>Preview. This is exactly what somebody booking would see, and nothing here can be booked.</div>
+
     <div class="bk-head">
      <p class="bk-eyebrow">Cielo House</p>
      <h1 class="bk-title" id="bkTitle">Book a meeting</h1>
@@ -240,6 +243,10 @@
   /* A booking link inside a CRM email carries the company it was sent to, so
      the booking can be written back against that company. */
   var fromCrm = new URLSearchParams(location.search).get('c') || '';
+  /* A preview is Britt looking at the page before it goes live. It shows the
+     real meeting and the real times, and it cannot book. */
+  var preview = new URLSearchParams(location.search).get('preview') === '1';
+  var q = preview ? '&preview=1' : '';
 
   var el = function (id) { return document.getElementById(id); };
   var pad = function (n) { return String(n).padStart(2, '0'); };
@@ -266,7 +273,8 @@
 
   function load() {
     if (!slug) { fatal('This link is missing the name of the meeting.'); return; }
-    fetch(API + '/type?slug=' + encodeURIComponent(slug))
+    if (preview) el('bkPreview').hidden = false;
+    fetch(API + '/type?slug=' + encodeURIComponent(slug) + q)
       .then(function (r) { return r.json(); })
       .then(function (j) {
         if (!j || !j.ok) throw new Error((j && j.error) || 'not found');
@@ -276,7 +284,7 @@
         el('bkMeta').textContent = type.minutes + ' minutes, AEST'
           + (type.location ? ', ' + type.location : '');
         drawQuestions();
-        return fetch(API + '/availability?slug=' + encodeURIComponent(slug));
+        return fetch(API + '/availability?slug=' + encodeURIComponent(slug) + q);
       })
       .then(function (r) { return r.json(); })
       .then(function (j) {
@@ -355,6 +363,10 @@
       + ' at ' + slot.label + ' AEST, ' + type.minutes + ' minutes';
     el('bkForm').hidden = false;
     el('bkErr').hidden = true;
+    if (preview) {
+      el('bkGo').textContent = 'Preview only, this will not book';
+      el('bkGo').disabled = true;
+    }
     el('bkForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
@@ -379,7 +391,7 @@
 
   el('bkForm').addEventListener('submit', function (ev) {
     ev.preventDefault();
-    if (!chosenSlot) return;
+    if (preview || !chosenSlot) return;
     var go = el('bkGo'), was = go.textContent;
     go.disabled = true; go.textContent = 'Booking...';
     el('bkErr').hidden = true;
