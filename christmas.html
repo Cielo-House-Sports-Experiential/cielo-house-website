@@ -143,6 +143,8 @@
       <label class="xm-field" id="xmOtherWrap" hidden><span>If other, please tell us</span><input type="text" id="xmOther" name="event_type_other"></label>
      </div>
 
+     <label class="xm-field is-wide"><span>Budget</span><input type="text" id="xmBudget" name="budget"></label>
+
      <label class="xm-field is-wide"><span>Type of venue you like</span><textarea id="xmVenueLikes" name="venue_likes" rows="3"></textarea></label>
      <label class="xm-field is-wide"><span>Venues you don't like</span><textarea id="xmVenueDislikes" name="venue_dislikes" rows="3"></textarea></label>
      <label class="xm-field is-wide"><span>Must haves</span><textarea id="xmMustHaves" name="must_haves" rows="3"></textarea></label>
@@ -301,6 +303,7 @@
         venue_dislikes: el('xmVenueDislikes').value.trim(),
         must_haves: el('xmMustHaves').value.trim(),
         steer_clear: el('xmSteerClear').value.trim(),
+        budget: el('xmBudget').value.trim(),
         details: el('xmDetails').value.trim(),
         demographics: el('xmDemo').value.trim(),
         anything_else: el('xmElse').value.trim(),
