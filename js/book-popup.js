@@ -85,14 +85,20 @@
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
   window.addEventListener('resize', function () { if (box && !box.hidden) fit(); });
 
-  /* Every Schedule a Briefing Call on the site, however its address is written:
-     contact.html#discovery-call, ../contact.html#discovery-call, or the full
-     https address. Bound to the document, so it also catches anything a page
-     draws after it has loaded. */
+  /* Every Schedule a Briefing Call points at the booking page itself, so that is
+     what is caught here, however the address is written. A link to the contact
+     page is left alone and simply opens the contact page.
+
+     Catching the real address rather than a hash means the link is honest: open
+     it in a new tab, or follow it out of an email, and it still lands on the
+     booking page. The popup is a nicety on top, not the only way in. */
   document.addEventListener('click', function (e) {
     var a = e.target.closest ? e.target.closest('a[href]') : null;
     if (!a) return;
-    if (!/contact\.html#discovery-call$/.test(a.getAttribute('href') || '')) return;
+    if (!/(^|\/)book\/briefing-call\/?$/.test((a.getAttribute('href') || '').split('?')[0])) return;
+    /* A new tab or a right click means they want the page itself. */
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+    if ((a.getAttribute('target') || '') === '_blank') return;
     e.preventDefault();
     open();
   });
