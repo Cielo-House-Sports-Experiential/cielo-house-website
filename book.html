@@ -7,11 +7,14 @@
  <meta name="description" content="Pick a time with Cielo House. Choose from the times that are genuinely free and the meeting request comes straight to your inbox." />
  <meta name="robots" content="noindex" />
  <!-- SHOWN INSIDE THE BOOKING POPUP.
-      When this page is opened over another page the footer is not wanted, so
-      it comes off. Marked before anything is drawn so it never flashes up and
-      then disappears. Visiting /book/briefing-call on its own is unchanged. -->
+      Opened over another page, the menu and the footer are not wanted: somebody
+      booking is already on the site and does not need taking off it. Both come
+      off, and the space the menu held goes with them. Marked before anything is
+      drawn so nothing flashes up and then disappears. Visiting
+      /book/briefing-call on its own is unchanged. -->
  <script>if(window.self!==window.top){document.documentElement.className+=' ch-embed';}</script>
- <style>html.ch-embed .footer{display:none!important;}</style>
+ <style>html.ch-embed .nav,html.ch-embed .footer{display:none!important;}
+ html.ch-embed body{padding-top:0!important;}</style>
  <link rel="preconnect" href="https://fonts.googleapis.com" />
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />

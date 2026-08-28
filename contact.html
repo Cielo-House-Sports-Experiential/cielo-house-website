@@ -417,10 +417,13 @@
    if (cal && form) {
      cal.addEventListener('click', function () {
        var f = collect();
-       if (!validate(f)) return;
-       // The brief still goes, then our own booking page opens over this one.
-       sendToPortal(f, 'Briefing Call').catch(function () {});
-       sendBrief(f, 'Briefing Call Scheduled').catch(function () {});
+       /* The booking page asks for their name and email itself, so this button
+          never stops anybody. If the enquiry above happens to be filled in, the
+          brief goes with it. If it is not, they simply book. */
+       if (f.email && f.message) {
+         sendToPortal(f, 'Briefing Call').catch(function () {});
+         sendBrief(f, 'Briefing Call Scheduled').catch(function () {});
+       }
        /* The popup lives in js/book-popup.js, shared with every other
           Schedule a Briefing Call on the site. */
        if (window.chOpenBooking) window.chOpenBooking();
