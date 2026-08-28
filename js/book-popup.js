@@ -20,12 +20,12 @@
       '#chBookBox{position:fixed;inset:0;background:rgba(43,49,123,.6);z-index:2000;'
       + 'display:flex;align-items:flex-start;justify-content:center;padding:3vh 1rem;}'
       + '#chBookBox[hidden]{display:none;}'
-      + '#chBookCard{position:relative;width:min(920px,100%);height:94vh;background:#fff;'
-      + 'border-radius:2px;box-shadow:0 8px 40px rgba(43,49,123,.35);overflow:hidden;}'
+      + '#chBookCard{position:relative;width:min(860px,94vw);height:auto;max-height:92vh;'
+      + 'background:#fff;border-radius:2px;box-shadow:0 8px 40px rgba(43,49,123,.35);overflow:hidden;}'
       + '#chBookClose{position:absolute;top:10px;right:12px;z-index:2;border:0;background:#fff;'
       + 'color:#2B317B;font-family:inherit;font-size:.8rem;letter-spacing:.08em;'
       + 'text-transform:uppercase;padding:8px 12px;cursor:pointer;}'
-      + '#chBookFrame{width:100%;height:100%;border:0;display:block;}';
+      + '#chBookFrame{width:100%;height:520px;border:0;display:block;}';
     document.head.appendChild(css);
 
     box = document.createElement('div');
@@ -44,12 +44,36 @@
     box.addEventListener('click', function (e) { if (e.target === box) close(); });
   }
 
+  /* THE BOX IS THE SIZE OF WHAT IS IN IT.
+     The booking page is ours and on the same address, so its height can simply
+     be read and the box set to it. Picking a day adds the times beside the
+     calendar and makes it taller, so it is watched rather than measured once.
+     It never grows past the screen, and only then does it scroll. */
+  function fit() {
+    if (!frame) return;
+    var d;
+    try { d = frame.contentDocument; } catch (e) { return; }
+    if (!d || !d.body) return;
+    var h = Math.max(d.body.scrollHeight, d.documentElement.scrollHeight);
+    var cap = Math.round(window.innerHeight * 0.92) - 8;
+    frame.style.height = Math.min(h, cap) + 'px';
+  }
+
   function open() {
     build();
     /* Loaded only when asked for, so no page carries it on every visit. */
     frame.src = URL_BOOK;
     box.hidden = false;
     document.body.style.overflow = 'hidden';
+    frame.addEventListener('load', function () {
+      fit();
+      try {
+        var d = frame.contentDocument;
+        if (window.ResizeObserver && d && d.body) {
+          new ResizeObserver(fit).observe(d.body);
+        }
+      } catch (e) { }
+    }, { once: true });
   }
   function close() {
     if (!box) return;
@@ -59,6 +83,7 @@
   }
 
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+  window.addEventListener('resize', function () { if (box && !box.hidden) fit(); });
 
   /* Every Schedule a Briefing Call on the site, however its address is written:
      contact.html#discovery-call, ../contact.html#discovery-call, or the full

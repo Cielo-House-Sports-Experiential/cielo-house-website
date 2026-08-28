@@ -14,7 +14,11 @@
       /book/briefing-call on its own is unchanged. -->
  <script>if(window.self!==window.top){document.documentElement.className+=' ch-embed';}</script>
  <style>html.ch-embed .nav,html.ch-embed .footer{display:none!important;}
- html.ch-embed body{padding-top:0!important;}</style>
+ html.ch-embed body{padding-top:0!important;}
+ /* The 9rem at the top is there to clear the fixed menu. The menu is not here,
+    so neither is the gap. This is most of why the popup had to be so tall. */
+ html.ch-embed .bk-wrap{padding:1.75rem 1.5rem 2rem!important;}
+ html.ch-embed .bk-title{margin-top:0;}</style>
  <link rel="preconnect" href="https://fonts.googleapis.com" />
  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
