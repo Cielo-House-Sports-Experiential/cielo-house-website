@@ -179,7 +179,8 @@
      <div class="bk-fields">
       <label class="bk-field"><span>Your name</span><input type="text" id="bkName" name="name" required></label>
       <label class="bk-field"><span>Email</span><input type="email" id="bkEmail" name="email" required></label>
-      <label class="bk-field is-wide" id="bkCompanyWrap"><span>Company</span><input type="text" id="bkCompany" name="company" required></label>
+      <label class="bk-field" id="bkCompanyWrap"><span>Company</span><input type="text" id="bkCompany" name="company" required></label>
+      <label class="bk-field" id="bkPhoneWrap"><span>Phone</span><input type="tel" id="bkPhone" name="phone" required></label>
      </div>
      <div class="bk-fields" id="bkQs"></div>
      <div class="bk-hp"><label>Company website<input type="text" id="bkHp" name="company_website" tabindex="-1" autocomplete="off"></label></div>
@@ -385,15 +386,22 @@
     });
   }
 
-  /* Britt, 29.08.26: a Quick Catch Up does not ask for a company. Named here by
-     the one meeting she asked for, so no other meeting is changed. */
-  var NO_COMPANY = (slug === 'quick-catch-up');
-  if (NO_COMPANY) {
-    var _cw = el('bkCompanyWrap');
-    if (_cw) { _cw.hidden = true; }
-    var _ci = el('bkCompany');
-    if (_ci) { _ci.required = false; _ci.value = ''; }
+  /* WHAT THIS MEETING ASKS FOR. Britt, 29.08.26: each meeting type ticks the
+     details it wants, and only those are shown and only those are needed. Name
+     and email are on every meeting, because the request cannot be sent without
+     them. Anything not asked for is hidden and sent empty, never half filled in
+     and ignored. */
+  var ASK = ['name', 'email', 'company'];
+  function drawAsk() {
+    [['company', 'bkCompanyWrap', 'bkCompany'], ['phone', 'bkPhoneWrap', 'bkPhone']]
+      .forEach(function (f) {
+        var on = ASK.indexOf(f[0]) >= 0;
+        var wrap = el(f[1]), input = el(f[2]);
+        if (wrap) wrap.hidden = !on;
+        if (input) { input.required = on; if (!on) input.value = ''; }
+      });
   }
+  drawAsk();
 
   function load() {
     if (!slug) { fatal('This link is missing the name of the meeting.'); return; }
@@ -407,6 +415,8 @@
         el('bkTitle').textContent = type.name;
         el('bkMeta').textContent = type.minutes + ' minutes, AEST'
           + (type.location ? ', ' + type.location : '');
+        if (Array.isArray(type.ask) && type.ask.length) ASK = type.ask;
+        drawAsk();
         drawQuestions();
         return fetch(API + '/availability?slug=' + encodeURIComponent(slug) + q);
       })
@@ -568,7 +578,8 @@
       body: JSON.stringify({
         slug: slug, start: chosenSlot.start,
         name: el('bkName').value.trim(), email: el('bkEmail').value.trim(),
-        company: NO_COMPANY ? '' : el('bkCompany').value.trim(),
+        company: ASK.indexOf('company') >= 0 ? el('bkCompany').value.trim() : '',
+        phone: ASK.indexOf('phone') >= 0 ? el('bkPhone').value.trim() : '',
         answers: answers, c: fromCrm,
         company_website: el('bkHp').value
       })
