@@ -169,7 +169,12 @@ function chBlogToday(){ return new Date(Date.now()+(10*3600*1000)).toISOString()
  const SUPABASE_URL = 'https://nkabuhbkuzcxajzrlenj.supabase.co';
  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rYWJ1aGJrdXpjeGFqenJsZW5qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzMwODQsImV4cCI6MjA4OTAwOTA4NH0.XsqejRlI7Cf_yu0Q6zOGAmBzWJKPeTZbIevjJ-3nWvo';
  const params = new URLSearchParams(location.search);
- const slug = params.get('slug');
+ /* A clean link (/blog/<slug>) is rewritten to this page on the server, but
+    the browser keeps the clean address, so the slug is read from the path
+    when it is not in the query. 01.11.26: the November EDM's blog links all
+    showed "Article not found" because only the query was read. */
+ const _pathSlug = (location.pathname.match(/^\/blog\/([^\/]+?)\/?$/) || [])[1];
+ const slug = params.get('slug') || (_pathSlug && _pathSlug !== 'post.html' && _pathSlug !== 'post' ? decodeURIComponent(_pathSlug) : null);
  const preview = params.get('preview');
  const esc = s => (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
