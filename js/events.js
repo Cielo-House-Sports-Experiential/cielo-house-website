@@ -60,14 +60,15 @@ function loadEvents() {
   /* No `visible` filter. The dashboard has no show/hide toggle for events, so
      nothing ever sets that flag — filtering on it hid the whole calendar the
      moment any save recreated the rows with the column default (false). */
-  /* Britt, 23.11.26: an event never shows on the website until it has an image. */
+  /* Britt, 23.11.26: an event shows only when its toggle on Website > Home Page is ON
+     and it has an image. The toggle is the switch; off means off. */
   /* Today in Britt's time, which is ten hours ahead of UTC, so an event never
      drops off the calendar early or hangs about a day too long. */
   var today = new Date(Date.now() + (10 * 3600 * 1000)).toISOString().slice(0, 10);
   /* The whole list comes back in date order, then the four that are still to
      come are taken off the front. An event that is running right now counts as
      still to come until the day it finishes. */
-  fetch(EVENTS_SB + '/rest/v1/site_events?select=title,location,start_date,end_date,photo&photo=not.is.null&photo=neq.&order=start_date.asc', { headers: { apikey: EVENTS_SK, Authorization: 'Bearer ' + EVENTS_SK } })
+  fetch(EVENTS_SB + '/rest/v1/site_events?select=title,location,start_date,end_date,photo&visible=is.true&photo=not.is.null&photo=neq.&order=start_date.asc', { headers: { apikey: EVENTS_SK, Authorization: 'Bearer ' + EVENTS_SK } })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (rows) {
       if (rows === null) { renderEvents(FALLBACK_EVENTS.slice(0, 4)); return; } // fetch failed — show fallback
